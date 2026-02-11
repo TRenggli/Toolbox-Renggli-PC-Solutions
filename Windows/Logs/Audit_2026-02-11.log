@@ -1,0 +1,66 @@
+[ 0:14:24,75] --- INICIO DE SESION: RenggliPC --- 
+[ 0:14:24,75] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:14:33,54] Perfil seleccionado: DIAGNOSTICO 
+[ 0:15:03,46] Winget bloqueado: modo diagnostico 
+[ 0:15:09,98] Intento de acceso a modulo MAS bloqueado (version corporate) 
+[ 0:16:03,18] --- INICIO DE SESION: RenggliPC --- 
+[ 0:16:03,18] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:16:06,85] Perfil seleccionado: REPARACION 
+[ 0:16:38,48] --- INICIO DE SESION: RenggliPC --- 
+[ 0:16:38,48] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:30:54,31] --- INICIO DE SESION: RenggliPC --- 
+[ 0:30:54,33] Acceso denegado: Privilegios insuficientes 
+[ 0:31:00,31] --- INICIO DE SESION: RenggliPC --- 
+[ 0:31:00,32] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:31:03,60] Perfil seleccionado: DIAGNOSTICO 
+[ 0:31:20,86] Winget bloqueado: modo diagnostico 
+[ 0:31:22,99] Intento de acceso a modulo MAS bloqueado (version corporate) 
+[ 0:31:27,29] Intento de acceso a modulo MAS bloqueado (version corporate) 
+[ 0:31:29,19] Intento de acceso a modulo MAS bloqueado (version corporate) 
+[ 0:31:40,01] --- INICIO DE SESION: RenggliPC --- 
+[ 0:31:43,13] Perfil seleccionado: DIAGNOSTICO 
+[ 0:31:54,80] Perfil seleccionado: ADMINISTRACION 
+[ 0:35:45,27] --- INICIO DE SESION: RenggliPC --- 
+[ 0:35:45,27] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:35:49,00] Perfil seleccionado: DIAGNOSTICO 
+[ 0:36:00,69] Ejecutada Consulta de BIOS/Motherboard 
+[] Opcion 4 no valida. 
+[ 0:36:57,40] Test de velocidad: 1,9 Mbps 
+[] Opcion 7 no valida. 
+[ 0:37:08,52] Ejecutada consulta de recursos del sistema 
+[ 0:44:18,03] --- INICIO DE SESION: RenggliPC --- 
+[ 0:44:18,03] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 0:44:32,19] Perfil seleccionado: ADMINISTRACION 
+[ 8:31:06,83] --- INICIO DE SESION: Renggli --- 
+[ 8:31:06,83] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 8:31:11,35] Perfil seleccionado: DIAGNOSTICO 
+[ 8:31:16,19] Ejecutada Auditoria SMART 
+[] Opcion 1 no valida. 
+[ 8:31:29,89] Lanzado diagnostico de RAM (mdsched) 
+[] Opcion 2 no valida. 
+[ 8:32:03,64] Ejecutada consulta de recursos del sistema 
+[] Opcion 3 no valida. 
+[ 8:32:17,62] Ejecutada Consulta de BIOS/Motherboard 
+[] Opcion 4 no valida. 
+[ 8:32:26,06] Auditoria DNS/Puertos 
+[] Opcion 5 no valida. 
+[ 8:32:56,39] Consultado estado de Windows Update 
+[] Opcion 6 no valida. 
+[ 8:33:55,86] Test de velocidad: 1,88 Mbps 
+[] Opcion 7 no valida. 
+[ 8:41:20,93] Reporte de bateria generado 
+[] Opcion 8 no valida. 
+[ 8:41:32,90] --- FIN DE SESION --- 
+[CHECKSUM SHA256]  
+[ 8:42:34,18] --- INICIO DE SESION: Renggli --- 
+[ 8:42:36,90] Perfil seleccionado: ADMINISTRACION 
+[ 8:42:44,74] Acceso a modulo de activacion MAS 
+[ 8:42:44,76] Ejecutando MAS (Microsoft Activation Scripts) 
+[ 8:42:47,25] Retorno desde MAS al menu principal 
+[] Opcion 13 no valida. 
+[ 9:37:51,33] --- INICIO DE SESION: Renggli --- 
+[ 9:37:51,33] VERSION: CORPORATE (SIN MODULO MAS) 
+[ 9:37:58,14] Perfil seleccionado: ADMINISTRACION 
+[ 9:38:37,14] Reporte de bateria no disponible 
+[ 9:38:51,35] Lanzado diagnostico de RAM (mdsched) 
+[ 9:39:08,68] Iniciando DISM 
