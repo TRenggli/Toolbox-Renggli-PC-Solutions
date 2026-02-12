@@ -148,17 +148,14 @@ main_menu() {
         echo "   19. Montaje de Particiones       24. Usuarios y Permisos          29. Reporte Batería"
         echo "   20. Espacio en Disco             25. Monitoreo en Tiempo Real     30. Verificar Integridad"
         echo ""
-        echo "   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER"
-        echo "   [02] SALIR SIN LOG"
+        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE"
         echo "=============================================================================================================="
         echo -e "${NC}"
         read -p "=> Selecciona una opcion: " choice
 
         case $choice in
-            0) exit_script ;;
-            00) generate_report ; exit_script ;;
-            01) generate_report ;;
-            02) exit_no_log ;;
+            0) generate_report ; exit_script ;;
+            00) exit_script ;;
             1) mod_smart ;;
             2) mod_hardware ;;
             3) mod_memory ;;

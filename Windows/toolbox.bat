@@ -96,17 +96,15 @@ echo    1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Tes
 echo    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
 echo    3. Info de Recursos del Sistema  6. Estado de Windows Update
 echo.
-echo    [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-echo    [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
 set "choice="
 set /p "choice=> Selecciona una opcion: "
 
-if "%choice%"=="0"  goto :EXIT_SCRIPT
-if "%choice%"=="00" (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="01" (call :GENERATE_REPORT & goto :MAIN_MENU)
-if "%choice%"=="02" goto :EXIT_NO_LOG
+if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
+if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -135,17 +133,15 @@ echo    2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Tes
 echo    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
 echo    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
 echo.
-echo    [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-echo    [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
 set "choice="
 set /p "choice=> Selecciona una opcion: "
 
-if "%choice%"=="0"  goto :EXIT_SCRIPT
-if "%choice%"=="00" (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="01" (call :GENERATE_REPORT & goto :MAIN_MENU)
-if "%choice%"=="02" goto :EXIT_NO_LOG
+if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
+if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -181,17 +177,15 @@ echo    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTO
 echo    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
 echo    11. Conversion MBR a GPT         13. ACTIVACION MASTER (MAS)      15. Reporte de Bateria
 echo.
-echo    [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-echo    [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
 set "choice="
 set /p "choice=> Selecciona una opcion: "
 
-if "%choice%"=="0"  goto :EXIT_SCRIPT
-if "%choice%"=="00" (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="01" (call :GENERATE_REPORT & goto :MAIN_MENU)
-if "%choice%"=="02" goto :EXIT_NO_LOG
+if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
+if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_BIOS & goto :MAIN_MENU)
