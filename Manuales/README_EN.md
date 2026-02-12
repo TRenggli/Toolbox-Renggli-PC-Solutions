@@ -141,8 +141,8 @@ After selecting the profile, you'll see the specific menu for that profile:
    2. RAM Test (mdsched)            5. Ports/DNS Audit               8. Battery Report
    3. System Resources Info         6. Windows Update Status
 
-   [0] EXIT WITHOUT REPORT          [00] REPORT AND EXIT             [01] REPORT AND RETURN
-   [02] EXIT WITHOUT LOG            [99] CHANGE PROFILE
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [99] CHANGE PROFILE
 ==============================================================================================================
 
 => Select an option:
@@ -162,8 +162,8 @@ After selecting the profile, you'll see the specific menu for that profile:
    3. BIOS & Motherboard Info       7. EMMC/Temp Cleanup            11. Update Apps (Winget)
    4. Battery Report                8. Ports/DNS Audit              12. Scheduled Shutdown
 
-   [0] EXIT WITHOUT REPORT          [00] REPORT AND EXIT             [01] REPORT AND RETURN
-   [02] EXIT WITHOUT LOG            [99] CHANGE PROFILE
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [99] CHANGE PROFILE
 ==============================================================================================================
 
 => Select an option:
@@ -186,8 +186,8 @@ After selecting the profile, you'll see the specific menu for that profile:
    10. Secure Format (Audited)      12. Update Apps (Winget)         14. Scheduled Shutdown
    11. MBR to GPT Conversion        13. Activate Windows (MAS)       15. Battery Report
 
-   [0] EXIT WITHOUT REPORT          [00] REPORT AND EXIT             [01] REPORT AND RETURN
-   [02] EXIT WITHOUT LOG            [99] CHANGE PROFILE
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [99] CHANGE PROFILE
 ==============================================================================================================
 
 => Select an option:
@@ -208,14 +208,12 @@ After selecting the profile, you'll see the specific menu for that profile:
 ### Step 6: Exit and View Logs
 
 **To exit:**
-- Type **0** to exit without report (log + checksum are saved)
-- Type **00** to generate report and exit
-- Type **01** to generate report and return to the menu
-- Type **02** to exit without log (deletes the session log)
+- Type **0** to generate HTML report and exit
+- Type **00** to exit without generating report (log + checksum are saved)
 
-**To generate HTML report:**
-- Type **00** before exiting
-- An HTML file will be created in the `Logs/` folder
+**About the HTML report:**
+- Option **0** automatically generates an HTML file in the `Logs/` folder
+- The report includes all system information and operation logs
 - It will open automatically in your browser
 
 ---
@@ -387,8 +385,7 @@ You'll see a menu with **30 options** organized in categories:
    19. Partition Mounting           24. Users & Permissions          29. Battery Report
    20. Disk Space                   25. Real-Time Monitoring         30. Verify Integrity
 
-   [0] EXIT WITHOUT REPORT          [00] REPORT AND EXIT             [01] REPORT AND RETURN
-   [02] EXIT WITHOUT LOG
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
 ==============================================================================================================
 ```
 
@@ -401,14 +398,12 @@ You'll see a menu with **30 options** organized in categories:
 ### Step 7: Exit
 
 **To exit:**
-- Type **0** to exit without report (log + checksum are saved)
-- Type **00** to generate report and exit
-- Type **01** to generate report and return to the menu
-- Type **02** to exit without log (deletes the session log)
+- Type **0** to generate HTML report and exit
+- Type **00** to exit without generating report (log + checksum are saved)
 
-**To generate HTML report:**
-- Use **00** to generate and exit
-- Use **01** to generate and continue
+**About the HTML report:**
+- Option **0** automatically generates an HTML file
+- The report includes all system information and operation logs
 
 ---
 
