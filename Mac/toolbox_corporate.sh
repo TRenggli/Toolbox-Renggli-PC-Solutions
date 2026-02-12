@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# RENGGLI PC SOLUTIONS - Enterprise Toolbox V14 CORPORATE - Linux Edition
+# RENGGLI PC SOLUTIONS - Enterprise Toolbox V14 CORPORATE - macOS Edition
 # ==============================================================================
 
 set -e
@@ -44,7 +44,7 @@ check_root() {
 profile_select() {
     clear
     echo -e "${CYAN}=============================================================================================================="
-    echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
+    echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (macOS)"
     echo "=============================================================================================================="
     echo "Log Actual: $LOG_FILE"
     echo ""
@@ -71,7 +71,7 @@ main_menu() {
     while true; do
         clear
         echo -e "${CYAN}=============================================================================================================="
-        echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
+        echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (macOS)"
         echo "=============================================================================================================="
         echo "Log Actual: $LOG_FILE"
         case $PROFILE_MODE in
@@ -134,7 +134,7 @@ mod_disk_status() {
     echo ""
     echo "[i] Estado de discos y particiones:"
     echo ""
-    lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE
+    diskutil list
     echo ""
     df -h
     echo ""
@@ -149,14 +149,18 @@ mod_hardware_info() {
     echo "[INFO DE HARDWARE]"
     echo "=============================================================================="
     echo ""
-    echo "[i] Informacion del procesador:"
-    lscpu | grep -E "Model name|CPU\(s\)|Architecture"
+    echo "[i] Informacion de hardware:"
+    system_profiler SPHardwareDataType 2>/dev/null | sed -n '1,12p'
+    echo ""
+    echo "[i] CPU:"
+    sysctl -n machdep.cpu.brand_string 2>/dev/null || sysctl -n hw.model
+    echo "[i] Cores: $(sysctl -n hw.ncpu)"
     echo ""
     echo "[i] Memoria RAM:"
-    free -h
+    sysctl -n hw.memsize | awk '{printf "%.2f GB\n", $1/1024/1024/1024}'
     echo ""
-    echo "[i] Dispositivos PCI:"
-    lspci | head -10
+    echo "[i] Dispositivos PCI (si aplica):"
+    system_profiler SPPCIDataType 2>/dev/null | sed -n '1,20p'
     echo ""
     echo "[$(date +%H:%M:%S)] Consulta de hardware ejecutada" >> "$LOG_FILE"
     read -p "Presiona Enter para continuar..."
@@ -169,9 +173,9 @@ mod_memory_test() {
     echo "=============================================================================="
     echo ""
     echo "[i] Informacion de memoria actual:"
-    free -h
+    vm_stat
     echo ""
-    echo "[i] Para test completo de RAM, ejecute: memtest86+"
+    echo "[i] Para un test completo, use Apple Diagnostics (mantener D al iniciar)"
     echo "[$(date +%H:%M:%S)] Consulta de memoria ejecutada" >> "$LOG_FILE"
     read -p "Presiona Enter para continuar..."
 }
@@ -183,11 +187,9 @@ mod_system_info() {
     echo "=============================================================================="
     echo ""
     echo "[i] Sistema Operativo:"
-    uname -a
+    sw_vers
     echo ""
-    if [ -f /etc/os-release ]; then
-        cat /etc/os-release | grep -E "PRETTY_NAME|VERSION"
-    fi
+    uname -a
     echo ""
     echo "[i] Uptime del sistema:"
     uptime
@@ -222,10 +224,14 @@ mod_clean_cache() {
     echo ""
     echo "[i] Limpiando cache del sistema..."
     sync
-    echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || echo "[!] Requiere permisos root"
+    if command -v purge &> /dev/null; then
+        purge || true
+    else
+        echo "[i] purge no disponible en esta version de macOS"
+    fi
     echo ""
     echo "[i] Limpiando archivos temporales..."
-    rm -rf /tmp/* 2>/dev/null
+    rm -rf /tmp/* /var/tmp/* 2>/dev/null
     echo ""
     echo "[OK] Limpieza completada"
     echo "[$(date +%H:%M:%S)] Limpieza de cache ejecutada" >> "$LOG_FILE"
@@ -252,10 +258,13 @@ mod_network_info() {
     echo "=============================================================================="
     echo ""
     echo "[i] Interfaces de red:"
-    ip addr show
+    ifconfig
+    echo ""
+    echo "[i] Hardware ports:"
+    networksetup -listallhardwareports
     echo ""
     echo "[i] Tabla de rutas:"
-    ip route
+    netstat -rn
     echo ""
     echo "[$(date +%H:%M:%S)] Consulta de red ejecutada" >> "$LOG_FILE"
     read -p "Presiona Enter para continuar..."
@@ -267,7 +276,11 @@ mod_ports() {
     echo "[PUERTOS EN ESCUCHA]"
     echo "=============================================================================="
     echo ""
-    netstat -tuln || ss -tuln
+    if command -v lsof &> /dev/null; then
+        lsof -nP -iTCP -sTCP:LISTEN
+    else
+        netstat -anv | grep LISTEN
+    fi
     echo ""
     echo "[$(date +%H:%M:%S)] Consulta de puertos ejecutada" >> "$LOG_FILE"
     read -p "Presiona Enter para continuar..."
@@ -286,18 +299,11 @@ mod_update_system() {
     echo "=============================================================================="
     echo ""
 
-    # Detectar distribucion
-    if command -v apt &> /dev/null; then
-        echo "[i] Actualizando sistema (Debian/Ubuntu)..."
-        apt update && apt upgrade -y
-    elif command -v dnf &> /dev/null; then
-        echo "[i] Actualizando sistema (Fedora/RHEL)..."
-        dnf update -y
-    elif command -v pacman &> /dev/null; then
-        echo "[i] Actualizando sistema (Arch)..."
-        pacman -Syu --noconfirm
+    if command -v softwareupdate &> /dev/null; then
+        echo "[i] Actualizando macOS..."
+        softwareupdate -ia --verbose
     else
-        echo "[!] Sistema de paquetes no detectado"
+        echo "[!] softwareupdate no disponible"
     fi
 
     echo ""
@@ -319,16 +325,12 @@ mod_clean_packages() {
     echo "=============================================================================="
     echo ""
 
-    # Detectar distribucion
-    if command -v apt &> /dev/null; then
-        echo "[i] Limpiando paquetes (Debian/Ubuntu)..."
-        apt autoremove -y && apt autoclean
-    elif command -v dnf &> /dev/null; then
-        echo "[i] Limpiando paquetes (Fedora/RHEL)..."
-        dnf autoremove -y && dnf clean all
-    elif command -v pacman &> /dev/null; then
-        echo "[i] Limpiando paquetes (Arch)..."
-        pacman -Sc --noconfirm
+    if command -v brew &> /dev/null; then
+        echo "[i] Limpiando paquetes Homebrew..."
+        brew cleanup -s
+        brew autoremove 2>/dev/null || true
+    else
+        echo "[!] Homebrew no detectado"
     fi
 
     echo ""
@@ -351,7 +353,7 @@ mod_system_report() {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Reporte Renggli PC Solutions Corporate - Linux</title>
+<title>Reporte Renggli PC Solutions Corporate - macOS</title>
 <style>
 body{font-family:Consolas,monospace;background:#0a0e27;color:#00ff41;padding:20px;}
 h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
@@ -361,8 +363,8 @@ h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
 </style>
 </head>
 <body>
-<h1>RENGGLI PC SOLUTIONS - Reporte de Auditoria CORPORATE Linux</h1>
-<div class="corporate">[CORPORATE EDITION] Version Linux - Aprobada para Banca / Big Tech / Enterprise</div>
+<h1>RENGGLI PC SOLUTIONS - Reporte de Auditoria CORPORATE macOS</h1>
+<div class="corporate">[CORPORATE EDITION] Version macOS - Aprobada para Banca / Big Tech / Enterprise</div>
 <p class="meta">Fecha: $ISO_DATE</p>
 <p class="meta">Usuario: $USER</p>
 <p class="meta">Hostname: $(hostname)</p>
@@ -378,9 +380,7 @@ EOF
     echo "[$(date +%H:%M:%S)] Reporte HTML CORPORATE generado" >> "$LOG_FILE"
 
     # Intentar abrir reporte
-    if command -v xdg-open &> /dev/null; then
-        xdg-open "$REPORT_FILE" 2>/dev/null &
-    fi
+    open "$REPORT_FILE" 2>/dev/null &
 
     read -p "Presiona Enter para continuar..."
 }
@@ -392,10 +392,10 @@ mod_processes() {
     echo "=============================================================================="
     echo ""
     echo "[i] Top 10 procesos por uso de CPU:"
-    ps aux --sort=-%cpu | head -11
+    ps -A -o %cpu,pid,comm | sort -nr | head -11
     echo ""
     echo "[i] Top 10 procesos por uso de memoria:"
-    ps aux --sort=-%mem | head -11
+    ps -A -o %mem,pid,comm | sort -nr | head -11
     echo ""
     echo "[$(date +%H:%M:%S)] Consulta de procesos ejecutada" >> "$LOG_FILE"
     read -p "Presiona Enter para continuar..."

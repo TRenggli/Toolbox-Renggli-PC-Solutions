@@ -623,12 +623,16 @@ mod_speed_test() {
     echo ""
 
     if ! command -v speedtest-cli &> /dev/null; then
-        echo "[i] Instalando speedtest-cli..."
-        case $PKG_MANAGER in
-            apt) apt install -y speedtest-cli ;;
-            dnf|yum) $PKG_MANAGER install -y speedtest-cli ;;
-            pacman) pacman -S --noconfirm speedtest-cli ;;
-        esac
+        echo "[i] speedtest-cli no esta instalado."
+        read -p "Instalar speedtest-cli? (S/N): " install_speedtest
+        if [[ "$install_speedtest" =~ ^[Ss]$ ]]; then
+            echo "[i] Instalando speedtest-cli..."
+            case $PKG_MANAGER in
+                apt) apt install -y speedtest-cli ;;
+                dnf|yum) $PKG_MANAGER install -y speedtest-cli ;;
+                pacman) pacman -S --noconfirm speedtest-cli ;;
+            esac
+        fi
     fi
 
     if command -v speedtest-cli &> /dev/null; then

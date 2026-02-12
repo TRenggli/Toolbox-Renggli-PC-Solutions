@@ -348,7 +348,7 @@ if errorlevel 1 (
 )
 echo  [i] Midiendo latencia y descarga...
 echo.
-for /f "delims=" %%i in ('powershell -Command "$s = Get-Date; try { $p = Test-Connection 8.8.8.8 -Count 2 -Quiet; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('http://speedtest.tele2.net/10MB.zip', 'test.tmp'); $e = Get-Date; $sp = [Math]::Round((10/($e-$s).TotalSeconds)*8,2); Write-Output $sp; Remove-Item 'test.tmp' -ErrorAction SilentlyContinue } catch { Write-Output 'ERROR' }"') do set "speed=%%i"
+for /f "delims=" %%i in ('powershell -Command "$s = Get-Date; try { $p = Test-Connection 8.8.8.8 -Count 2 -Quiet; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('https://speedtest.tele2.net/10MB.zip', 'test.tmp'); $e = Get-Date; $sp = [Math]::Round((10/($e-$s).TotalSeconds)*8,2); Write-Output $sp; Remove-Item 'test.tmp' -ErrorAction SilentlyContinue } catch { Write-Output 'ERROR' }"') do set "speed=%%i"
 if "%speed%"=="ERROR" (
     echo.
     echo  [!] Error al medir velocidad de red
