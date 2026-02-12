@@ -1,6 +1,6 @@
 # HISTORIAL DE CAMBIOS
 
-## 2026-02-12 (Actualizacion 3)
+## 2026-02-12 (Actualización 3)
 
 ### Simplificación de Opciones de Salida
 - **Cambio Principal**: Se simplificaron las opciones de salida de 4 a 2 opciones en todas las herramientas:
@@ -42,14 +42,14 @@
 
 ---
 
-## 2026-02-11 (Actualizacion 2)
+## 2026-02-11 (Actualización 2)
 
-### Confirmacion de Modulos (Windows)
+### Confirmación de Módulos (Windows)
 - Se agrego funcion MODULE_CONFIRM que muestra descripcion + advertencia antes de cada modulo.
 - Los modulos ahora requieren confirmacion S/N antes de ejecutarse.
 - Se incluyeron advertencias contextuales: "No interrumpir", "Guarda tu trabajo", "Operacion irreversible", etc.
 
-### Deteccion de Tareas de Apagado Existentes
+### Detección de Tareas de Apagado Existentes
 - **Windows**: Nueva funcion CHECK_EXISTING_SHUTDOWN_TASK que detecta tareas del Programador con accion de apagado (independiente del nombre).
 - **Linux**: Nueva funcion check_existing_cron_shutdown que detecta entradas cron con "shutdown" en /etc/cron.d, cron.daily, cron.weekly.
 - **Mac**: Nueva funcion check_existing_launchd_shutdown que detecta plists con "shutdown" en LaunchDaemons/LaunchAgents.
@@ -62,7 +62,7 @@
 
 ---
 
-## 2026-02-11 (Actualizacion 1)
+## 2026-02-11 (Actualización 1)
 
 - Se corrigio el retorno a menus para evitar mensajes de opcion invalida despues de ejecutar un modulo.
 - Se agregaron mini explicaciones al entrar a cada menu, con avisos segun perfil.
