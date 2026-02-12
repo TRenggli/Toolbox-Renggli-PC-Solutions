@@ -94,17 +94,14 @@ main_menu() {
         echo "   11. Limpiar Paquetes             13. Info de Procesos"
         echo "                                    14. Apagado Programado"
         echo ""
-        echo "   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER"
-        echo "   [02] SALIR SIN LOG"
+        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE"
         echo "=============================================================================================================="
         echo ""
         read -p "Selecciona una opcion: " choice
 
         case $choice in
-            0) exit_script ;;
-            00) mod_system_report ; exit_script ;;
-            01) mod_system_report ;;
-            02) exit_no_log ;;
+            0) mod_system_report ; exit_script ;;
+            00) exit_script ;;
             1) mod_disk_status ;;
             2) mod_hardware_info ;;
             3) mod_memory_test ;;

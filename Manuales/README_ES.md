@@ -141,8 +141,8 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
    3. Info de Recursos del Sistema  6. Estado de Windows Update
 
-   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-   [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [99] CAMBIAR PERFIL
 ==============================================================================================================
 
 => Selecciona una opcion:
@@ -162,8 +162,8 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
 
-   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-   [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [99] CAMBIAR PERFIL
 ==============================================================================================================
 
 => Selecciona una opcion:
@@ -186,8 +186,8 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
    11. Conversion MBR a GPT         13. ACTIVACION MASTER (MAS)      15. Reporte de Bateria
 
-   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-   [02] SALIR SIN LOG               [99] CAMBIAR PERFIL
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [99] CAMBIAR PERFIL
 ==============================================================================================================
 
 => Selecciona una opcion:
@@ -208,14 +208,12 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 ### Paso 6: Finalizar y Ver Logs
 
 **Para salir:**
-- Escribe **0** para salir sin reporte (se guarda log + checksum)
-- Escribe **00** para generar reporte y salir
-- Escribe **01** para generar reporte y volver al menú
-- Escribe **02** para salir sin log (borra el log de la sesión)
+- Escribe **0** para generar reporte HTML y salir
+- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
 
-**Para generar reporte HTML:**
-- Escribe **00** antes de salir
-- Se creará un archivo HTML en la carpeta `Logs/`
+**Sobre el reporte HTML:**
+- La opción **0** genera automáticamente un archivo HTML en la carpeta `Logs/`
+- El reporte incluye toda la información del sistema y el log de operaciones
 - Se abrirá automáticamente en tu navegador
 
 ---
@@ -387,8 +385,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
    19. Montaje de Particiones       24. Usuarios y Permisos          29. Reporte Batería
    20. Espacio en Disco             25. Monitoreo en Tiempo Real     30. Verificar Integridad
 
-   [0] SALIR SIN REPORTE            [00] REPORTE Y SALIR             [01] REPORTE Y VOLVER
-   [02] SALIR SIN LOG
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
 ==============================================================================================================
 ```
 
@@ -401,14 +398,12 @@ Verás un menú con **30 opciones** organizadas en categorías:
 ### Paso 7: Finalizar
 
 **Para salir:**
-- Escribe **0** para salir sin reporte (se guarda log + checksum)
-- Escribe **00** para generar reporte y salir
-- Escribe **01** para generar reporte y volver al menú
-- Escribe **02** para salir sin log (borra el log de la sesión)
+- Escribe **0** para generar reporte HTML y salir
+- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
 
-**Para generar reporte HTML:**
-- Usa **00** para generar y salir
-- Usa **01** para generar y continuar
+**Sobre el reporte HTML:**
+- La opción **0** genera automáticamente un archivo HTML
+- El reporte incluye toda la información del sistema y el log de operaciones
 
 ---
 
