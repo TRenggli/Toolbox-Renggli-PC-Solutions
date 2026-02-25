@@ -1,0 +1,22 @@
+[10:46:01,08] --- INICIO DE SESION: Renggli --- 
+[10:46:01,08] VERSION: CORPORATE (SIN MODULO MAS) 
+[10:46:03,54] Perfil seleccionado: ADMINISTRACION 
+[10:46:12,97] Conversion MBR- cancelada por el usuario 
+[10:46:33,09] Ejecutada Auditoria SMART 
+[10:46:49,97] Ejecutada Consulta de BIOS/Motherboard 
+[10:46:59,39] Diagnostico de RAM cancelado por el usuario 
+[10:47:21,40] Test de velocidad: ERROR DE RED 
+[10:47:30,26] Auditoria DNS/Puertos 
+[10:48:27,31] --- INICIO DE SESION: Renggli --- 
+[10:48:27,31] VERSION: CORPORATE (SIN MODULO MAS) 
+[10:48:29,72] Perfil seleccionado: ADMINISTRACION 
+[10:48:37,02] Cancelacion de apagado/tarea 
+[10:48:54,35] Apagado programado: 2 min 
+[10:49:15,82] Cancelacion de apagado/tarea 
+[10:49:50,21] Limpieza de temporales ejecutada 
+[10:50:13,53] Lanzado diagnostico de RAM (mdsched) 
+[10:55:17,09] --- INICIO DE SESION: Renggli --- 
+[10:55:17,09] VERSION: CORPORATE (SIN MODULO MAS) 
+[10:55:19,86] Perfil seleccionado: DIAGNOSTICO 
+[10:55:42,97] Ejecutada consulta de recursos del sistema 
+[10:57:16,99] Ejecutada Consulta de BIOS/Motherboard 

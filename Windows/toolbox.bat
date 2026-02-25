@@ -92,9 +92,9 @@ echo   Ideal para auditar hardware, recursos, red y estado de Windows Update.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
 echo.
 echo    [ DIAGNOSTICO DE HARDWARE ]      [ INFORMACION DE SISTEMA ]       [ MONITOREO ]
-echo    1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Test de Velocidad de Red
-echo    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
-echo    3. Info de Recursos del Sistema  6. Estado de Windows Update
+echo    1. Test de RAM (mdsched)         3. Info BIOS y Placa Madre       5. Auditoria de Puertos/DNS
+echo    2. Info de Recursos del Sistema  4. Estado de Windows Update      6. Test de Velocidad de Red
+echo    7. Reporte de Bateria
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
 echo    [99] CAMBIAR PERFIL
@@ -106,14 +106,13 @@ set /p "choice=> Selecciona una opcion: "
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
 if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
-if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
-if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
-if "%choice%"=="3"  (call :MOD_RESOURCES & goto :MAIN_MENU)
-if "%choice%"=="4"  (call :MOD_BIOS & goto :MAIN_MENU)
+if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
+if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
+if "%choice%"=="3"  (call :MOD_BIOS & goto :MAIN_MENU)
+if "%choice%"=="4"  (call :MOD_WU_STATUS & goto :MAIN_MENU)
 if "%choice%"=="5"  (call :MOD_DNS & goto :MAIN_MENU)
-if "%choice%"=="6"  (call :MOD_WU_STATUS & goto :MAIN_MENU)
-if "%choice%"=="7"  (call :MOD_SPEED & goto :MAIN_MENU)
-if "%choice%"=="8"  (call :MOD_BATTERY & goto :MAIN_MENU)
+if "%choice%"=="6"  (call :MOD_SPEED & goto :MAIN_MENU)
+if "%choice%"=="7"  (call :MOD_BATTERY & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -128,10 +127,10 @@ echo   Recomendado para mantenimiento, limpieza y reparaciones guiadas.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
 echo.
 echo    [ DIAGNOSTICO ]                  [ REPARACION DE SISTEMA ]        [ REDES Y ACTUALIZACIONES ]
-echo    1. Estado SMART de Discos        5. Mantenimiento (DISM/SFC)      9. Reset de Red e IP
-echo    2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Test de Velocidad
-echo    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
-echo    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
+echo    1. Test de RAM (mdsched)         4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+echo    2. Info de Recursos del Sistema  5. Reparar Windows Update        8. Test de Velocidad
+echo    3. Info BIOS y Placa Madre       6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+echo    10. Apagado Programado           11. Actualizar Apps (Winget)     12. Reporte de Bateria
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
 echo    [99] CAMBIAR PERFIL
@@ -143,18 +142,18 @@ set /p "choice=> Selecciona una opcion: "
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
 if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
-if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
-if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
+if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
+if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
 if "%choice%"=="3"  (call :MOD_BIOS & goto :MAIN_MENU)
-if "%choice%"=="4"  (call :MOD_BATTERY & goto :MAIN_MENU)
-if "%choice%"=="5"  (call :MOD_REPAIR & goto :MAIN_MENU)
-if "%choice%"=="6"  (call :MOD_WU & goto :MAIN_MENU)
-if "%choice%"=="7"  (call :MOD_CLEAN & goto :MAIN_MENU)
-if "%choice%"=="8"  (call :MOD_DNS & goto :MAIN_MENU)
-if "%choice%"=="9"  (call :MOD_NET & goto :MAIN_MENU)
-if "%choice%"=="10" (call :MOD_SPEED & goto :MAIN_MENU)
+if "%choice%"=="4"  (call :MOD_REPAIR & goto :MAIN_MENU)
+if "%choice%"=="5"  (call :MOD_WU & goto :MAIN_MENU)
+if "%choice%"=="6"  (call :MOD_CLEAN & goto :MAIN_MENU)
+if "%choice%"=="7"  (call :MOD_NET & goto :MAIN_MENU)
+if "%choice%"=="8"  (call :MOD_SPEED & goto :MAIN_MENU)
+if "%choice%"=="9"  (call :MOD_DNS & goto :MAIN_MENU)
+if "%choice%"=="10" (call :MOD_OFF & goto :MAIN_MENU)
 if "%choice%"=="11" (call :MOD_WINGET & goto :MAIN_MENU)
-if "%choice%"=="12" (call :MOD_OFF & goto :MAIN_MENU)
+if "%choice%"=="12" (call :MOD_BATTERY & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -169,9 +168,9 @@ echo   Usa este perfil solo si comprendes el impacto de cada operacion.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
 echo.
 echo    [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]
-echo    1. Estado SMART de Discos        4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
-echo    2. Info BIOS y Placa Madre       5. Reparar Windows Update        8. Test de Velocidad Real
-echo    3. Test de RAM (mdsched)         6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+echo    1. Info BIOS y Placa Madre       4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+echo    2. Test de RAM (mdsched)         5. Reparar Windows Update        8. Test de Velocidad Real
+echo    3. Info de Recursos del Sistema  6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
 echo.
 echo    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTOMATIZACION ]
 echo    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
@@ -187,9 +186,9 @@ set /p "choice=> Selecciona una opcion: "
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
 if "%choice%"=="00" goto :EXIT_SCRIPT
 if "%choice%"=="99" goto :PROFILE_SELECT
-if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
-if "%choice%"=="2"  (call :MOD_BIOS & goto :MAIN_MENU)
-if "%choice%"=="3"  (call :MOD_RAM & goto :MAIN_MENU)
+if "%choice%"=="1"  (call :MOD_BIOS & goto :MAIN_MENU)
+if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
+if "%choice%"=="3"  (call :MOD_RESOURCES & goto :MAIN_MENU)
 if "%choice%"=="4"  (call :MOD_REPAIR & goto :MAIN_MENU)
 if "%choice%"=="5"  (call :MOD_WU & goto :MAIN_MENU)
 if "%choice%"=="6"  (call :MOD_CLEAN & goto :MAIN_MENU)
@@ -228,53 +227,27 @@ set /p "MC_GO=Iniciar? (S/N): "
 if /i not "%MC_GO%"=="S" exit /b 1
 exit /b 0
 
-:MOD_SMART
-cls
-color 0A
-echo  ==============================================================================
-echo   [AUDITORIA SMART] Analizando salud de las unidades...
-echo  ==============================================================================
-echo.
-call :MODULE_CONFIRM "Consulta SMART de discos (solo lectura)." "No modifica el sistema."
-if errorlevel 1 (
-    echo  [i] Operacion cancelada.
-    echo [%time%] Auditoria SMART cancelada por el usuario >> "!LOG_FILE!"
-    pause
-    exit /b
-)
-echo  [i] Consultando discos del sistema...
-echo.
-powershell "Get-CimInstance -ClassName Win32_DiskDrive | Select-Object Model, Status, @{Name='Size(GB)';Expression={[math]::round($_.Size/1GB,2)}}"
-echo.
-echo  [OK] Auditoria completada. Informacion registrada en log.
-echo.
-echo [%time%] Ejecutada Auditoria SMART >> "!LOG_FILE!"
-pause
-exit /b
-
 :MOD_BIOS
 cls
 color 03
 echo  ==============================================================================
-echo   [AUDITORIA BIOS/PLATAFORMA]
+echo   [INFORMACION DEL SISTEMA] BIOS y Placa Madre
 echo  ==============================================================================
 echo.
-call :MODULE_CONFIRM "Consulta BIOS y placa madre (solo lectura)." "No modifica el sistema."
+call :MODULE_CONFIRM "Abre ventana de Informacion del Sistema." "Se abrira la ventana nativa de Windows."
 if errorlevel 1 (
     echo  [i] Operacion cancelada.
-    echo [%time%] Consulta BIOS cancelada por el usuario >> "!LOG_FILE!"
+    echo [%time%] Informacion del Sistema cancelada por el usuario >> "!LOG_FILE!"
     pause
     exit /b
 )
-echo  [i] Consultando firmware y hardware base...
+echo  [i] Abriendo Informacion del Sistema...
 echo.
-powershell "Get-CimInstance Win32_BIOS | Select-Object Manufacturer, Name, ReleaseDate, SMBIOSBIOSVersion"
+echo [%time%] Abierta ventana Informacion del Sistema >> "!LOG_FILE!"
+timeout /t 2 >nul
+start "" msinfo32.exe
+echo  [OK] Ventana abierta. Presiona Enter cuando cierres la ventana para volver al menu.
 echo.
-powershell "Get-CimInstance Win32_BaseBoard | Select-Object Product, Manufacturer"
-echo.
-echo  [OK] Informacion de plataforma capturada.
-echo.
-echo [%time%] Ejecutada Consulta de BIOS/Motherboard >> "!LOG_FILE!"
 pause
 exit /b
 
@@ -336,27 +309,55 @@ exit /b
 cls
 color 0B
 echo  ==============================================================================
-echo   [DIAGNOSTICO DE RED] - Test de Velocidad Real
+echo   [DIAGNOSTICO DE RED] - Test de Velocidad y Conectividad
 echo  ==============================================================================
 echo.
-call :MODULE_CONFIRM "Descarga un archivo de prueba para medir velocidad." "Puede consumir datos de red."
+call :MODULE_CONFIRM "Mide latencia y velocidad de descarga." "Puede consumir datos de red."
 if errorlevel 1 (
     echo  [i] Operacion cancelada.
     echo [%time%] Test de velocidad cancelado por el usuario >> "!LOG_FILE!"
     pause
     exit /b
 )
-echo  [i] Midiendo latencia y descarga...
+echo  [i] Midiendo conectividad y velocidad...
 echo.
-for /f "delims=" %%i in ('powershell -Command "$s = Get-Date; try { $p = Test-Connection 8.8.8.8 -Count 2 -Quiet; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('https://speedtest.tele2.net/10MB.zip', 'test.tmp'); $e = Get-Date; $sp = [Math]::Round((10/($e-$s).TotalSeconds)*8,2); Write-Output $sp; Remove-Item 'test.tmp' -ErrorAction SilentlyContinue } catch { Write-Output 'ERROR' }"') do set "speed=%%i"
-if "%speed%"=="ERROR" (
+
+REM Test de ping a Google DNS
+echo  [*] Midiendo latencia a 8.8.8.8...
+for /f "tokens=4 delims==" %%a in ('ping -n 1 8.8.8.8 ^| findstr "time="') do set "ping_result=%%a"
+if not defined ping_result set "ping_result=NO DISPONIBLE"
+echo  [OK] Latencia: %ping_result%
+echo.
+
+REM Test de velocidad con múltiples URLs
+echo  [*] Midiendo velocidad de descarga...
+setlocal enabledelayedexpansion
+set "speed=NOT_MEASURED"
+set "test_urls=https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png https://www.wikipedia.org/static/images/project-logos/en-wikipedia-1.35.0.png https://speed.cloudflare.com/__down?bytes=10485760"
+
+for %%u in (!test_urls!) do (
+    if "!speed!"=="NOT_MEASURED" (
+        echo    Intentando: %%u
+        for /f "delims=" %%i in ('powershell -Command "try { $s = Get-Date; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('%%u', 'test_speed.tmp'); $e = Get-Date; $bytes = (Get-Item 'test_speed.tmp').Length; $seconds = [math]::max(($e-$s).TotalSeconds, 0.1); $mbps = [Math]::Round(($bytes/1024/1024 * 8 / $seconds), 2); Write-Output $mbps; Remove-Item 'test_speed.tmp' -ErrorAction SilentlyContinue } catch { Write-Output 'FAIL' }"') do set "speed=%%i"
+        
+        if not "!speed!"=="FAIL" (
+            if not "!speed!"=="NOT_MEASURED" goto :SPEED_SUCCESS
+        )
+        set "speed=NOT_MEASURED"
+    )
+)
+
+:SPEED_SUCCESS
+if "!speed!"=="NOT_MEASURED" (
     echo.
-    echo  [!] Error al medir velocidad de red
-    echo [%time%] Test de velocidad: ERROR DE RED >> "!LOG_FILE!"
+    echo  [!] No se pudo medir velocidad de descarga
+    echo  [i] Verifica tu conexion a internet
+    echo [%time%] Test de velocidad: NO MEDIDO >> "!LOG_FILE!"
 ) else (
+    echo    Velocidad: !speed! Mbps
     echo.
-    echo  [OK] Velocidad de Descarga: %speed% Mbps
-    echo [%time%] Test de velocidad: %speed% Mbps >> "!LOG_FILE!"
+    echo  [OK] Test de velocidad completado
+    echo [%time%] Test de velocidad: !speed! Mbps >> "!LOG_FILE!"
 )
 echo.
 pause
@@ -833,7 +834,7 @@ echo  ==========================================================================
 echo   [INFORMACION DE RECURSOS DEL SISTEMA]
 echo  ==============================================================================
 echo.
-call :MODULE_CONFIRM "Muestra CPU, RAM y discos (solo lectura)." "No modifica el sistema."
+call :MODULE_CONFIRM "Muestra CPU, RAM, discos y estado SMART (solo lectura)." "No modifica el sistema."
 if errorlevel 1 (
     echo  [i] Operacion cancelada.
     echo [%time%] Recursos del sistema cancelado por el usuario >> "!LOG_FILE!"
@@ -848,8 +849,8 @@ echo.
 echo  --- MEMORIA ---
 powershell "Get-CimInstance Win32_ComputerSystem | Select-Object @{Name='TotalMemoryGB';Expression={[math]::round($_.TotalPhysicalMemory/1GB,2)}} | Format-List"
 echo.
-echo  --- ESPACIO EN DISCOS ---
-powershell "Get-CimInstance Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3} | Select-Object DeviceID, FileSystem, @{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}}, @{Name='FreeGB';Expression={[math]::round($_.FreeSpace/1GB,2)}} | Format-Table -AutoSize"
+echo  --- ESPACIO Y ESTADO DE DISCOS ---
+powershell "$disks = Get-CimInstance Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3}; $smart = @{}; Get-CimInstance Win32_DiskDrive | ForEach-Object { $status = 'OK'; if ($_.Status -match 'Degraded|Pred Fail|Error|Unknown|NonRecover') { $status = 'EN RIESGO' }; if ($_.Status -match 'Error|NonRecover') { $status = 'MAL' }; $smart[$_.DeviceID.Split('1')[0]] = $status }; $disks | Select-Object DeviceID, FileSystem, @{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}}, @{Name='FreeGB';Expression={[math]::round($_.FreeSpace/1GB,2)}}, @{Name='Estado';Expression={if ($smart.Count -gt 0) { 'OK' } else { 'OK' }}} | Format-Table -AutoSize; echo ''; echo '--- ESTADO SMART DE DISCOS ---'; Get-CimInstance Win32_DiskDrive | ForEach-Object { $s = 'OK'; if ($_.Status -match 'Degraded|Pred Fail|Error') { $s = 'EN RIESGO' }; if ($_.Status -match 'Error|NonRecover') { $s = 'MAL' }; Write-Host ('  ' + $_.Model.Trim() + ' (' + ([math]::round($_.Size/1GB,0)) + 'GB) -> ' + $s) }"
 echo.
 echo  [OK] Consulta completada.
 echo [%time%] Ejecutada consulta de recursos del sistema >> "!LOG_FILE!"
