@@ -137,9 +137,9 @@ After selecting the profile, you'll see the specific menu for that profile:
    Active Profile: [DIAGNOSTICS] - Read Only
 
    [ HARDWARE DIAGNOSTICS ]         [ SYSTEM INFORMATION ]           [ MONITORING ]
-   1. SMART Disk Status             4. BIOS and Motherboard Info     7. Network Speed Test
-   2. RAM Test (mdsched)            5. Ports/DNS Audit               8. Battery Report
-   3. System Resources Info         6. Windows Update Status
+   1. RAM Test (mdsched)            3. BIOS and Motherboard Info     5. Ports/DNS Audit
+   2. System Resources Info         4. Windows Update Status         6. Network Speed Test
+   7. Battery Report
 
    [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
    [99] CHANGE PROFILE
@@ -157,10 +157,10 @@ After selecting the profile, you'll see the specific menu for that profile:
    Active Profile: [REPAIR] - Maintenance and Repairs
 
    [ DIAGNOSTICS ]                  [ SYSTEM REPAIR ]                [ NETWORK AND UPDATES ]
-   1. SMART Disk Status             5. Maintenance (DISM/SFC)        9. Network & IP Reset
-   2. RAM Test (mdsched)            6. Repair Windows Update        10. Speed Test
-   3. BIOS & Motherboard Info       7. EMMC/Temp Cleanup            11. Update Apps (Winget)
-   4. Battery Report                8. Ports/DNS Audit              12. Scheduled Shutdown
+   1. RAM Test (mdsched)            4. Maintenance (DISM/SFC)        7. Network & IP Reset
+   2. System Resources Info         5. Repair Windows Update         8. Speed Test
+   3. BIOS & Motherboard Info       6. EMMC/Temp Cleanup             9. Ports/DNS Audit
+   10. Scheduled Shutdown           11. Update Apps (Winget)         12. Battery Report
 
    [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
    [99] CHANGE PROFILE
@@ -178,9 +178,9 @@ After selecting the profile, you'll see the specific menu for that profile:
    Active Profile: [ADMINISTRATION] - Full Access
 
    [ HARDWARE DIAGNOSTICS ]         [ SYSTEM REPAIR ]                [ NETWORK & CONNECTIVITY ]
-   1. SMART Disk Status             4. Maintenance (DISM/SFC)        7. Network & IP Reset
-   2. BIOS & Motherboard Info       5. Repair Windows Update         8. Real Speed Test
-   3. RAM Test (mdsched)            6. EMMC/Temp Cleanup             9. DNS/Ports Audit
+   1. BIOS & Motherboard Info       4. Maintenance (DISM/SFC)        7. Network & IP Reset
+   2. RAM Test (mdsched)            5. Repair Windows Update         8. Real Speed Test
+   3. System Resources Info         6. EMMC/Temp Cleanup             9. DNS/Ports Audit
 
    [ STORAGE MANAGEMENT ]           [ SOFTWARE & LICENSES ]          [ AUTOMATION ]
    10. Secure Format (Audited)      12. Update Apps (Winget)         14. Scheduled Shutdown
@@ -209,7 +209,7 @@ After selecting the profile, you'll see the specific menu for that profile:
 
 **To exit:**
 - Type **0** to generate HTML report and exit
-- Type **00** to exit without generating report (log + checksum are saved)
+- Type **00** to exit without generating report and without keeping the session log
 
 **About the HTML report:**
 - Option **0** automatically generates an HTML file in the `Logs/` folder
@@ -399,7 +399,7 @@ You'll see a menu with **30 options** organized in categories:
 
 **To exit:**
 - Type **0** to generate HTML report and exit
-- Type **00** to exit without generating report (log + checksum are saved)
+- Type **00** to exit without generating report and without keeping the session log
 
 **About the HTML report:**
 - Option **0** automatically generates an HTML file

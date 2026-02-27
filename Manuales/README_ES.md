@@ -137,9 +137,9 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    Perfil Activo: [DIAGNOSTICO] - Solo Lectura
 
    [ DIAGNOSTICO DE HARDWARE ]      [ INFORMACION DE SISTEMA ]       [ MONITOREO ]
-   1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Test de Velocidad de Red
-   2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
-   3. Info de Recursos del Sistema  6. Estado de Windows Update
+   1. Test de RAM (mdsched)         3. Info BIOS y Placa Madre       5. Auditoria de Puertos/DNS
+   2. Info de Recursos del Sistema  4. Estado de Windows Update      6. Test de Velocidad de Red
+   7. Reporte de Bateria
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
    [99] CAMBIAR PERFIL
@@ -157,10 +157,10 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    Perfil Activo: [REPARACION] - Mantenimiento y Reparaciones
 
    [ DIAGNOSTICO ]                  [ REPARACION DE SISTEMA ]        [ REDES Y ACTUALIZACIONES ]
-   1. Estado SMART de Discos        5. Mantenimiento (DISM/SFC)      9. Reset de Red e IP
-   2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Test de Velocidad
-   3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
-   4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
+   1. Test de RAM (mdsched)         4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+   2. Info de Recursos del Sistema  5. Reparar Windows Update        8. Test de Velocidad
+   3. Info BIOS y Placa Madre       6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+   10. Apagado Programado           11. Actualizar Apps (Winget)     12. Reporte de Bateria
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
    [99] CAMBIAR PERFIL
@@ -178,9 +178,9 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    Perfil Activo: [ADMINISTRACION] - Acceso Completo
 
    [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]
-   1. Estado SMART de Discos        4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
-   2. Info BIOS y Placa Madre       5. Reparar Windows Update        8. Test de Velocidad Real
-   3. Test de RAM (mdsched)         6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+   1. Info BIOS y Placa Madre       4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+   2. Test de RAM (mdsched)         5. Reparar Windows Update        8. Test de Velocidad Real
+   3. Info de Recursos del Sistema  6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
 
    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTOMATIZACION ]
    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
@@ -209,7 +209,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 **Para salir:**
 - Escribe **0** para generar reporte HTML y salir
-- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
+- Escribe **00** para salir sin generar reporte y sin conservar el log de sesión
 
 **Sobre el reporte HTML:**
 - La opción **0** genera automáticamente un archivo HTML en la carpeta `Logs/`
@@ -399,7 +399,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
 
 **Para salir:**
 - Escribe **0** para generar reporte HTML y salir
-- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
+- Escribe **00** para salir sin generar reporte y sin conservar el log de sesión
 
 **Sobre el reporte HTML:**
 - La opción **0** genera automáticamente un archivo HTML

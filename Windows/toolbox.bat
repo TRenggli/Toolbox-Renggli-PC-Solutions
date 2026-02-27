@@ -104,7 +104,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
@@ -140,7 +140,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
@@ -184,7 +184,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_BIOS & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -849,8 +849,8 @@ echo.
 echo  --- MEMORIA ---
 powershell "Get-CimInstance Win32_ComputerSystem | Select-Object @{Name='TotalMemoryGB';Expression={[math]::round($_.TotalPhysicalMemory/1GB,2)}} | Format-List"
 echo.
-echo  --- ESPACIO Y ESTADO DE DISCOS ---
-powershell "$disks = Get-CimInstance Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3}; $smart = @{}; Get-CimInstance Win32_DiskDrive | ForEach-Object { $status = 'OK'; if ($_.Status -match 'Degraded|Pred Fail|Error|Unknown|NonRecover') { $status = 'EN RIESGO' }; if ($_.Status -match 'Error|NonRecover') { $status = 'MAL' }; $smart[$_.DeviceID.Split('1')[0]] = $status }; $disks | Select-Object DeviceID, FileSystem, @{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}}, @{Name='FreeGB';Expression={[math]::round($_.FreeSpace/1GB,2)}}, @{Name='Estado';Expression={if ($smart.Count -gt 0) { 'OK' } else { 'OK' }}} | Format-Table -AutoSize; echo ''; echo '--- ESTADO SMART DE DISCOS ---'; Get-CimInstance Win32_DiskDrive | ForEach-Object { $s = 'OK'; if ($_.Status -match 'Degraded|Pred Fail|Error') { $s = 'EN RIESGO' }; if ($_.Status -match 'Error|NonRecover') { $s = 'MAL' }; Write-Host ('  ' + $_.Model.Trim() + ' (' + ([math]::round($_.Size/1GB,0)) + 'GB) -> ' + $s) }"
+echo  --- ESPACIO EN DISCOS ---
+powershell "$disks = Get-CimInstance Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3}; Get-CimInstance Win32_DiskDrive | Out-Null; $disks | Select-Object DeviceID, FileSystem, @{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}}, @{Name='FreeGB';Expression={[math]::round($_.FreeSpace/1GB,2)}} | Format-Table -AutoSize; echo ''; echo '--- ESTADO SMART DE DISCOS ---'; Get-CimInstance Win32_DiskDrive | ForEach-Object { $s = 'OK'; if ($_.Status -match 'Degraded|Pred Fail|Error') { $s = 'EN RIESGO' }; if ($_.Status -match 'Error|NonRecover') { $s = 'MAL' }; Write-Host ('  ' + $_.Model.Trim() + ' (' + ([math]::round($_.Size/1GB,0)) + 'GB) -> ' + $s) }"
 echo.
 echo  [OK] Consulta completada.
 echo [%time%] Ejecutada consulta de recursos del sistema >> "!LOG_FILE!"

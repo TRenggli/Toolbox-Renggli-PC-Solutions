@@ -31,7 +31,7 @@ Toolbox/
 │   ├── toolbox.sh                # Full version
 │   └── toolbox_corporate.sh      # Corporate version
 │
-├── Manuals/
+├── Manuales/
 │   ├── README_ES.md              # Spanish manual
 │   ├── README_EN.md              # English manual
 │   ├── README_CN.md              # Chinese manual
@@ -53,32 +53,32 @@ Right‑click toolbox.bat
 
 Select Run as administrator
 
-Documentation: Manuals/README_EN.md#windows
+Documentation: Manuales/README_EN.md#windows
 
 🐧 Linux
 bash
 cd Linux/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuals/README_EN.md#linux
+Documentation: Manuales/README_EN.md#linux
 
 🍎 macOS
 bash
 cd Mac/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuals/README_EN.md#macos
+Documentation: Manuales/README_EN.md#macos
 
 📚 Documentation
 Manuals by Language
-🇪🇸 Spanish — Manuals/README_ES.md
+🇪🇸 Spanish — Manuales/README_ES.md
 
-🇬🇧 English — Manuals/README_EN.md
+🇬🇧 English — Manuales/README_EN.md
 
-🇨🇳 Chinese — Manuals/README_CN.md
+🇨🇳 Chinese — Manuales/README_CN.md
 
 Pre‑Generated PDFs
-Located in Manuals/PDFs/:
+Located in Manuales/PDFs/:
 
 Manual_Toolbox_V14_ES.pdf
 
@@ -133,7 +133,7 @@ bash
 cd Scripts
 ./generar_pdfs.sh
 Requirements: Pandoc + wkhtmltopdf  
-Full guide: Manuals/COMO_GENERAR_PDFS.md
+Full guide: Manuales/COMO_GENERAR_PDFS.md
 
 🆚 Editions
 Full Edition (toolbox)
@@ -200,7 +200,7 @@ Intel & Apple Silicon (M1/M2)
 
 📞 Support
 Email: soporte@renggli-solutions.com
-Full documentation available in the Manuals/ directory.
+Full documentation available in the Manuales/ directory.
 
 📜 License
 © 2024 RENGGLI PC SOLUTIONS

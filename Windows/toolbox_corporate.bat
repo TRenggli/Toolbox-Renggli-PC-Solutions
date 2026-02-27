@@ -105,7 +105,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -142,7 +142,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -186,7 +186,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_SMART & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_BIOS & goto :MAIN_MENU)

@@ -156,7 +156,7 @@ main_menu() {
 
         case $choice in
             0) generate_report ; exit_script ;;
-            00) exit_script ;;
+            00) exit_no_log ;;
             1) mod_smart ;;
             2) mod_hardware ;;
             3) mod_memory ;;

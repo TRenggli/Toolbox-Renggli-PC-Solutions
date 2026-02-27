@@ -101,7 +101,7 @@ main_menu() {
 
         case $choice in
             0) mod_system_report ; exit_script ;;
-            00) exit_script ;;
+            00) exit_no_log ;;
             1) mod_disk_status ;;
             2) mod_hardware_info ;;
             3) mod_memory_test ;;
