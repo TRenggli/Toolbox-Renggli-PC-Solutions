@@ -41,10 +41,7 @@ Toolbox/
 │       ├── Manual_Toolbox_V14_ES.pdf
 │       ├── Manual_Toolbox_V14_EN.pdf
 │       └── Manual_Toolbox_V14_CN.pdf
-│
-└── Scripts/
-    ├── generar_pdfs.bat          # PDF generator (Windows)
-    └── generar_pdfs.sh           # PDF generator (Linux/Mac)
+
 🚀 Quick Start
 🪟 Windows
 Open the Windows/ folder
@@ -76,6 +73,9 @@ Manuals by Language
 🇬🇧 English — Manuales/README_EN.md
 
 🇨🇳 Chinese — Manuales/README_CN.md
+
+Change History
+📌 Global project changelog — HISTORIAL_DE_CAMBIOS.md
 
 Pre‑Generated PDFs
 Located in Manuales/PDFs/:
@@ -123,17 +123,9 @@ System cleanup & maintenance
 
 ⚠️ Administration — Advanced & critical operations
 
-📖 Regenerating PDFs
-Windows
-cmd
-cd Scripts
-generar_pdfs.bat
-Linux / macOS
-bash
-cd Scripts
-./generar_pdfs.sh
-Requirements: Pandoc + wkhtmltopdf  
-Full guide: Manuales/COMO_GENERAR_PDFS.md
+📖 PDF Manuals
+The project includes pre-generated manuals in three languages in `Manuales/PDFs/`.
+If needed, source manuals are also available in Markdown inside `Manuales/`.
 
 🆚 Editions
 Full Edition (toolbox)

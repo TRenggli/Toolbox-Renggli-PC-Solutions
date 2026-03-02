@@ -2,6 +2,8 @@
 
 Esta carpeta contiene toda la documentación oficial de la Enterprise Toolbox V14.
 
+📌 **Historial unificado del proyecto:** `../HISTORIAL_DE_CAMBIOS.md`
+
 ---
 
 ## 📂 ESTRUCTURA ORGANIZADA
@@ -57,20 +59,6 @@ Simplemente abre el archivo correspondiente:
 
 Los PDFs ya están generados en la carpeta `PDFs/`. Solo ábrelos y compártelos.
 
-### Regenerar PDFs
-
-Si modificas algún manual y necesitas regenerar los PDFs:
-
-**Windows:**
-```cmd
-..\generar_pdfs.bat
-```
-
-**Linux/Mac:**
-```bash
-../generar_pdfs.sh
-```
-
 ---
 
 ## ✨ CARACTERÍSTICAS
@@ -79,7 +67,7 @@ Si modificas algún manual y necesitas regenerar los PDFs:
 ✅ **Formato profesional** - Diseño corporativo consistente
 ✅ **Multiplataforma** - Instrucciones para Windows, Linux y macOS
 ✅ **PDFs listos** - Ya generados y con formato corporativo
-✅ **Fácil actualización** - Scripts automáticos para regenerar PDFs
+✅ **Distribución directa** - PDFs listos para uso y entrega
 
 ---
 
