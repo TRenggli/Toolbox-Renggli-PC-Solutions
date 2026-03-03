@@ -1,4 +1,7 @@
+<!-- markdownlint-disable MD013 MD024 MD033 MD036 MD040 MD060 -->
+
 # 🛠️ RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
+
 ## Suite Multiplataforma (Windows | Linux | macOS)
 
 **Solución profesional de diagnóstico, reparación y administración para técnicos IT**
@@ -10,6 +13,7 @@
 Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
 
 **Salta directamente a tu sección:**
+
 - 🪟 [Instrucciones para WINDOWS](#windows)
 - 🐧 [Instrucciones para LINUX](#linux)
 - 🍎 [Instrucciones para macOS](#macos)
@@ -37,6 +41,7 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
 1. Descarga la carpeta completa `Herramienta-toolbox`
 2. Extrae el archivo ZIP en cualquier ubicación (Ejemplo: `C:\Tools\`)
 3. Verás esta estructura:
+
    ```
    Herramienta-toolbox/
    ├── Windows/
@@ -64,6 +69,7 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
 
 1. Haz **clic derecho** sobre `toolbox.bat`
 2. Selecciona **"Ejecutar como administrador"**
+
    ```
    ┌────────────────────────┐
    │ Abrir                  │
@@ -73,6 +79,7 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
    │ Compartir              │
    └────────────────────────┘
    ```
+
 3. Si aparece el mensaje de **Control de Cuentas de Usuario (UAC)**, haz clic en **"Sí"**
 
 **Método 2 - Desde CMD:**
@@ -81,10 +88,13 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
    - Presiona `Windows + X`
    - Selecciona "Terminal (Administrador)" o "Símbolo del sistema (Administrador)"
 2. Navega a la carpeta:
+
    ```cmd
    cd C:\ruta\donde\extrajiste\Herramienta-toolbox\Windows
    ```
+
 3. Ejecuta:
+
    ```cmd
    toolbox.bat
    ```
@@ -95,6 +105,7 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
    - Presiona `Windows + X`
    - Selecciona "Windows PowerShell (Administrador)"
 2. Navega y ejecuta:
+
    ```powershell
    cd C:\ruta\donde\extrajiste\Herramienta-toolbox\Windows
    .\toolbox.bat
@@ -120,6 +131,7 @@ Log Actual: C:\...\Logs\Audit_2024-02-10.log
 ```
 
 **Elige tu perfil:**
+
 - **1** = Solo ver información, no hace cambios
 - **2** = Permite reparaciones y limpieza
 - **3** = Acceso completo (cuidado con este)
@@ -130,16 +142,16 @@ Escribe el número y presiona **Enter**.
 
 Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
-#### 🔍 Si elegiste DIAGNOSTICO (Perfil 1):
+#### 🔍 Si elegiste DIAGNOSTICO (Perfil 1)
 
 ```
 ==============================================================================================================
    Perfil Activo: [DIAGNOSTICO] - Solo Lectura
 
    [ DIAGNOSTICO DE HARDWARE ]      [ INFORMACION DE SISTEMA ]       [ MONITOREO ]
-   1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Test de Velocidad de Red
-   2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
-   3. Info de Recursos del Sistema  6. Estado de Windows Update
+   1. Test de RAM (mdsched)         3. Info BIOS y Placa Madre       5. Auditoria de Puertos/DNS
+   2. Info de Recursos del Sistema  4. Estado de Windows Update      6. Test de Velocidad de Red
+   7. Reporte de Bateria
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
    [99] CAMBIAR PERFIL
@@ -150,17 +162,17 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 **Este perfil solo tiene opciones de lectura.** No modifica el sistema, solo consulta información.
 
-#### 🔧 Si elegiste REPARACION (Perfil 2):
+#### 🔧 Si elegiste REPARACION (Perfil 2)
 
 ```
 ==============================================================================================================
    Perfil Activo: [REPARACION] - Mantenimiento y Reparaciones
 
    [ DIAGNOSTICO ]                  [ REPARACION DE SISTEMA ]        [ REDES Y ACTUALIZACIONES ]
-   1. Estado SMART de Discos        5. Mantenimiento (DISM/SFC)      9. Reset de Red e IP
-   2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Test de Velocidad
-   3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
-   4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
+   1. Test de RAM (mdsched)         4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+   2. Info de Recursos del Sistema  5. Reparar Windows Update        8. Test de Velocidad
+   3. Info BIOS y Placa Madre       6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+   10. Apagado Programado           11. Actualizar Apps (Winget)     12. Reporte de Bateria
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
    [99] CAMBIAR PERFIL
@@ -171,16 +183,16 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 **Este perfil incluye diagnóstico + reparaciones del sistema.** Puede hacer mantenimiento pero no operaciones críticas.
 
-#### ⚠️ Si elegiste ADMINISTRACION (Perfil 3):
+#### ⚠️ Si elegiste ADMINISTRACION (Perfil 3)
 
 ```
 ==============================================================================================================
    Perfil Activo: [ADMINISTRACION] - Acceso Completo
 
    [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]
-   1. Estado SMART de Discos        4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
-   2. Info BIOS y Placa Madre       5. Reparar Windows Update        8. Test de Velocidad Real
-   3. Test de RAM (mdsched)         6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+   1. Info BIOS y Placa Madre       4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
+   2. Test de RAM (mdsched)         5. Reparar Windows Update        8. Test de Velocidad Real
+   3. Info de Recursos del Sistema  6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
 
    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTOMATIZACION ]
    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
@@ -196,22 +208,26 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 **Este perfil tiene acceso completo**, incluyendo operaciones críticas como formateo, conversión GPT y activación.
 
 **Para usar una función:**
+
 1. Escribe el **número de la opción** que quieres usar
 2. Presiona **Enter**
 3. Sigue las instrucciones en pantalla
 4. La herramienta te guiará paso a paso
 
 **Para cambiar de perfil:**
+
 - Escribe **99** y presiona Enter en cualquier momento
 - Podrás elegir un perfil diferente sin reiniciar la herramienta
 
 ### Paso 6: Finalizar y Ver Logs
 
 **Para salir:**
+
 - Escribe **0** para generar reporte HTML y salir
-- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
+- Escribe **00** para salir sin generar reporte y sin conservar el log de sesión
 
 **Sobre el reporte HTML:**
+
 - La opción **0** genera automáticamente un archivo HTML en la carpeta `Logs/`
 - El reporte incluye toda la información del sistema y el log de operaciones
 - Se abrirá automáticamente en tu navegador
@@ -221,6 +237,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 ## 📁 ¿Dónde están los logs?
 
 Los logs se guardan automáticamente en:
+
 ```
 Herramienta-toolbox\Windows\Logs\
 ├── Audit_2024-02-10.log         (Registro de todas las operaciones)
@@ -233,19 +250,24 @@ Herramienta-toolbox\Windows\Logs\
 ## ⚠️ Solución de Problemas (Windows)
 
 ### Error: "No tiene privilegios de administrador"
+
 **Solución:** Debes ejecutar con clic derecho → "Ejecutar como administrador"
 
 ### Error: "El sistema no puede ejecutar el script"
+
 **Solución:**
+
 1. Windows puede haber bloqueado el archivo
 2. Clic derecho en `toolbox.bat` → Propiedades
 3. Si ves "Este archivo proviene de otro equipo", marca "Desbloquear"
 4. Clic en Aplicar → Aceptar
 
 ### La ventana se cierra inmediatamente
+
 **Solución:** Ejecuta desde CMD o PowerShell para ver el error
 
 ### No aparece el menú de colores
+
 **Solución:** Usa la nueva Terminal de Windows o CMD (no PowerShell ISE)
 
 ---
@@ -269,12 +291,15 @@ Herramienta-toolbox\Windows\Logs\
 ### Paso 1: Descargar o transferir la herramienta
 
 **Opción A - Si descargaste en Windows:**
+
 1. Copia la carpeta `Herramienta-toolbox` a tu sistema Linux
 2. Usa un USB, red compartida, o FileZilla/SCP
 
 **Opción B - Descargar directamente en Linux:**
+
 1. Abre una terminal
 2. Descarga en tu carpeta home:
+
    ```bash
    cd ~
    # Aquí descarga o extrae el archivo
@@ -284,21 +309,25 @@ Herramienta-toolbox\Windows\Logs\
 
 1. Abre una **Terminal** (Ctrl + Alt + T en la mayoría de distribuciones)
 2. Navega hasta la carpeta:
+
    ```bash
    cd /ruta/donde/esta/Herramienta-toolbox/Linux
    ```
 
    **Ejemplo:**
+
    ```bash
    cd ~/Descargas/Herramienta-toolbox/Linux
    ```
 
 3. Verifica que estás en el lugar correcto:
+
    ```bash
    ls -l
    ```
 
    Deberías ver:
+
    ```
    toolbox.sh
    toolbox_corporate.sh
@@ -313,6 +342,7 @@ chmod +x toolbox.sh toolbox_corporate.sh
 ```
 
 **Explicación:**
+
 - `chmod +x` = Dar permisos de ejecución
 - Esto solo se hace UNA vez
 
@@ -321,16 +351,19 @@ chmod +x toolbox.sh toolbox_corporate.sh
 🔴 **IMPORTANTE**: Debes ejecutar con sudo (como root)
 
 **Para la versión completa:**
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 **Para la versión corporativa (sin módulos de activación):**
+
 ```bash
 sudo ./toolbox_corporate.sh
 ```
 
 **¿Qué significa cada parte?**
+
 - `sudo` = Ejecutar como superusuario (root)
 - `./` = Ejecutar desde la carpeta actual
 - `toolbox.sh` = Nombre del script
@@ -359,6 +392,7 @@ Distribución: ubuntu 22.04 | Gestor de paquetes: apt
 ```
 
 **Elige tu perfil:**
+
 - **1** = Solo diagnóstico, no hace cambios
 - **2** = Permite reparaciones y actualizaciones
 - **3** = Acceso completo (formateo de discos, conversiones)
@@ -390,6 +424,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
 ```
 
 **Para usar una función:**
+
 1. Escribe el **número** de la opción
 2. Presiona **Enter**
 3. Sigue las instrucciones
@@ -398,10 +433,12 @@ Verás un menú con **30 opciones** organizadas en categorías:
 ### Paso 7: Finalizar
 
 **Para salir:**
+
 - Escribe **0** para generar reporte HTML y salir
-- Escribe **00** para salir sin generar reporte (se guarda log + checksum)
+- Escribe **00** para salir sin generar reporte y sin conservar el log de sesión
 
 **Sobre el reporte HTML:**
+
 - La opción **0** genera automáticamente un archivo HTML
 - El reporte incluye toda la información del sistema y el log de operaciones
 
@@ -410,6 +447,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
 ## 📁 ¿Dónde están los logs? (Linux)
 
 Los logs se guardan en:
+
 ```
 Herramienta-toolbox/Linux/Logs/
 ├── Audit_2024-02-10.log           (Registro de operaciones)
@@ -417,11 +455,13 @@ Herramienta-toolbox/Linux/Logs/
 ```
 
 Para ver el log:
+
 ```bash
 cat Logs/Audit_2024-02-10.log
 ```
 
 Para abrir el reporte HTML:
+
 ```bash
 firefox Logs/Report_Linux_2024-02-10.html
 # O tu navegador preferido
@@ -432,32 +472,41 @@ firefox Logs/Report_Linux_2024-02-10.html
 ## ⚠️ Solución de Problemas (Linux)
 
 ### Error: "Permission denied"
+
 **Solución:**
+
 ```bash
 chmod +x toolbox.sh
 sudo ./toolbox.sh
 ```
 
 ### Error: "No such file or directory"
+
 **Solución:** Verifica que estás en la carpeta correcta:
+
 ```bash
 pwd  # Muestra la ruta actual
 ls   # Lista archivos
 ```
 
 ### Error: "This script requires root privileges"
+
 **Solución:** Debes usar `sudo`:
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 ### Las dependencias no se instalan automáticamente
+
 **Solución:** La herramienta detecta e instala automáticamente paquetes como:
+
 - smartmontools (para SMART)
 - lm-sensors (para temperaturas)
 - speedtest-cli (para test de velocidad)
 
 Si falla, instala manualmente:
+
 ```bash
 # Debian/Ubuntu
 sudo apt install smartmontools lm-sensors speedtest-cli
@@ -497,11 +546,13 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 ### Paso 2: Abrir Terminal
 
 **Método 1 - Spotlight:**
+
 1. Presiona `Cmd + Espacio`
 2. Escribe "Terminal"
 3. Presiona Enter
 
 **Método 2 - Finder:**
+
 1. Abre **Finder**
 2. Ve a **Aplicaciones** → **Utilidades**
 3. Doble clic en **Terminal**
@@ -515,18 +566,21 @@ cd /ruta/donde/esta/Herramienta-toolbox/Mac
 ```
 
 **Ejemplo:**
+
 ```bash
 cd ~/Documents/Herramienta-toolbox/Mac
 ```
 
-**Truco:** Puedes arrastrar la carpeta a la terminal después de escribir `cd ` (con espacio).
+**Truco:** Puedes arrastrar la carpeta a la terminal después de escribir `cd` (con espacio).
 
 Verifica que estás en el lugar correcto:
+
 ```bash
 ls -l
 ```
 
 Deberías ver:
+
 ```
 toolbox.sh
 toolbox_corporate.sh
@@ -545,15 +599,19 @@ chmod +x toolbox.sh toolbox_corporate.sh
 macOS bloquea scripts descargados de internet. Para permitirlos:
 
 **Opción A - Remover cuarentena:**
+
 ```bash
 xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 ```
 
 **Opción B - Si aparece mensaje de seguridad:**
+
 1. Intenta ejecutar el script:
+
    ```bash
    sudo ./toolbox.sh
    ```
+
 2. Si macOS lo bloquea, verás un mensaje
 3. Ve a **Preferencias del Sistema** → **Seguridad y Privacidad**
 4. En la pestaña **General**, verás un mensaje sobre el script bloqueado
@@ -565,11 +623,13 @@ xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 🔴 **IMPORTANTE**: Debes ejecutar con sudo
 
 **Para la versión completa:**
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 **Para la versión corporativa:**
+
 ```bash
 sudo ./toolbox_corporate.sh
 ```
@@ -603,6 +663,7 @@ Elige el número y presiona Enter.
 El menú es similar al de Linux, con 30 opciones adaptadas para macOS.
 
 Funciones específicas de Mac incluyen:
+
 - FileVault status (encriptación de disco)
 - Gatekeeper status (seguridad de apps)
 - SIP status (System Integrity Protection)
@@ -610,16 +671,16 @@ Funciones específicas de Mac incluyen:
 - App Store updates
 
 **Opciones de salida (macOS):**
-- **0** = salir sin reporte
-- **00** = generar reporte y salir
-- **01** = generar reporte y volver al menú
-- **02** = salir sin log
+
+- **0** = generar reporte y salir
+- **00** = salir sin generar reporte y sin conservar el log de sesión
 
 ---
 
 ## 📁 ¿Dónde están los logs? (macOS)
 
 Los logs se guardan en:
+
 ```
 Herramienta-toolbox/Mac/Logs/
 ├── Audit_2024-02-10.log
@@ -627,11 +688,13 @@ Herramienta-toolbox/Mac/Logs/
 ```
 
 Para ver el log:
+
 ```bash
 cat Logs/Audit_2024-02-10.log
 ```
 
 Para abrir el reporte HTML:
+
 ```bash
 open Logs/Report_Mac_2024-02-10.html
 ```
@@ -641,19 +704,25 @@ open Logs/Report_Mac_2024-02-10.html
 ## ⚠️ Solución de Problemas (macOS)
 
 ### Error: "Operation not permitted"
+
 **Solución:** Ejecuta con `sudo`:
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 ### Error: "command not found: brew"
+
 **Solución:** Algunas funciones usan Homebrew. Instálalo:
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 ### macOS bloquea la ejecución
+
 **Solución:**
+
 ```bash
 xattr -d com.apple.quarantine toolbox.sh
 ```
@@ -661,7 +730,9 @@ xattr -d com.apple.quarantine toolbox.sh
 O ve a **Preferencias del Sistema** → **Seguridad y Privacidad** y permite el script.
 
 ### Xcode Command Line Tools no instalado
+
 **Solución:** macOS te pedirá instalarlos automáticamente. Si no:
+
 ```bash
 xcode-select --install
 ```
@@ -671,16 +742,19 @@ xcode-select --install
 ## 🔒 SISTEMA DE PERFILES (Todos los Sistemas)
 
 ### 1️⃣ DIAGNOSTICO (Solo Lectura)
+
 - ✅ Ver información del hardware
 - ✅ Estados y consultas
 - ❌ NO hace cambios al sistema
 
 **Ideal para:**
+
 - Auditorías
 - Chequeos preventivos
 - Cuando NO tienes autorización para hacer cambios
 
 ### 2️⃣ REPARACION (Mantenimiento)
+
 - ✅ Todo lo de DIAGNOSTICO +
 - ✅ Limpieza de archivos temporales
 - ✅ Reparaciones automáticas
@@ -688,11 +762,13 @@ xcode-select --install
 - ❌ NO permite formateo ni conversiones
 
 **Ideal para:**
+
 - Soporte técnico diario
 - Mantenimiento rutinario
 - Resolver problemas comunes
 
 ### 3️⃣ ADMINISTRACION (Acceso Total)
+
 - ✅ TODO (DIAGNOSTICO + REPARACION) +
 - ✅ Formateo de discos
 - ✅ Conversiones MBR/GPT
@@ -701,6 +777,7 @@ xcode-select --install
 ⚠️ **CUIDADO:** Este perfil puede borrar datos
 
 **Ideal para:**
+
 - Técnicos senior
 - Preparación de equipos nuevos
 - Operaciones autorizadas críticas
@@ -729,7 +806,8 @@ xcode-select --install
 ## 📞 SOPORTE
 
 ¿Problemas o preguntas?
-- 📧 Email: soporte@renggli-solutions.com
+
+- 📧 Email: <soporte@renggli-solutions.com>
 - 📚 Documentación completa en carpeta `Manuales/`
 
 ---
@@ -737,6 +815,7 @@ xcode-select --install
 ## 🎯 VERSION
 
 **Toolbox V14 Multiplataforma**
+
 - Windows: 15 módulos
 - Linux: 30 módulos
 - macOS: 30 módulos

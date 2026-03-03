@@ -1,210 +1,189 @@
-🛠️ RENGGLI PC SOLUTIONS
-Enterprise Toolbox V14
-Unified Cross‑Platform IT Diagnostics & Repair Suite
-https://img.shields.io/badge/License-Enterprise-blue  
-https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-green  
-https://img.shields.io/badge/Version-V14-orange  
-https://img.shields.io/badge/Build-Stable-success  
-https://img.shields.io/badge/Documentation-Available-brightgreen
+# 🛠️ RENGGLI PC SOLUTIONS
 
-A professional multi‑platform toolbox designed for system administrators, IT technicians, and enterprise environments.
-Supports Windows, Linux, and macOS, offering diagnostics, maintenance, repair, and advanced administration tools.
+## Enterprise Toolbox V14
 
-Note:  
-This repository contains the Enterprise Edition.
-A separate Personal Edition exists, which includes Windows & Office activation utilities.
-These modules are not included in the corporate version.
+Unified cross-platform IT diagnostics and repair suite for Windows, Linux and
+macOS.
 
-📁 Project Structure
-Código
+[![License](https://img.shields.io/badge/License-Enterprise-blue)](LICENSE)
+[![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-green)](#-compatibility)
+[![Version](https://img.shields.io/badge/Version-V14-orange)](#-current-version)
+[![Build](https://img.shields.io/badge/Build-Stable-success)](README.md)
+[![Docs](https://img.shields.io/badge/Documentation-Available-brightgreen)](Manuales/README_EN.md)
+
+A professional multi-platform toolbox designed for IT technicians, system
+administrators, and enterprise environments.
+
+> [!NOTE]
+> This repository contains the Enterprise Edition.
+> A separate Personal Edition exists and includes Windows and Office activation
+> utilities. Those modules are not included in the corporate version.
+
+## 📁 Project Structure
+
+```text
 Toolbox/
-│
 ├── Windows/
-│   ├── toolbox.bat               # Full version
-│   └── toolbox_corporate.bat     # Corporate version
-│
+│   ├── toolbox.bat
+│   └── toolbox_corporate.bat
 ├── Linux/
-│   ├── toolbox.sh                # Full version (30 modules)
-│   └── toolbox_corporate.sh      # Corporate version
-│
+│   ├── toolbox.sh
+│   └── toolbox_corporate.sh
 ├── Mac/
-│   ├── toolbox.sh                # Full version
-│   └── toolbox_corporate.sh      # Corporate version
-│
-├── Manuals/
-│   ├── README_ES.md              # Spanish manual
-│   ├── README_EN.md              # English manual
-│   ├── README_CN.md              # Chinese manual
-│   ├── COMO_GENERAR_PDFS.md      # PDF generation guide
-│   ├── estilo_pdf_corporativo.css
-│   └── PDFs/
-│       ├── Manual_Toolbox_V14_ES.pdf
-│       ├── Manual_Toolbox_V14_EN.pdf
-│       └── Manual_Toolbox_V14_CN.pdf
-│
-└── Scripts/
-    ├── generar_pdfs.bat          # PDF generator (Windows)
-    └── generar_pdfs.sh           # PDF generator (Linux/Mac)
-🚀 Quick Start
-🪟 Windows
-Open the Windows/ folder
+│   ├── toolbox.sh
+│   └── toolbox_corporate.sh
+└── Manuales/
+    ├── README_ES.md
+    ├── README_EN.md
+    ├── README_CN.md
+    ├── COMO_GENERAR_PDFS.md
+    ├── estilo_pdf_corporativo.css
+    └── PDFs/
+        ├── Manual_Toolbox_V14_ES.pdf
+        ├── Manual_Toolbox_V14_EN.pdf
+        └── Manual_Toolbox_V14_CN.pdf
+```
 
-Right‑click toolbox.bat
+## 🚀 Quick Start
 
-Select Run as administrator
+### 🪟 Windows
 
-Documentation: Manuals/README_EN.md#windows
+1. Open the `Windows/` folder.
+2. Right-click `toolbox.bat`.
+3. Select **Run as administrator**.
+4. See [Windows documentation](Manuales/README_EN.md#windows).
 
-🐧 Linux
-bash
+### 🐧 Linux
+
+```bash
 cd Linux/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuals/README_EN.md#linux
+```
 
-🍎 macOS
-bash
+See [Linux documentation](Manuales/README_EN.md#linux).
+
+### 🍎 macOS
+
+```bash
 cd Mac/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuals/README_EN.md#macos
+```
 
-📚 Documentation
-Manuals by Language
-🇪🇸 Spanish — Manuals/README_ES.md
+See [macOS documentation](Manuales/README_EN.md#macos).
 
-🇬🇧 English — Manuals/README_EN.md
+## 📚 Documentation
 
-🇨🇳 Chinese — Manuals/README_CN.md
+- 🇪🇸 [README_ES.md](Manuales/README_ES.md)
+- 🇬🇧 [README_EN.md](Manuales/README_EN.md)
+- 🇨🇳 [README_CN.md](Manuales/README_CN.md)
+- 📌 [HISTORIAL_DE_CAMBIOS.md](HISTORIAL_DE_CAMBIOS.md)
 
-Pre‑Generated PDFs
-Located in Manuals/PDFs/:
+### Pre-generated PDFs
 
-Manual_Toolbox_V14_ES.pdf
+- `Manuales/PDFs/Manual_Toolbox_V14_ES.pdf`
+- `Manuales/PDFs/Manual_Toolbox_V14_EN.pdf`
+- `Manuales/PDFs/Manual_Toolbox_V14_CN.pdf`
 
-Manual_Toolbox_V14_EN.pdf
+## ⚙️ Features
 
-Manual_Toolbox_V14_CN.pdf
+### Windows (15 modules)
 
-⚙️ Features
-✔️ Windows (15 Modules)
-Hardware diagnostics (SMART, RAM, resource monitoring)
+- Hardware diagnostics (SMART, RAM, resource monitoring)
+- System repair (DISM, SFC, registry tools)
+- Network and connectivity utilities
+- Advanced administration tools
 
-System repair (DISM, SFC, registry tools)
+### Linux (30 modules)
 
-Network & connectivity utilities
+- All Windows features plus Linux-specific modules
+- `systemd` service management
+- GRUB and bootloader repair
+- Advanced system monitoring
+- Docker/container cleanup
+- User and permission management
 
-Advanced administration tools
+### macOS Compatibility
 
-✔️ Linux (30 Modules)
-All Windows features + Linux‑specific modules
+- Apple hardware diagnostics
+- Permission and security management
+- System cleanup and maintenance
 
-systemd service management
+## 🔐 Execution Profiles
 
-GRUB and bootloader repair
+- 🔍 **Diagnostic**: Read-only
+- 🔧 **Repair**: Reversible changes
+- ⚠️ **Administration**: Advanced and critical operations
 
-Advanced system monitoring
+## 🆚 Editions
 
-Docker/container cleanup
+### Full Edition (`toolbox`)
 
-User & permission management
+- All modules enabled
+- Includes activation modules (Personal Edition only)
+- All execution profiles available
 
-✔️ macOS
-Apple hardware diagnostics
+### Corporate Edition (`toolbox_corporate`)
 
-Permission & security management
+- Activation modules removed
+- Designed for licensed enterprise environments
+- Logs marked as `VERSION: CORPORATE`
 
-System cleanup & maintenance
+## 📊 Logs and Reports
 
-🔐 Execution Profiles
-🔍 Diagnostic — Read‑only
+Each execution can generate:
 
-🔧 Repair — Reversible changes
+- Timestamped text logs
+- HTML reports with corporate styling
+- SHA256 checksums for integrity validation
 
-⚠️ Administration — Advanced & critical operations
+Exit behavior:
 
-📖 Regenerating PDFs
-Windows
-cmd
-cd Scripts
-generar_pdfs.bat
-Linux / macOS
-bash
-cd Scripts
-./generar_pdfs.sh
-Requirements: Pandoc + wkhtmltopdf  
-Full guide: Manuals/COMO_GENERAR_PDFS.md
-
-🆚 Editions
-Full Edition (toolbox)
-All modules enabled
-
-Includes Windows activation tools (Personal Edition only)
-
-All execution profiles available
-
-Corporate Edition (toolbox_corporate)
-Activation modules removed
-
-Designed for licensed enterprise environments
-
-Logs marked as VERSION: CORPORATE
-
-📊 Logs & Reports
-Each execution generates:
-
-Timestamped text logs
-
-HTML reports with corporate styling
-
-SHA256 checksums for integrity validation
+- Option 0: generate report and persist the current session log
+- Option 00: exit without report and discard the current session log
 
 Log locations:
 
-Windows: C:\ToolboxLogs\
+- Windows: `C:\ToolboxLogs\`
+- Linux/macOS: `/var/log/toolbox/` or `~/toolbox_logs/`
 
-Linux/macOS: /var/log/toolbox/ or ~/toolbox_logs/
+## 🛡️ Security
 
-🛡️ Security
-Requires administrator/root privileges
+- Requires administrator/root privileges
+- Command validation before execution
+- Auditable logs with checksums
+- Open-source and reviewable scripts
 
-Command validation before execution
+## 🌐 Compatibility
 
-Auditable logs with checksums
+### Windows
 
-Open‑source, fully reviewable scripts
+- Windows 10 (1809+)
+- Windows 11
+- Windows Server 2016 / 2019 / 2022
 
-No malicious code
+### Linux
 
-🌐 Compatibility
-Windows
-Windows 10 (1809+)
+- Debian / Ubuntu
+- Fedora / RHEL / CentOS
+- Arch / Manjaro
+- OpenSUSE
 
-Windows 11
+### macOS
 
-Windows Server 2016 / 2019 / 2022
+- macOS 10.14+
+- Intel and Apple Silicon (M1/M2)
 
-Linux
-Debian / Ubuntu
+## 📞 Support
 
-Fedora / RHEL / CentOS
+- Email: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
+- Full documentation in [Manuales](Manuales/)
 
-Arch / Manjaro
+## 📜 License
 
-OpenSUSE
+© 2024 RENGGLI PC SOLUTIONS. Enterprise-grade IT toolbox.
 
-macOS
-macOS 10.14+
+## 🔄 Current Version
 
-Intel & Apple Silicon (M1/M2)
-
-📞 Support
-Email: soporte@renggli-solutions.com
-Full documentation available in the Manuals/ directory.
-
-📜 License
-© 2024 RENGGLI PC SOLUTIONS
-Enterprise‑grade IT toolbox. All rights reserved.
-
-🔄 Current Version
 Enterprise Toolbox V14

@@ -21,7 +21,10 @@ LOG_DIR="$SCRIPT_DIR/Logs"
 mkdir -p "$LOG_DIR"
 
 ISO_DATE=$(date +%Y-%m-%d)
-LOG_FILE="$LOG_DIR/Audit_$ISO_DATE.log"
+SESSION_STAMP=$(date +%Y-%m-%d_%H-%M-%S)
+FINAL_LOG_FILE="$LOG_DIR/Audit_$ISO_DATE.log"
+LOG_FILE="/tmp/ToolboxSession_${SESSION_STAMP}_$$.log"
+LOG_DISPLAY_FILE="$FINAL_LOG_FILE"
 
 echo "[$(date +%H:%M:%S)] --- INICIO DE SESION: $USER ---" >> "$LOG_FILE"
 
@@ -45,7 +48,7 @@ profile_select() {
     echo -e "${CYAN}=============================================================================================================="
     echo "                          RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (macOS)"
     echo "=============================================================================================================="
-    echo "Log Actual: $LOG_FILE"
+    echo "Log Actual: $LOG_DISPLAY_FILE"
     echo ""
     echo "[SELECCION DE PERFIL]"
     echo ""
@@ -72,7 +75,7 @@ main_menu() {
         echo -e "${CYAN}=============================================================================================================="
         echo "                          RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (macOS)"
         echo "=============================================================================================================="
-        echo "Log Actual: $LOG_FILE"
+        echo "Log Actual: $LOG_DISPLAY_FILE"
         case $PROFILE_MODE in
             1) echo "Perfil Activo: [DIAGNOSTICO] - Solo Lectura" ;;
             2) echo "Perfil Activo: [REPARACION] - Mantenimiento" ;;
@@ -101,7 +104,7 @@ main_menu() {
 
         case $choice in
             0) mod_system_report ; exit_script ;;
-            00) exit_script ;;
+            00) exit_no_log ;;
             1) mod_disk_status ;;
             2) mod_hardware_info ;;
             3) mod_memory_test ;;
@@ -610,8 +613,15 @@ exit_script() {
     echo "[FINALIZANDO]"
     echo "=============================================================================="
     echo ""
-    echo "[OK] Log guardado: $LOG_FILE"
+    if [ -f "$FINAL_LOG_FILE" ]; then
+        cat "$LOG_FILE" >> "$FINAL_LOG_FILE"
+    else
+        cp "$LOG_FILE" "$FINAL_LOG_FILE"
+    fi
+
+    echo "[OK] Log guardado: $FINAL_LOG_FILE"
     echo ""
+    rm -f "$LOG_FILE" 2>/dev/null
     exit 0
 }
 

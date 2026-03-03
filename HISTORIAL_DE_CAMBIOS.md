@@ -1,75 +1,145 @@
 # HISTORIAL DE CAMBIOS
 
-## 2026-02-12 (Actualización 3)
+Documento único y cronológico del proyecto (Windows, Linux, macOS y documentación).
 
-### Simplificación de Opciones de Salida
-- **Cambio Principal**: Se simplificaron las opciones de salida de 4 a 2 opciones en todas las herramientas:
-  - `[0] SALIR CON REPORTE` - Genera el reporte HTML y sale de la aplicación
-  - `[00] SALIR SIN REPORTE` - Sale directamente sin generar reporte
-- **Archivos Modificados**:
-  - Windows/toolbox.bat (versión normal)
-  - Windows/toolbox_corporate.bat (versión corporativa)
-  - Linux/toolbox.sh (versión normal)
-  - Linux/toolbox_corporate.sh (versión corporativa)
-  - Mac/toolbox.sh (versión normal)
-  - Mac/toolbox_corporate.sh (versión corporativa)
-- **Opciones Eliminadas**:
-  - `[01] REPORTE Y VOLVER` - Se eliminó ya que el reporte ahora siempre sale
-  - `[02] SALIR SIN LOG` - Se eliminó para mantener la integridad de auditoría
-- **Comportamiento Actualizado**:
-  - La opción 0 ahora genera el reporte y luego sale (antes salía sin reporte)
-  - La opción 00 ahora sale sin reporte (antes generaba reporte y salía)
-  - Se mantiene la generación de logs con checksum SHA256 en todas las ejecuciones
-  - Los reportes HTML siguen incluyendo toda la información del sistema y logs de operaciones
+## 2026-03-03 — Corrección multiplataforma de salida sin reporte y protección de logs
 
-### Revisión de Código
-- **Estructura**: Se verificó la modularidad y consistencia del código en las 6 herramientas
-- **Claridad**: El código mantiene comentarios claros y estructura consistente entre plataformas
-- **Mejoras Aplicadas**:
-  - Simplificación del flujo de salida reduce complejidad
-  - Mantiene compatibilidad con funciones existentes de generación de reportes
-  - Preserva la funcionalidad de logging y checksums para auditoría
-- **Calidad del Código Verificada**:
-  - ✅ Convenciones de nomenclatura consistentes (UPPER_SNAKE_CASE en variables, funciones con prefijos `MOD_`, `CHECK_`)
-  - ✅ Manejo robusto de errores con validaciones tempranas de privilegios
-  - ✅ Arquitectura modular con 35+ módulos independientes organizados por función
-  - ✅ Documentación clara con delimitadores de sección y comentarios descriptivos
-  - ✅ Logs de auditoría completos con timestamps y checksums SHA256
-  - ✅ Control de acceso basado en perfiles (DIAGNOSTICO/REPARACION/ADMINISTRACION)
-  - ✅ Patrones de confirmación doble para operaciones destructivas
-  - ✅ Detección automática de distribución en Linux con mecanismos de respaldo
-  - **Calificación General**: A- (90%) - Código de nivel empresarial profesional
+### Cambios principales
+- Se corrigió el comportamiento de salida `00` para que **no conserve el log de la sesión actual**.
+- Se migró el flujo de auditoría a **log temporal por sesión** y persistencia al log diario solo al salir con reporte (`0`).
+- Se evitó el riesgo de eliminar accidentalmente logs históricos del mismo día al usar salida sin reporte.
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`: uso de `LOG_FILE` temporal + `FINAL_LOG_FILE` persistente.
+  - `00`: elimina solo el log temporal de la sesión.
+  - `0`: consolida la sesión en `Logs/Audit_YYYY-MM-DD.log` y mantiene checksum.
+- **Linux**
+  - `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`: mismo patrón de log temporal + consolidación al salir con reporte.
+  - Se actualizó la ruta mostrada en pantalla para mantener referencia al log final diario.
+- **macOS**
+  - `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`: mismo patrón de log temporal + consolidación al salir con reporte.
+  - Se corrigió consistencia entre opciones de salida implementadas y documentación.
+- **Documentación**
+  - `Manuales/README_ES.md`, `Manuales/README_EN.md`, `Manuales/README_CN.md`: textos de salida alineados al comportamiento real.
+  - En macOS, se actualizaron las opciones de salida documentadas a las realmente disponibles (`0` y `00`).
 
 ---
 
-## 2026-02-11 (Actualización 2)
+## 2026-03-02 — Simplificación de estructura (alineada a operación)
 
-### Confirmación de Módulos (Windows)
-- Se agrego funcion MODULE_CONFIRM que muestra descripcion + advertencia antes de cada modulo.
-- Los modulos ahora requieren confirmacion S/N antes de ejecutarse.
-- Se incluyeron advertencias contextuales: "No interrumpir", "Guarda tu trabajo", "Operacion irreversible", etc.
+### Cambios principales
+- Se limpió la carpeta `Windows/` para dejar únicamente los dos ejecutables operativos.
+- Se retiraron documentos técnicos auxiliares y artefactos que ya no formaban parte del flujo principal.
+- Se eliminaron carpetas auxiliares no operativas en raíz para simplificar la entrega.
 
-### Detección de Tareas de Apagado Existentes
-- **Windows**: Nueva funcion CHECK_EXISTING_SHUTDOWN_TASK que detecta tareas del Programador con accion de apagado (independiente del nombre).
-- **Linux**: Nueva funcion check_existing_cron_shutdown que detecta entradas cron con "shutdown" en /etc/cron.d, cron.daily, cron.weekly.
-- **Mac**: Nueva funcion check_existing_launchd_shutdown que detecta plists con "shutdown" en LaunchDaemons/LaunchAgents.
-- En todas las plataformas: menu de 4 opciones (reemplazar/eliminar/crear nueva/cancelar) cuando se detecta tarea existente.
-
-### Modulo de Apagado Programado en Mac
-- Se agrego modulo mod_shutdown completo a Mac (toolbox.sh y toolbox_corporate.sh).
-- Opciones: apagado en X minutos, hora exacta, diario/semanal via launchd, cancelacion.
-- Numero de menu: 14. Apagado Programado.
+### Detalle por plataforma
+- **Windows**
+  - Se eliminaron: `Windows/FIX_WMIC_DEPRECADO.md`, `Windows/INTEGRACION_MAS.md`, `Windows/MEJORA_UX_CORPORATE.md`, `Windows/MAS_AIO.cmd` y `Windows/Logs/`.
+  - Se mantienen únicamente: `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`.
+- **Linux**
+  - Sin cambios estructurales. Se mantienen: `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`.
+- **macOS**
+  - Sin cambios estructurales. Se mantienen: `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`.
+- **Documentación**
+  - Se eliminaron de raíz las carpetas `Scripts/` y `herramienta mas/`.
+  - Se mantiene `HISTORIAL_DE_CAMBIOS.md` como registro oficial de cambios globales.
 
 ---
 
-## 2026-02-11 (Actualización 1)
+## 2026-02-27 — Integración MAS autocontenida + ajuste de salida sin log
 
-- Se corrigio el retorno a menus para evitar mensajes de opcion invalida despues de ejecutar un modulo.
-- Se agregaron mini explicaciones al entrar a cada menu, con avisos segun perfil.
-- Se actualizaron las opciones de salida: salir sin reporte, reporte y salir, reporte y volver, salir sin log.
-- Se mejoro el apagado programado:
-  - Windows: opciones rapidas y programacion por tarea (una vez/diario/semanal) + cancelacion.
-  - Linux: apagado por minutos, hora exacta y programacion diaria/semanal via cron + cancelacion.
-- Se robustecio el reporte de bateria para equipos sin bateria y se evitan errores al abrir el archivo.
-- Se actualizaron los manuales en ES/EN/CN para reflejar menus y opciones de salida.
-- Se consolidaron archivos de cambios en este historial.
+### Cambios principales
+- Se integró MAS directamente dentro de `Windows/toolbox.bat` (arquitectura autocontenida).
+- Se eliminó la dependencia obligatoria de `Windows/MAS_AIO.cmd` para ejecutar la opción MAS desde el toolbox.
+- Se ajustó la salida `00` para salir sin generar reporte y sin conservar log de sesión en los scripts principales.
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat`: nuevo flujo para extraer y ejecutar MAS embebido en tiempo de ejecución.
+  - `Windows/toolbox_corporate.bat`: actualización de comportamiento de salida `00`.
+  - Se documentó la arquitectura autocontenida de MAS (archivo técnico retirado en limpieza estructural 2026-03-02).
+- **Linux**
+  - `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`: salida `00` alineada al nuevo comportamiento.
+- **macOS**
+  - `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`: salida `00` alineada al nuevo comportamiento.
+- **Documentación**
+  - `README.md` y manuales (`Manuales/README_ES.md`, `Manuales/README_EN.md`) actualizados para reflejar cambios de menú/salida.
+
+### Commits relacionados
+- `d1f5aa8` — Integrate MAS_AIO.cmd content directly into toolbox.bat (self-contained)
+- `032fa3d` — Actualizar opciones de salida en los scripts para salir sin generar log
+
+---
+
+## 2026-02-25 — Reorganización de menú y mejora de auditoría de red (Windows)
+
+### Cambios principales
+- Reorganización de opciones del menú principal para mejorar legibilidad y flujo operativo.
+- Ajustes en auditoría de red dentro de la edición Windows.
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat`: reorganización de opciones y mejoras funcionales en auditoría de red.
+
+### Commit relacionado
+- `132d36b` — Reorganización de opciones en el menú y mejoras en la auditoría de red
+
+---
+
+## 2026-02-12 — Estandarización multiplataforma y speedtest-cli
+
+### Cambios principales
+- Simplificación/estandarización del flujo de salida en herramientas multiplataforma.
+- Instalación/uso de `speedtest-cli` y reemplazo de comandos anteriores de prueba de velocidad.
+- Actualización del historial y manuales para mantener coherencia operativa.
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`: ajustes de menús/salida y pruebas de red.
+- **Linux**
+  - `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`: integración de cambios en salida y speedtest-cli.
+- **macOS**
+  - `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`: integración de cambios en salida y speedtest-cli.
+- **Documentación**
+  - `HISTORIAL_DE_CAMBIOS.md` y manuales (`Manuales/README_ES.md`, `Manuales/README_EN.md`, `Manuales/README_CN.md`) actualizados.
+
+### Commits relacionados
+- `7c9925a` — Instalación de speedtest-cli y reemplazo de comandos
+- `6986fa1` — Actualización del historial de cambios y simplificación de opciones de salida en herramientas multiplataforma
+
+---
+
+## 2026-02-11 — Publicación inicial de la suite y documentación
+
+### Cambios principales
+- Publicación base del proyecto con scripts para Windows, Linux y macOS.
+- Incorporación de manuales en ES/EN/CN y assets para generación de PDFs.
+- Inclusión de documentación técnica adicional para Windows (MAS, WMIC, UX corporate).
+- Actualización del README principal (v2.0).
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat`, `Windows/toolbox_corporate.bat`, `Windows/MAS_AIO.cmd` y documentos técnicos asociados.
+- **Linux**
+  - `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`.
+- **macOS**
+  - `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`.
+- **Documentación y soporte**
+  - `README.md`, carpeta `Manuales/`, scripts de generación PDF en `Scripts/`.
+  - Carpeta histórica `herramienta mas/` con variantes y activadores separados.
+
+### Commits relacionados
+- `da24cfd` — Add files via upload
+- `f4c10d1` — Readme Github 2.0
+
+---
+
+## Notas de mantenimiento
+
+- Este archivo es la fuente oficial de cambios globales del proyecto.
+- Se recomienda registrar cada release con:
+  - Fecha (`YYYY-MM-DD`)
+  - Resumen de cambios
+  - Impacto por plataforma (Windows/Linux/macOS/Documentación)
+  - Hash de commit(s) relevantes

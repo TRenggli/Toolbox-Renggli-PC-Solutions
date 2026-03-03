@@ -111,7 +111,7 @@ Manuales/estilo_pdf_corporativo.css
 ## ⚠️ SOLUCIÓN DE PROBLEMAS
 
 ### Error: "pandoc: command not found"
-**Solución:** Pandoc no está instalado. Sigue las instrucciones de [Requisitos Previos](#requisitos-previos)
+**Solución:** Pandoc no está instalado. Sigue las instrucciones de [Requisitos Previos](#-requisitos-previos)
 
 ### Error: "wkhtmltopdf: command not found"
 **Solución:** wkhtmltopdf no está instalado. Instalalo con:
