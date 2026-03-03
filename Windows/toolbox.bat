@@ -11,7 +11,10 @@ if not exist "!LOG_DIR!" mkdir "!LOG_DIR!"
 
 :: Fecha ISO (independiente de regionalizacion)
 for /f "tokens=*" %%a in ('powershell -Command "Get-Date -Format 'yyyy-MM-dd'"') do set "ISO_DATE=%%a"
-set "LOG_FILE=!LOG_DIR!\Audit_!ISO_DATE!.log"
+for /f "tokens=*" %%a in ('powershell -Command "Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'"') do set "SESSION_STAMP=%%a"
+set "FINAL_LOG_FILE=!LOG_DIR!\Audit_!ISO_DATE!.log"
+set "LOG_FILE=%TEMP%\ToolboxSession_!SESSION_STAMP!_!RANDOM!.log"
+set "LOG_DISPLAY_FILE=!FINAL_LOG_FILE!"
 
 echo [%time%] --- INICIO DE SESION: %username% --- >> "!LOG_FILE!"
 
@@ -43,7 +46,7 @@ color 0B
 echo  ==============================================================================================================
 echo                                   RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
 echo  ==============================================================================================================
-echo   Log Actual: !LOG_FILE!
+echo   Log Actual: !LOG_DISPLAY_FILE!
 echo.
 echo   [SELECCION DE PERFIL]
 echo.
@@ -73,7 +76,7 @@ cls
 echo  ==============================================================================================================
 echo                                   RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
 echo  ==============================================================================================================
-echo   Log Actual: !LOG_FILE!
+echo   Log Actual: !LOG_DISPLAY_FILE!
 
 :: Mostrar menu segun perfil seleccionado
 if "%PROFILE_MODE%"=="1" goto :MENU_DIAGNOSTICO
@@ -945,9 +948,17 @@ echo.
 echo  [i] Calculando hash SHA256 del log...
 for /f "skip=3 tokens=*" %%a in ('powershell -Command "Get-FileHash '!LOG_FILE!' -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') do set "LOG_HASH=%%a"
 echo [CHECKSUM SHA256] !LOG_HASH! >> "!LOG_FILE!"
+
+if exist "!FINAL_LOG_FILE!" (
+    type "!LOG_FILE!" >> "!FINAL_LOG_FILE!"
+) else (
+    copy /y "!LOG_FILE!" "!FINAL_LOG_FILE!" >nul
+)
+
 echo  [OK] Hash: !LOG_HASH!
-echo  [OK] Log guardado: !LOG_FILE!
+echo  [OK] Log guardado: !FINAL_LOG_FILE!
 echo.
+if exist "!LOG_FILE!" del /q "!LOG_FILE!" >nul 2>&1
 timeout /t 3
 exit
 

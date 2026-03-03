@@ -1,4 +1,7 @@
+<!-- markdownlint-disable MD013 MD024 MD033 MD036 MD040 MD060 -->
+
 # 🛠️ RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
+
 ## Multi-Platform Suite (Windows | Linux | macOS)
 
 **Professional diagnostic, repair and administration solution for IT technicians**
@@ -10,6 +13,7 @@
 This manual covers installation and usage on **Windows, Linux and macOS**.
 
 **Jump directly to your section:**
+
 - 🪟 [Instructions for WINDOWS](#windows)
 - 🐧 [Instructions for LINUX](#linux)
 - 🍎 [Instructions for macOS](#macos)
@@ -37,6 +41,7 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
 1. Download the complete `Herramienta-toolbox` folder
 2. Extract the ZIP file anywhere (Example: `C:\Tools\`)
 3. You'll see this structure:
+
    ```
    Herramienta-toolbox/
    ├── Windows/
@@ -64,6 +69,7 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
 
 1. **Right-click** on `toolbox.bat`
 2. Select **"Run as administrator"**
+
    ```
    ┌────────────────────────┐
    │ Open                   │
@@ -73,6 +79,7 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
    │ Share                  │
    └────────────────────────┘
    ```
+
 3. If **User Account Control (UAC)** appears, click **"Yes"**
 
 **Method 2 - From CMD:**
@@ -81,10 +88,13 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
    - Press `Windows + X`
    - Select "Terminal (Admin)" or "Command Prompt (Admin)"
 2. Navigate to the folder:
+
    ```cmd
    cd C:\path\where\you\extracted\Herramienta-toolbox\Windows
    ```
+
 3. Run:
+
    ```cmd
    toolbox.bat
    ```
@@ -95,6 +105,7 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
    - Press `Windows + X`
    - Select "Windows PowerShell (Admin)"
 2. Navigate and run:
+
    ```powershell
    cd C:\path\where\you\extracted\Herramienta-toolbox\Windows
    .\toolbox.bat
@@ -120,6 +131,7 @@ Current Log: C:\...\Logs\Audit_2024-02-10.log
 ```
 
 **Choose your profile:**
+
 - **1** = View information only, makes no changes
 - **2** = Allows repairs and cleanup
 - **3** = Full access (be careful with this)
@@ -130,7 +142,7 @@ Type the number and press **Enter**.
 
 After selecting the profile, you'll see the specific menu for that profile:
 
-#### 🔍 If you chose DIAGNOSTICS (Profile 1):
+#### 🔍 If you chose DIAGNOSTICS (Profile 1)
 
 ```
 ==============================================================================================================
@@ -150,7 +162,7 @@ After selecting the profile, you'll see the specific menu for that profile:
 
 **This profile only has read-only options.** It doesn't modify the system, only queries information.
 
-#### 🔧 If you chose REPAIR (Profile 2):
+#### 🔧 If you chose REPAIR (Profile 2)
 
 ```
 ==============================================================================================================
@@ -171,7 +183,7 @@ After selecting the profile, you'll see the specific menu for that profile:
 
 **This profile includes diagnostics + system repairs.** Can perform maintenance but not critical operations.
 
-#### ⚠️ If you chose ADMINISTRATION (Profile 3):
+#### ⚠️ If you chose ADMINISTRATION (Profile 3)
 
 ```
 ==============================================================================================================
@@ -196,22 +208,26 @@ After selecting the profile, you'll see the specific menu for that profile:
 **This profile has full access**, including critical operations like formatting, GPT conversion, and activation.
 
 **To use a function:**
+
 1. Type the **option number** you want to use
 2. Press **Enter**
 3. Follow the on-screen instructions
 4. The tool will guide you step by step
 
 **To change profile:**
+
 - Type **99** and press Enter at any time
 - You can choose a different profile without restarting the tool
 
 ### Step 6: Exit and View Logs
 
 **To exit:**
+
 - Type **0** to generate HTML report and exit
 - Type **00** to exit without generating report and without keeping the session log
 
 **About the HTML report:**
+
 - Option **0** automatically generates an HTML file in the `Logs/` folder
 - The report includes all system information and operation logs
 - It will open automatically in your browser
@@ -221,6 +237,7 @@ After selecting the profile, you'll see the specific menu for that profile:
 ## 📁 Where are the logs?
 
 Logs are automatically saved in:
+
 ```
 Herramienta-toolbox\Windows\Logs\
 ├── Audit_2024-02-10.log         (Record of all operations)
@@ -233,19 +250,24 @@ Herramienta-toolbox\Windows\Logs\
 ## ⚠️ Troubleshooting (Windows)
 
 ### Error: "You don't have administrator privileges"
+
 **Solution:** You must run with right-click → "Run as administrator"
 
 ### Error: "The system cannot execute the script"
+
 **Solution:**
+
 1. Windows may have blocked the file
 2. Right-click on `toolbox.bat` → Properties
 3. If you see "This file came from another computer", check "Unblock"
 4. Click Apply → OK
 
 ### The window closes immediately
+
 **Solution:** Run from CMD or PowerShell to see the error
 
 ### Color menu doesn't appear
+
 **Solution:** Use Windows Terminal or CMD (not PowerShell ISE)
 
 ---
@@ -269,12 +291,15 @@ Herramienta-toolbox\Windows\Logs\
 ### Step 1: Download or transfer the tool
 
 **Option A - If you downloaded on Windows:**
+
 1. Copy the `Herramienta-toolbox` folder to your Linux system
 2. Use USB, shared network, or FileZilla/SCP
 
 **Option B - Download directly on Linux:**
+
 1. Open a terminal
 2. Download to your home folder:
+
    ```bash
    cd ~
    # Download or extract the file here
@@ -284,21 +309,25 @@ Herramienta-toolbox\Windows\Logs\
 
 1. Open a **Terminal** (Ctrl + Alt + T on most distributions)
 2. Navigate to the folder:
+
    ```bash
    cd /path/where/is/Herramienta-toolbox/Linux
    ```
 
    **Example:**
+
    ```bash
    cd ~/Downloads/Herramienta-toolbox/Linux
    ```
 
 3. Verify you're in the right place:
+
    ```bash
    ls -l
    ```
 
    You should see:
+
    ```
    toolbox.sh
    toolbox_corporate.sh
@@ -313,6 +342,7 @@ chmod +x toolbox.sh toolbox_corporate.sh
 ```
 
 **Explanation:**
+
 - `chmod +x` = Give execution permissions
 - This is only done ONCE
 
@@ -321,16 +351,19 @@ chmod +x toolbox.sh toolbox_corporate.sh
 🔴 **IMPORTANT**: You must run with sudo (as root)
 
 **For full version:**
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 **For corporate version (without activation modules):**
+
 ```bash
 sudo ./toolbox_corporate.sh
 ```
 
 **What does each part mean?**
+
 - `sudo` = Run as superuser (root)
 - `./` = Run from current folder
 - `toolbox.sh` = Script name
@@ -359,6 +392,7 @@ Distribution: ubuntu 22.04 | Package manager: apt
 ```
 
 **Choose your profile:**
+
 - **1** = Diagnostics only, makes no changes
 - **2** = Allows repairs and updates
 - **3** = Full access (disk formatting, conversions)
@@ -390,6 +424,7 @@ You'll see a menu with **30 options** organized in categories:
 ```
 
 **To use a function:**
+
 1. Type the option **number**
 2. Press **Enter**
 3. Follow the instructions
@@ -398,10 +433,12 @@ You'll see a menu with **30 options** organized in categories:
 ### Step 7: Exit
 
 **To exit:**
+
 - Type **0** to generate HTML report and exit
 - Type **00** to exit without generating report and without keeping the session log
 
 **About the HTML report:**
+
 - Option **0** automatically generates an HTML file
 - The report includes all system information and operation logs
 
@@ -410,6 +447,7 @@ You'll see a menu with **30 options** organized in categories:
 ## 📁 Where are the logs? (Linux)
 
 Logs are saved in:
+
 ```
 Herramienta-toolbox/Linux/Logs/
 ├── Audit_2024-02-10.log           (Operations record)
@@ -417,11 +455,13 @@ Herramienta-toolbox/Linux/Logs/
 ```
 
 To view the log:
+
 ```bash
 cat Logs/Audit_2024-02-10.log
 ```
 
 To open the HTML report:
+
 ```bash
 firefox Logs/Report_Linux_2024-02-10.html
 # Or your preferred browser
@@ -432,32 +472,41 @@ firefox Logs/Report_Linux_2024-02-10.html
 ## ⚠️ Troubleshooting (Linux)
 
 ### Error: "Permission denied"
+
 **Solution:**
+
 ```bash
 chmod +x toolbox.sh
 sudo ./toolbox.sh
 ```
 
 ### Error: "No such file or directory"
+
 **Solution:** Verify you're in the correct folder:
+
 ```bash
 pwd  # Shows current path
 ls   # Lists files
 ```
 
 ### Error: "This script requires root privileges"
+
 **Solution:** You must use `sudo`:
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 ### Dependencies don't install automatically
+
 **Solution:** The tool detects and automatically installs packages like:
+
 - smartmontools (for SMART)
 - lm-sensors (for temperatures)
 - speedtest-cli (for speed test)
 
 If it fails, install manually:
+
 ```bash
 # Debian/Ubuntu
 sudo apt install smartmontools lm-sensors speedtest-cli
@@ -497,11 +546,13 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 ### Step 2: Open Terminal
 
 **Method 1 - Spotlight:**
+
 1. Press `Cmd + Space`
 2. Type "Terminal"
 3. Press Enter
 
 **Method 2 - Finder:**
+
 1. Open **Finder**
 2. Go to **Applications** → **Utilities**
 3. Double-click **Terminal**
@@ -515,18 +566,21 @@ cd /path/where/is/Herramienta-toolbox/Mac
 ```
 
 **Example:**
+
 ```bash
 cd ~/Documents/Herramienta-toolbox/Mac
 ```
 
-**Trick:** You can drag the folder into the terminal after typing `cd ` (with space).
+**Trick:** You can drag the folder into the terminal after typing `cd` (with space).
 
 Verify you're in the right place:
+
 ```bash
 ls -l
 ```
 
 You should see:
+
 ```
 toolbox.sh
 toolbox_corporate.sh
@@ -545,15 +599,19 @@ chmod +x toolbox.sh toolbox_corporate.sh
 macOS blocks scripts downloaded from the internet. To allow them:
 
 **Option A - Remove quarantine:**
+
 ```bash
 xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 ```
 
 **Option B - If security message appears:**
+
 1. Try to run the script:
+
    ```bash
    sudo ./toolbox.sh
    ```
+
 2. If macOS blocks it, you'll see a message
 3. Go to **System Preferences** → **Security & Privacy**
 4. In the **General** tab, you'll see a message about the blocked script
@@ -565,11 +623,13 @@ xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 🔴 **IMPORTANT**: You must run with sudo
 
 **For full version:**
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 **For corporate version:**
+
 ```bash
 sudo ./toolbox_corporate.sh
 ```
@@ -603,6 +663,7 @@ Choose the number and press Enter.
 The menu is similar to Linux, with 30 options adapted for macOS.
 
 Mac-specific functions include:
+
 - FileVault status (disk encryption)
 - Gatekeeper status (app security)
 - SIP status (System Integrity Protection)
@@ -610,16 +671,16 @@ Mac-specific functions include:
 - App Store updates
 
 **Exit options (macOS):**
-- **0** = exit without report
-- **00** = generate report and exit
-- **01** = generate report and return to the menu
-- **02** = exit without log
+
+- **0** = generate report and exit
+- **00** = exit without report and without keeping the current session log
 
 ---
 
 ## 📁 Where are the logs? (macOS)
 
 Logs are saved in:
+
 ```
 Herramienta-toolbox/Mac/Logs/
 ├── Audit_2024-02-10.log
@@ -627,11 +688,13 @@ Herramienta-toolbox/Mac/Logs/
 ```
 
 To view the log:
+
 ```bash
 cat Logs/Audit_2024-02-10.log
 ```
 
 To open the HTML report:
+
 ```bash
 open Logs/Report_Mac_2024-02-10.html
 ```
@@ -641,19 +704,25 @@ open Logs/Report_Mac_2024-02-10.html
 ## ⚠️ Troubleshooting (macOS)
 
 ### Error: "Operation not permitted"
+
 **Solution:** Run with `sudo`:
+
 ```bash
 sudo ./toolbox.sh
 ```
 
 ### Error: "command not found: brew"
+
 **Solution:** Some functions use Homebrew. Install it:
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 ### macOS blocks execution
+
 **Solution:**
+
 ```bash
 xattr -d com.apple.quarantine toolbox.sh
 ```
@@ -661,7 +730,9 @@ xattr -d com.apple.quarantine toolbox.sh
 Or go to **System Preferences** → **Security & Privacy** and allow the script.
 
 ### Xcode Command Line Tools not installed
+
 **Solution:** macOS will ask you to install them automatically. If not:
+
 ```bash
 xcode-select --install
 ```
@@ -671,16 +742,19 @@ xcode-select --install
 ## 🔒 PROFILE SYSTEM (All Systems)
 
 ### 1️⃣ DIAGNOSTICS (Read-Only)
+
 - ✅ View hardware information
 - ✅ Status and queries
 - ❌ Does NOT make system changes
 
 **Ideal for:**
+
 - Audits
 - Preventive checks
 - When you DON'T have authorization to make changes
 
 ### 2️⃣ REPAIR (Maintenance)
+
 - ✅ Everything from DIAGNOSTICS +
 - ✅ Temporary file cleanup
 - ✅ Automatic repairs
@@ -688,11 +762,13 @@ xcode-select --install
 - ❌ Does NOT allow formatting or conversions
 
 **Ideal for:**
+
 - Daily technical support
 - Routine maintenance
 - Solving common problems
 
 ### 3️⃣ ADMINISTRATION (Full Access)
+
 - ✅ EVERYTHING (DIAGNOSTICS + REPAIR) +
 - ✅ Disk formatting
 - ✅ MBR/GPT conversions
@@ -701,6 +777,7 @@ xcode-select --install
 ⚠️ **CAUTION:** This profile can delete data
 
 **Ideal for:**
+
 - Senior technicians
 - New equipment preparation
 - Authorized critical operations
@@ -729,7 +806,8 @@ xcode-select --install
 ## 📞 SUPPORT
 
 Problems or questions?
-- 📧 Email: soporte@renggli-solutions.com
+
+- 📧 Email: <soporte@renggli-solutions.com>
 - 📚 Complete documentation in `Manuales/` folder
 
 ---
@@ -737,6 +815,7 @@ Problems or questions?
 ## 🎯 VERSION
 
 **Toolbox V14 Multi-Platform**
+
 - Windows: 15 modules
 - Linux: 30 modules
 - macOS: 30 modules

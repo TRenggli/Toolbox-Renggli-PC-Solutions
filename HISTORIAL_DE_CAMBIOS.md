@@ -2,6 +2,30 @@
 
 Documento único y cronológico del proyecto (Windows, Linux, macOS y documentación).
 
+## 2026-03-03 — Corrección multiplataforma de salida sin reporte y protección de logs
+
+### Cambios principales
+- Se corrigió el comportamiento de salida `00` para que **no conserve el log de la sesión actual**.
+- Se migró el flujo de auditoría a **log temporal por sesión** y persistencia al log diario solo al salir con reporte (`0`).
+- Se evitó el riesgo de eliminar accidentalmente logs históricos del mismo día al usar salida sin reporte.
+
+### Detalle por plataforma
+- **Windows**
+  - `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`: uso de `LOG_FILE` temporal + `FINAL_LOG_FILE` persistente.
+  - `00`: elimina solo el log temporal de la sesión.
+  - `0`: consolida la sesión en `Logs/Audit_YYYY-MM-DD.log` y mantiene checksum.
+- **Linux**
+  - `Linux/toolbox.sh` y `Linux/toolbox_corporate.sh`: mismo patrón de log temporal + consolidación al salir con reporte.
+  - Se actualizó la ruta mostrada en pantalla para mantener referencia al log final diario.
+- **macOS**
+  - `Mac/toolbox.sh` y `Mac/toolbox_corporate.sh`: mismo patrón de log temporal + consolidación al salir con reporte.
+  - Se corrigió consistencia entre opciones de salida implementadas y documentación.
+- **Documentación**
+  - `Manuales/README_ES.md`, `Manuales/README_EN.md`, `Manuales/README_CN.md`: textos de salida alineados al comportamiento real.
+  - En macOS, se actualizaron las opciones de salida documentadas a las realmente disponibles (`0` y `00`).
+
+---
+
 ## 2026-03-02 — Simplificación de estructura (alineada a operación)
 
 ### Cambios principales
