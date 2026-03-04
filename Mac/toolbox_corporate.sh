@@ -95,7 +95,7 @@ main_menu() {
         echo "   11. Limpiar Paquetes             13. Info de Procesos"
         echo "                                    14. Apagado Programado"
         echo ""
-        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE"
+        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG"
         echo "=============================================================================================================="
         echo ""
         read -p "Selecciona una opcion: " choice

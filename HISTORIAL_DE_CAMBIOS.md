@@ -1,5 +1,20 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-04 (Actualización 5)
+
+### Ajustes Finales de Calidad y Consistencia
+- **Checksum SHA256 (Windows) corregido**:
+  - Se corrigió el parseo de hash en `toolbox.bat` y `toolbox_corporate.bat`.
+  - Se eliminó `skip=3` en el `for /f` para evitar hashes vacíos al cerrar sesión.
+
+### Consistencia de Opciones de Salida
+- Se actualizó el texto de menú en Windows/Linux/macOS para reflejar el comportamiento real:
+  - `[00] SALIR SIN REPORTE Y SIN LOG`
+- Resultado: UX alineada con la implementación de `EXIT_NO_LOG` / `exit_no_log`.
+
+### Documentación Sincronizada
+- Se actualizó `Manuales/README_ES.md` en bloques de menú y opciones de salida para que coincidan con la versión actual de las herramientas.
+
 ## 2026-03-04 (Actualización 4)
 
 ### Hardening Cross-Platform para Entornos Productivos

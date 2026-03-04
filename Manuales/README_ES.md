@@ -141,7 +141,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
    3. Info de Recursos del Sistema  6. Estado de Windows Update
 
-   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
 ==============================================================================================================
 
@@ -162,7 +162,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
 
-   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
 ==============================================================================================================
 
@@ -186,7 +186,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
    11. Conversion MBR a GPT         13. ACTIVACION MASTER (MAS)      15. Reporte de Bateria
 
-   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
 ==============================================================================================================
 
@@ -385,7 +385,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
    19. Montaje de Particiones       24. Usuarios y Permisos          29. Reporte Batería
    20. Espacio en Disco             25. Monitoreo en Tiempo Real     30. Verificar Integridad
 
-   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 ==============================================================================================================
 ```
 
@@ -610,10 +610,8 @@ Funciones específicas de Mac incluyen:
 - App Store updates
 
 **Opciones de salida (macOS):**
-- **0** = salir sin reporte
-- **00** = generar reporte y salir
-- **01** = generar reporte y volver al menú
-- **02** = salir sin log
+- **0** = salir con reporte
+- **00** = salir sin reporte y sin log
 
 ---
 

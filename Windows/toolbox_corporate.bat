@@ -97,7 +97,7 @@ echo    1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Tes
 echo    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
 echo    3. Info de Recursos del Sistema  6. Estado de Windows Update
 echo.
-echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
@@ -134,7 +134,7 @@ echo    2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Tes
 echo    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
 echo    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
 echo.
-echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
@@ -178,7 +178,7 @@ echo    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTO
 echo    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
 echo    11. Conversion MBR a GPT         [MODULO 13 REMOVIDO]             15. Reporte de Bateria
 echo.
-echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE
+echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
 echo.
@@ -986,7 +986,7 @@ echo   [FINALIZANDO Y GENERANDO CHECKSUM]
 echo  ==============================================================================
 echo.
 echo  [i] Calculando hash SHA256 del log...
-for /f "skip=3 tokens=*" %%a in ('powershell -Command "Get-FileHash '!LOG_FILE!' -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') do set "LOG_HASH=%%a"
+for /f "tokens=*" %%a in ('powershell -Command "Get-FileHash '!LOG_FILE!' -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') do set "LOG_HASH=%%a"
 echo [CHECKSUM SHA256] !LOG_HASH! >> "!LOG_FILE!"
 echo  [OK] Hash: !LOG_HASH!
 echo  [OK] Log guardado: !LOG_FILE!

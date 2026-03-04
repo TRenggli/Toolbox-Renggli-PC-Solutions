@@ -149,7 +149,7 @@ main_menu() {
         echo "   19. Montaje de Particiones       24. Usuarios y Permisos          29. Reporte Batería"
         echo "   20. Espacio en Disco             25. Monitoreo en Tiempo Real     30. Verificar Integridad"
         echo ""
-        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE"
+        echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG"
         echo "=============================================================================================================="
         echo -e "${NC}"
         read -p "=> Selecciona una opcion: " choice
