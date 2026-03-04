@@ -1,5 +1,17 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-04 (Actualización 7)
+
+### Cierre de Gobernanza y Visibilidad
+- Se agregaron badges de CI al `README.md` para visibilidad inmediata del estado de calidad:
+  - `ci-smoke.yml`
+  - `ci-matrix-regression.yml`
+
+### Estándares de Proyecto
+- Se incorporaron documentos de gobernanza técnica:
+  - `SECURITY.md` (proceso de reporte responsable de vulnerabilidades)
+  - `CONTRIBUTING.md` (flujo de contribución segura y checklist de cambios)
+
 ## 2026-03-04 (Actualización 6)
 
 ### Mejoras No Bloqueantes Aplicadas

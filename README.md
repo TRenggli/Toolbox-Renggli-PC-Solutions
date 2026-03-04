@@ -6,6 +6,8 @@ https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-green
 https://img.shields.io/badge/Version-V14-orange  
 https://img.shields.io/badge/Build-Stable-success  
 https://img.shields.io/badge/Documentation-Available-brightgreen
+[![CI Smoke Checks](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-smoke.yml/badge.svg)](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-smoke.yml)
+[![CI Matrix Regression](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-matrix-regression.yml/badge.svg)](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-matrix-regression.yml)
 
 A professional multi‑platform toolbox designed for system administrators, IT technicians, and enterprise environments.
 Supports Windows, Linux, and macOS, offering diagnostics, maintenance, repair, and advanced administration tools.
