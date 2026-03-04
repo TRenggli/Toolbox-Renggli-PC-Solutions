@@ -155,7 +155,7 @@ main_menu() {
 
         case $choice in
             0) generate_report ; exit_script ;;
-            00) exit_script ;;
+            00) exit_no_log ;;
             1) mod_smart ;;
             2) mod_hardware ;;
             3) mod_memory ;;
@@ -209,11 +209,12 @@ mod_smart() {
             apt) apt install -y smartmontools ;;
             dnf|yum) $PKG_MANAGER install -y smartmontools ;;
             pacman) pacman -S --noconfirm smartmontools ;;
+            zypper) zypper -n install smartmontools ;;
         esac
     fi
 
     echo "[i] Discos detectados:"
-    lsblk -d -o NAME,SIZE,TYPE,MODEL | grep disk
+    lsblk -d -o NAME,SIZE,TYPE,MODEL | grep disk || true
     echo ""
 
     for disk in $(lsblk -d -n -o NAME | grep -E '^sd|^nvme|^hd'); do
@@ -280,7 +281,7 @@ mod_memory() {
     echo ""
 
     echo "[i] Verificando errores de memoria en logs..."
-    dmesg | grep -i "memory" | tail -20
+    dmesg | grep -i "memory" | tail -20 || true
     echo ""
 
     if command -v memtester &> /dev/null; then
@@ -346,6 +347,7 @@ mod_sensors() {
             apt) apt install -y lm-sensors ;;
             dnf|yum) $PKG_MANAGER install -y lm_sensors ;;
             pacman) pacman -S --noconfirm lm_sensors ;;
+            zypper) zypper -n install sensors ;;
         esac
         sensors-detect --auto
     fi
@@ -438,6 +440,12 @@ mod_pkg_repair() {
             pacman -Sc --noconfirm
             pacman -Syu --noconfirm
             ;;
+        zypper)
+            echo "[i] Reparando Zypper..."
+            zypper -n refresh
+            zypper -n verify
+            zypper -n update
+            ;;
         *)
             echo "[!] Gestor de paquetes no soportado"
             ;;
@@ -492,6 +500,10 @@ mod_deep_clean() {
             ;;
         pacman)
             pacman -Rns $(pacman -Qtdq) --noconfirm 2>/dev/null || echo "[i] No hay paquetes huérfanos"
+            ;;
+        zypper)
+            zypper -n packages --orphaned || true
+            zypper -n clean --all
             ;;
     esac
     echo "[OK] Paquetes huérfanos eliminados"
@@ -631,6 +643,7 @@ mod_speed_test() {
                 apt) apt install -y speedtest-cli ;;
                 dnf|yum) $PKG_MANAGER install -y speedtest-cli ;;
                 pacman) pacman -S --noconfirm speedtest-cli ;;
+                zypper) zypper -n install speedtest-cli ;;
             esac
         fi
     fi
@@ -657,7 +670,7 @@ mod_dns_audit() {
     echo ""
 
     echo -e "${YELLOW}[DNS ACTUAL]${NC}"
-    cat /etc/resolv.conf | grep nameserver
+    cat /etc/resolv.conf | grep nameserver || true
     echo ""
 
     echo -e "${YELLOW}[PUERTOS EN ESCUCHA]${NC}"
@@ -759,6 +772,20 @@ mod_format() {
         return
     fi
 
+    if [[ ! "$device" =~ ^[a-zA-Z0-9]+$ ]]; then
+        echo "[!] Dispositivo invalido"
+        sleep 2
+        return
+    fi
+
+    ROOT_DEVICE=$(findmnt -n -o SOURCE / 2>/dev/null || true)
+    if [[ "$ROOT_DEVICE" == /dev/${device}* ]]; then
+        echo "[BLOQUEADO] No se permite formatear el dispositivo del sistema: /dev/$device"
+        echo "[$(date +%H:%M:%S)] Formateo bloqueado: dispositivo de sistema /dev/$device" >> "$LOG_FILE"
+        read -p "Presiona Enter para continuar..."
+        return
+    fi
+
     echo ""
     echo -e "${RED}[!] ADVERTENCIA: SE BORRARAN TODOS LOS DATOS DE /dev/$device${NC}"
     echo ""
@@ -802,6 +829,7 @@ mod_mbr_gpt() {
             apt) apt install -y gdisk ;;
             dnf|yum) $PKG_MANAGER install -y gdisk ;;
             pacman) pacman -S --noconfirm gptfdisk ;;
+            zypper) zypper -n install gptfdisk ;;
         esac
     fi
 
@@ -814,6 +842,20 @@ mod_mbr_gpt() {
     if [[ -z "$disk" ]]; then
         echo "[!] Operación cancelada"
         sleep 2
+        return
+    fi
+
+    if [[ ! "$disk" =~ ^[a-zA-Z0-9]+$ ]]; then
+        echo "[!] Disco invalido"
+        sleep 2
+        return
+    fi
+
+    ROOT_DEVICE=$(findmnt -n -o SOURCE / 2>/dev/null || true)
+    if [[ "$ROOT_DEVICE" == /dev/${disk}* ]]; then
+        echo "[BLOQUEADO] No se permite convertir el disco del sistema: /dev/$disk"
+        echo "[$(date +%H:%M:%S)] Conversion MBR->GPT bloqueada: disco de sistema /dev/$disk" >> "$LOG_FILE"
+        read -p "Presiona Enter para continuar..."
         return
     fi
 
@@ -975,7 +1017,7 @@ mod_logs() {
     read -p "Selecciona: " log_choice
 
     case $log_choice in
-        1) dmesg | grep -i error | tail -50 ;;
+        1) dmesg | grep -i error | tail -50 || true ;;
         2) tail -100 /var/log/auth.log 2>/dev/null || tail -100 /var/log/secure ;;
         3) journalctl -xe | tail -100 ;;
         4) tail -100 /var/log/apache2/error.log 2>/dev/null || tail -100 /var/log/nginx/error.log 2>/dev/null ;;
@@ -1067,6 +1109,11 @@ mod_update() {
             echo "[i] Actualizando sistema (Arch)..."
             pacman -Syu --noconfirm
             ;;
+        zypper)
+            echo "[i] Actualizando sistema (OpenSUSE)..."
+            zypper -n refresh
+            zypper -n update
+            ;;
         *)
             echo "[!] Gestor de paquetes no soportado"
             ;;
@@ -1141,15 +1188,7 @@ EOF
         5)
             shutdown -c 2>/dev/null
             rm -f /etc/cron.d/toolbox_shutdown
-            # Mostrar tareas encontradas antes de limpiar
-            FOUND_CRONS=$(grep -rl "shutdown" /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron/crontabs 2>/dev/null)
-            if [ -n "$FOUND_CRONS" ]; then
-                echo "[i] Limpiando tareas de apagado encontradas..."
-                for cronfile in $FOUND_CRONS; do
-                    sed -i '/shutdown/d' "$cronfile" 2>/dev/null
-                    echo "    - Limpiado: $cronfile"
-                done
-            fi
+            echo "[i] Se elimino solo la tarea administrada por Toolbox (/etc/cron.d/toolbox_shutdown)."
             echo "[OK] Apagado/tarea cancelada"
             echo "[$(date +%H:%M:%S)] Cancelacion de apagado/tarea" >> "$LOG_FILE"
             ;;
@@ -1162,7 +1201,11 @@ EOF
 
 # Detectar tareas de apagado cron existentes
 check_existing_cron_shutdown() {
-    EXISTING_CRON=$(grep -r "shutdown" /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron/crontabs 2>/dev/null | head -1)
+    CRON_FILE="/etc/cron.d/toolbox_shutdown"
+    EXISTING_CRON=""
+    if [ -f "$CRON_FILE" ]; then
+        EXISTING_CRON=$(cat "$CRON_FILE" 2>/dev/null)
+    fi
     
     if [ -z "$EXISTING_CRON" ]; then
         return 0
@@ -1181,22 +1224,13 @@ check_existing_cron_shutdown() {
     
     case $cron_choice in
         1)
-            # Eliminar todas las tareas de shutdown existentes
-            FOUND_CRONS=$(grep -rl "shutdown" /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron/crontabs 2>/dev/null)
-            for cronfile in $FOUND_CRONS; do
-                sed -i '/shutdown/d' "$cronfile" 2>/dev/null
-            done
-            rm -f /etc/cron.d/toolbox_shutdown 2>/dev/null
+            rm -f "$CRON_FILE" 2>/dev/null
             echo "[i] Tarea anterior eliminada. Continua configurando la nueva..."
             echo "[$(date +%H:%M:%S)] Tarea cron anterior eliminada (reemplazo)" >> "$LOG_FILE"
             return 0
             ;;
         2)
-            FOUND_CRONS=$(grep -rl "shutdown" /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron/crontabs 2>/dev/null)
-            for cronfile in $FOUND_CRONS; do
-                sed -i '/shutdown/d' "$cronfile" 2>/dev/null
-            done
-            rm -f /etc/cron.d/toolbox_shutdown 2>/dev/null
+            rm -f "$CRON_FILE" 2>/dev/null
             echo "[OK] Tarea eliminada."
             echo "[$(date +%H:%M:%S)] Tarea cron eliminada por usuario" >> "$LOG_FILE"
             read -p "Presiona Enter para continuar..."
@@ -1267,6 +1301,7 @@ mod_battery() {
             apt) apt install -y upower ;;
             dnf|yum) $PKG_MANAGER install -y upower ;;
             pacman) pacman -S --noconfirm upower ;;
+            zypper) zypper -n install upower ;;
         esac
     fi
 

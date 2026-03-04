@@ -101,7 +101,7 @@ main_menu() {
 
         case $choice in
             0) mod_system_report ; exit_script ;;
-            00) exit_script ;;
+            00) exit_no_log ;;
             1) mod_disk_status ;;
             2) mod_hardware_info ;;
             3) mod_memory_test ;;
@@ -426,16 +426,16 @@ mod_shutdown() {
     case $choice in
         1)
             read -p "Minutos para apagar: " mins
-            sudo shutdown -h +$mins
+            shutdown -h +$mins
             echo "[i] Sistema se apagara en $mins minutos"
-            echo "[i] Para cancelar: sudo killall shutdown"
+            echo "[i] Para cancelar: killall shutdown"
             echo "[$(date +%H:%M:%S)] Apagado programado: $mins min" >> "$LOG_FILE"
             ;;
         2)
             read -p "Hora de apagado (HH:MM): " at_time
-            sudo shutdown -h $at_time
+            shutdown -h $at_time
             echo "[i] Sistema se apagara a las $at_time"
-            echo "[i] Para cancelar: sudo killall shutdown"
+            echo "[i] Para cancelar: killall shutdown"
             echo "[$(date +%H:%M:%S)] Apagado programado (hora exacta): $at_time" >> "$LOG_FILE"
             ;;
         3)
@@ -518,7 +518,7 @@ PLIST
             ;;
         5)
             # Cancelar shutdown inmediato
-            sudo killall shutdown 2>/dev/null
+            killall shutdown 2>/dev/null
             # Cancelar tareas launchd
             PLIST_FILE="/Library/LaunchDaemons/com.renggli.toolbox.shutdown.plist"
             if [ -f "$PLIST_FILE" ]; then
@@ -526,14 +526,7 @@ PLIST
                 rm -f "$PLIST_FILE"
                 echo "[i] Tarea launchd eliminada"
             fi
-            # Buscar otras tareas de shutdown
-            FOUND_PLISTS=$(grep -rl "shutdown" /Library/LaunchDaemons /Library/LaunchAgents ~/Library/LaunchAgents 2>/dev/null)
-            if [ -n "$FOUND_PLISTS" ]; then
-                echo "[i] Otras tareas de apagado encontradas:"
-                for plist in $FOUND_PLISTS; do
-                    echo "    - $plist"
-                done
-            fi
+            echo "[i] Se gestiono solo la tarea de Toolbox: $PLIST_FILE"
             echo "[OK] Apagado/tarea cancelada"
             echo "[$(date +%H:%M:%S)] Cancelacion de apagado/tarea" >> "$LOG_FILE"
             ;;
@@ -546,7 +539,11 @@ PLIST
 
 # Detectar tareas de apagado launchd existentes
 check_existing_launchd_shutdown() {
-    EXISTING_PLIST=$(grep -rl "shutdown" /Library/LaunchDaemons /Library/LaunchAgents ~/Library/LaunchAgents 2>/dev/null | head -1)
+    PLIST_FILE="/Library/LaunchDaemons/com.renggli.toolbox.shutdown.plist"
+    EXISTING_PLIST=""
+    if [ -f "$PLIST_FILE" ]; then
+        EXISTING_PLIST="$PLIST_FILE"
+    fi
     
     if [ -z "$EXISTING_PLIST" ]; then
         return 0
@@ -565,22 +562,15 @@ check_existing_launchd_shutdown() {
     
     case $launchd_choice in
         1)
-            # Eliminar todas las tareas de shutdown existentes
-            FOUND_PLISTS=$(grep -rl "shutdown" /Library/LaunchDaemons /Library/LaunchAgents ~/Library/LaunchAgents 2>/dev/null)
-            for plist in $FOUND_PLISTS; do
-                launchctl unload "$plist" 2>/dev/null
-                rm -f "$plist" 2>/dev/null
-            done
+            launchctl unload "$PLIST_FILE" 2>/dev/null
+            rm -f "$PLIST_FILE" 2>/dev/null
             echo "[i] Tarea anterior eliminada. Continua configurando la nueva..."
             echo "[$(date +%H:%M:%S)] Tarea launchd anterior eliminada (reemplazo)" >> "$LOG_FILE"
             return 0
             ;;
         2)
-            FOUND_PLISTS=$(grep -rl "shutdown" /Library/LaunchDaemons /Library/LaunchAgents ~/Library/LaunchAgents 2>/dev/null)
-            for plist in $FOUND_PLISTS; do
-                launchctl unload "$plist" 2>/dev/null
-                rm -f "$plist" 2>/dev/null
-            done
+            launchctl unload "$PLIST_FILE" 2>/dev/null
+            rm -f "$PLIST_FILE" 2>/dev/null
             echo "[OK] Tarea eliminada."
             echo "[$(date +%H:%M:%S)] Tarea launchd eliminada por usuario" >> "$LOG_FILE"
             read -p "Presiona Enter para continuar..."

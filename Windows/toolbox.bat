@@ -104,7 +104,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
@@ -140,7 +140,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_RAM & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RESOURCES & goto :MAIN_MENU)
@@ -184,7 +184,7 @@ set "choice="
 set /p "choice=> Selecciona una opcion: "
 
 if "%choice%"=="0"  (call :GENERATE_REPORT & goto :EXIT_SCRIPT)
-if "%choice%"=="00" goto :EXIT_SCRIPT
+if "%choice%"=="00" goto :EXIT_NO_LOG
 if "%choice%"=="99" goto :PROFILE_SELECT
 if "%choice%"=="1"  (call :MOD_BIOS & goto :MAIN_MENU)
 if "%choice%"=="2"  (call :MOD_RAM & goto :MAIN_MENU)
@@ -270,6 +270,22 @@ echo.
 (echo list disk) | diskpart
 echo.
 set /p "dnum=Seleccione numero de disco (Ojo!): "
+for /f "delims=0123456789" %%x in ("%dnum%") do set "dnum="
+if not defined dnum (
+    echo.
+    echo [BLOQUEADO] Numero de disco invalido.
+    echo ACCION BLOQUEADA: Numero de disco invalido. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+for /f "tokens=*" %%a in ('powershell -NoProfile -Command "$sys=(Get-CimInstance Win32_OperatingSystem).SystemDrive.TrimEnd(':'); $p=Get-Partition -DriveLetter $sys -ErrorAction SilentlyContinue; if($p){$p.DiskNumber}"') do set "SYS_DISK=%%a"
+if defined SYS_DISK if "%dnum%"=="!SYS_DISK!" (
+    echo.
+    echo [BLOQUEADO] No se permite formatear el disco del sistema (Disco !SYS_DISK!).
+    echo ACCION BLOQUEADA: Intento de formatear disco de sistema !SYS_DISK!. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 if "%dnum%"=="0" (
     echo.
     echo [BLOQUEADO] No se permite formatear disco de sistema.
@@ -464,8 +480,14 @@ net stop bits
 net stop msiserver
 echo.
 echo  [i] Limpiando cache de Windows Update...
-ren C:\Windows\SoftwareDistribution SoftwareDistribution.old
-ren C:\Windows\System32\catroot2 catroot2.old
+if exist C:\Windows\SoftwareDistribution (
+    if exist C:\Windows\SoftwareDistribution.old rd /s /q C:\Windows\SoftwareDistribution.old
+    ren C:\Windows\SoftwareDistribution SoftwareDistribution.old
+)
+if exist C:\Windows\System32\catroot2 (
+    if exist C:\Windows\System32\catroot2.old rd /s /q C:\Windows\System32\catroot2.old
+    ren C:\Windows\System32\catroot2 catroot2.old
+)
 echo.
 echo  [i] Reiniciando servicios...
 net start wuauserv
@@ -606,6 +628,22 @@ echo.
 (echo list disk) | diskpart
 echo.
 set /p "gdisk=Seleccione numero de disco a convertir: "
+for /f "delims=0123456789" %%x in ("%gdisk%") do set "gdisk="
+if not defined gdisk (
+    echo.
+    echo [BLOQUEADO] Numero de disco invalido.
+    echo ACCION BLOQUEADA: Numero de disco invalido para GPT. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+for /f "tokens=*" %%a in ('powershell -NoProfile -Command "$sys=(Get-CimInstance Win32_OperatingSystem).SystemDrive.TrimEnd(':'); $p=Get-Partition -DriveLetter $sys -ErrorAction SilentlyContinue; if($p){$p.DiskNumber}"') do set "SYS_DISK=%%a"
+if defined SYS_DISK if "%gdisk%"=="!SYS_DISK!" (
+    echo.
+    echo [BLOQUEADO] No se permite convertir el disco del sistema (Disco !SYS_DISK!).
+    echo ACCION BLOQUEADA: Intento de convertir disco de sistema !SYS_DISK!. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 set /p "gconfirm=Escriba 'GPT-OK' para confirmar: "
 if /i "%gconfirm%"=="GPT-OK" (
     echo  [i] Convirtiendo disco %gdisk%...
