@@ -610,10 +610,8 @@ Mac-specific functions include:
 - App Store updates
 
 **Exit options (macOS):**
-- **0** = exit without report
-- **00** = generate report and exit
-- **01** = generate report and return to the menu
-- **02** = exit without log
+- **0** = exit with report
+- **00** = exit without report and without log
 
 ---
 
