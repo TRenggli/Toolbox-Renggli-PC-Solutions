@@ -1,5 +1,55 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-04 (Actualización 4)
+
+### Hardening Cross-Platform para Entornos Productivos
+- **Cambio Principal**: Se aplicó endurecimiento integral de seguridad y robustez en Windows, Linux y macOS (version normal y corporate).
+- **Archivos Modificados**:
+  - Windows/toolbox.bat
+  - Windows/toolbox_corporate.bat
+  - Linux/toolbox.sh
+  - Linux/toolbox_corporate.sh
+  - Mac/toolbox.sh
+  - Mac/toolbox_corporate.sh
+
+### Salida Sin Log Corregida
+- Se corrigió la opcion `[00] SALIR SIN REPORTE` para que use realmente la ruta de salida sin log (`EXIT_NO_LOG` / `exit_no_log`) en las 6 herramientas.
+- Resultado: comportamiento alineado con el menu y mejor cumplimiento operativo/auditoria.
+
+### Seguridad en Operaciones Destructivas de Disco
+- **Windows**:
+  - Validacion de entrada numerica para disco en formateo y conversion MBR->GPT.
+  - Bloqueo explicito para impedir formatear/convertir el disco del sistema.
+- **Linux**:
+  - Validacion de nombre de dispositivo.
+  - Bloqueo explicito para impedir operaciones sobre el dispositivo raiz del sistema.
+
+### Apagado Programado con Alcance Seguro (No Interferencia)
+- **Linux/macOS**:
+  - Se eliminó la limpieza global por patrones `shutdown` en cron/launchd.
+  - La gestion ahora afecta solo tareas administradas por Toolbox:
+    - Linux: `/etc/cron.d/toolbox_shutdown`
+    - macOS: `/Library/LaunchDaemons/com.renggli.toolbox.shutdown.plist`
+- Resultado: evita borrar automatizaciones legitimas de servidores o politicas ajenas.
+
+### Robustez Operativa
+- **Linux (`set -e`)**:
+  - Se endurecieron pipelines de diagnostico con `|| true` en comandos que pueden no devolver coincidencias (grep en dmesg/resolv/lsblk), evitando abortos no deseados.
+- **Windows Update**:
+  - Flujo de reset de cache mas idempotente (validaciones de existencia antes de renombrar directorios).
+
+### Compatibilidad OpenSUSE (zypper)
+- Se completaron ramas faltantes para `zypper` en instalacion, reparacion y actualizacion de paquetes en Linux (normal y corporate).
+
+### Correcciones de Consistencia
+- Correccion de etiqueta de version en `Mac/toolbox_corporate.sh` (macOS Edition).
+- Correccion de formato de log en Winget (`Windows/toolbox_corporate.bat`).
+- Eliminacion de `sudo` redundante en scripts macOS (ya requieren root al inicio).
+
+### Publicación
+- Commit publicado en `main`: `3924ab6`
+- Titulo: `Hardening cross-platform toolbox for production safety`
+
 ## 2026-02-12 (Actualización 3)
 
 ### Simplificación de Opciones de Salida
