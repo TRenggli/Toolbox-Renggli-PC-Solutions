@@ -1,0 +1,94 @@
+name: CI Matrix Regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unix-matrix:
+    name: Unix checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bash syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n Linux/toolbox.sh
+          bash -n Linux/toolbox_corporate.sh
+          bash -n Mac/toolbox.sh
+          bash -n Mac/toolbox_corporate.sh
+
+      - name: Ensure no global set -e
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -nE '^set -e$' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh; then
+            echo "Detected forbidden global set -e"
+            exit 1
+          fi
+
+      - name: Ensure safety guards remain
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -n 'set -o pipefail' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh
+          grep -n 'check_existing_cron_shutdown' Linux/toolbox.sh Linux/toolbox_corporate.sh
+          grep -n 'check_existing_launchd_shutdown' Mac/toolbox.sh Mac/toolbox_corporate.sh
+          if grep -nE 'grep -rl "shutdown" /etc/cron.d|grep -rl "shutdown" /Library/LaunchDaemons|sed -i.*/shutdown/d' Linux/*.sh Mac/*.sh; then
+            echo "Detected unsafe global shutdown cleanup pattern"
+            exit 1
+          fi
+
+  windows-static:
+    name: Windows static checks
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Windows menu and checksum patterns
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $winFiles = @('Windows/toolbox.bat', 'Windows/toolbox_corporate.bat')
+
+          foreach ($f in $winFiles) {
+            $content = Get-Content -Path $f -Raw
+
+            if ($content -notmatch 'if "%choice%"=="00" goto :EXIT_NO_LOG') {
+              throw "Missing EXIT_NO_LOG routing in $f"
+            }
+
+            if ($content -match 'skip=3 tokens=\*" %%a in \(') {
+              throw "Deprecated checksum pattern found in $f"
+            }
+
+            if ($content -notmatch 'Get-FileHash') {
+              throw "Expected Get-FileHash usage missing in $f"
+            }
+          }
+
+      - name: Validate docs consistency (ES/EN/CN)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $es = Get-Content -Path 'Manuales/README_ES.md' -Raw
+          $en = Get-Content -Path 'Manuales/README_EN.md' -Raw
+          $cn = Get-Content -Path 'Manuales/README_CN.md' -Raw
+
+          if ($es -notmatch 'SIN REPORTE Y SIN LOG') { throw 'ES docs are missing no-log wording' }
+          if ($en -notmatch 'exit without report and without log') { throw 'EN docs are missing no-log wording' }
+          if ($cn -notmatch '退出不生成报告且不保留日志') { throw 'CN docs are missing no-log wording' }

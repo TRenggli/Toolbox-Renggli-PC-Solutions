@@ -22,6 +22,14 @@
   - Verificación de que limpieza de apagado permanezca acotada a tareas de Toolbox
   - Consistencia documental de opciones de salida (ES/EN/CN)
 
+#### 4) CI Matrix (Linux/macOS + Windows estático)
+- Se agregó un segundo workflow para cobertura por runner y regresión multi-plataforma:
+  - `.github/workflows/ci-matrix-regression.yml`
+- Validaciones adicionales:
+  - Matriz `ubuntu-latest` y `macos-latest` con chequeos de shell/safety
+  - Job dedicado `windows-latest` para validaciones estáticas de `.bat`
+  - Verificación documental ES/EN/CN desde runner Windows
+
 #### 3) Cobertura documental multi-idioma (CN)
 - Se actualizó `Manuales/README_CN.md` para reflejar el comportamiento real actual:
   - `[0]` = generar reporte y salir
