@@ -1,5 +1,33 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-04 (Actualización 6)
+
+### Mejoras No Bloqueantes Aplicadas
+
+#### 1) Resiliencia de ejecución en Unix (Linux/macOS)
+- Se eliminó el modo global `set -e` en las 4 herramientas Unix:
+  - `Linux/toolbox.sh`
+  - `Linux/toolbox_corporate.sh`
+  - `Mac/toolbox.sh`
+  - `Mac/toolbox_corporate.sh`
+- Se reemplazó por `set -o pipefail` para mantener control en pipelines sin abortar toda la suite ante fallos puntuales no críticos.
+
+#### 2) CI automatizado de regresión
+- Se agregó workflow de GitHub Actions:
+  - `.github/workflows/ci-smoke.yml`
+- Cobertura de validaciones automáticas en push/PR a `main`:
+  - Sintaxis Bash en scripts Linux/macOS (`bash -n`)
+  - Enrutamiento correcto de salida `00` hacia no-log
+  - Prevención de regresión del checksum SHA256 en Windows
+  - Verificación de que limpieza de apagado permanezca acotada a tareas de Toolbox
+  - Consistencia documental de opciones de salida (ES/EN/CN)
+
+#### 3) Cobertura documental multi-idioma (CN)
+- Se actualizó `Manuales/README_CN.md` para reflejar el comportamiento real actual:
+  - `[0]` = generar reporte y salir
+  - `[00]` = salir sin reporte y sin log
+
+
 ## 2026-03-04 (Actualización 5)
 
 ### Ajustes Finales de Calidad y Consistencia

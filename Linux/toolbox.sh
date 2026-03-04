@@ -4,7 +4,8 @@
 # Todas las funcionalidades de Windows + Características específicas de Linux
 # ==============================================================================
 
-set -e
+# Keep pipelines strict, but avoid aborting the whole suite on non-critical module errors.
+set -o pipefail
 
 # Colors
 RED='\033[0;31m'

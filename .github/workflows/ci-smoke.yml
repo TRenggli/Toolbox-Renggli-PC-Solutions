@@ -1,0 +1,61 @@
+name: CI Smoke Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Validate bash syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n Linux/toolbox.sh
+          bash -n Linux/toolbox_corporate.sh
+          bash -n Mac/toolbox.sh
+          bash -n Mac/toolbox_corporate.sh
+
+      - name: Enforce no-log exit routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          rg -n 'if "%choice%"=="00" goto :EXIT_NO_LOG' Windows/toolbox.bat Windows/toolbox_corporate.bat
+          rg -n '00\) exit_no_log ;;' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh
+
+      - name: Block known checksum regression (Windows)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if rg -n 'skip=3 tokens=\*" %%a in \(' Windows/toolbox.bat Windows/toolbox_corporate.bat; then
+            echo "Found deprecated hash parsing pattern with skip=3"
+            exit 1
+          fi
+          rg -n 'Get-FileHash' Windows/toolbox.bat Windows/toolbox_corporate.bat
+
+      - name: Ensure shutdown cleanup is scoped to Toolbox-owned tasks
+        shell: bash
+        run: |
+          set -euo pipefail
+          if rg -n 'grep -rl "shutdown" /etc/cron.d|grep -rl "shutdown" /Library/LaunchDaemons|sed -i.*/shutdown/d' Linux/*.sh Mac/*.sh; then
+            echo "Found global shutdown cleanup pattern"
+            exit 1
+          fi
+
+      - name: Check docs for exit option consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          rg -n '\[00\].*SIN REPORTE Y SIN LOG' Manuales/README_ES.md
+          rg -n '\*\*00\*\* = exit without report and without log' Manuales/README_EN.md
+          rg -n '\[00\].*退出不生成报告且不保留日志|\*\*00\*\* = 退出不生成报告且不保留日志' Manuales/README_CN.md
