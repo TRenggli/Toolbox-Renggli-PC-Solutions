@@ -6,7 +6,7 @@ Esta carpeta contiene toda la documentación oficial de la Enterprise Toolbox V1
 
 ## 📂 ESTRUCTURA ORGANIZADA
 
-```
+```text
 Manuales/
 ├── README_ES.md                      # Manual completo en ESPAÑOL
 ├── README_EN.md                      # Manual completo en INGLÉS (English)
@@ -37,6 +37,7 @@ Manuales/
 ### PDFs Generados
 
 Los PDFs están pre-generados y listos para distribuir. Mantienen el formato corporativo con:
+
 - Fondo oscuro (#0a0e27)
 - Colores corporativos (Cyan, Verde, Amarillo)
 - Tipografía monoespaciada
@@ -49,6 +50,7 @@ Los PDFs están pre-generados y listos para distribuir. Mantienen el formato cor
 ### Ver Manuales
 
 Simplemente abre el archivo correspondiente:
+
 - **Español:** README_ES.md
 - **English:** README_EN.md
 - **中文:** README_CN.md
@@ -62,11 +64,13 @@ Los PDFs ya están generados en la carpeta `PDFs/`. Solo ábrelos y compártelos
 Si modificas algún manual y necesitas regenerar los PDFs:
 
 **Windows:**
+
 ```cmd
 ..\generar_pdfs.bat
 ```
 
 **Linux/Mac:**
+
 ```bash
 ../generar_pdfs.sh
 ```
@@ -83,4 +87,4 @@ Si modificas algún manual y necesitas regenerar los PDFs:
 
 ---
 
-**© 2024 RENGGLI PC SOLUTIONS**
+© 2024 RENGGLI PC SOLUTIONS

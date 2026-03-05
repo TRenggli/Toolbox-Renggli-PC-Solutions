@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD022 MD026 MD031 MD032 MD033 MD036 MD040 MD060 -->
+
 # 🛠️ RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
 ## Multi-Platform Suite (Windows | Linux | macOS)
 
@@ -488,7 +490,7 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 
 ## 🚀 Installation on macOS - STEP BY STEP
 
-### Step 1: Download the tool
+### Step 1: Download the tool (macOS)
 
 1. Download the `Herramienta-toolbox` folder
 2. Extract the file (double-click the .zip)
@@ -519,7 +521,7 @@ cd /path/where/is/Herramienta-toolbox/Mac
 cd ~/Documents/Herramienta-toolbox/Mac
 ```
 
-**Trick:** You can drag the folder into the terminal after typing `cd ` (with space).
+**Trick:** You can drag the folder into the terminal after typing `cd` followed by a space.
 
 Verify you're in the right place:
 ```bash
@@ -727,7 +729,7 @@ xcode-select --install
 ## 📞 SUPPORT
 
 Problems or questions?
-- 📧 Email: soporte@renggli-solutions.com
+- 📧 Email: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
 - 📚 Complete documentation in `Manuales/` folder
 
 ---

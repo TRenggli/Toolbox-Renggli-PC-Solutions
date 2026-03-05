@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD034 MD041 -->
+
 🛠️ RENGGLI PC SOLUTIONS
 Enterprise Toolbox V14
 Unified Cross‑Platform IT Diagnostics & Repair Suite

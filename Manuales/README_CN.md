@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD022 MD026 MD031 MD032 MD033 MD036 MD040 MD060 -->
+
 # 🛠️ RENGGLI PC SOLUTIONS - 企业工具箱 V14
 ## 多平台套件 (Windows | Linux | macOS)
 
@@ -488,7 +490,7 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 
 ## 🚀 macOS 安装 - 分步说明
 
-### 步骤 1: 下载工具
+### 步骤 1: 下载工具 (macOS)
 
 1. 下载 `Herramienta-toolbox` 文件夹
 2. 解压文件 (双击 .zip 文件)
@@ -519,7 +521,7 @@ cd /文件所在路径/Herramienta-toolbox/Mac
 cd ~/Documents/Herramienta-toolbox/Mac
 ```
 
-**技巧:** 在输入 `cd ` (带空格) 后，可以将文件夹拖到终端中。
+**技巧:** 在输入 `cd` 后再输入一个空格，然后可以将文件夹拖到终端中。
 
 验证您在正确的位置:
 ```bash
@@ -727,7 +729,7 @@ xcode-select --install
 ## 📞 支持
 
 有问题或疑问？
-- 📧 电子邮件: soporte@renggli-solutions.com
+- 📧 电子邮件: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
 - 📚 `Manuales/` 文件夹中的完整文档
 
 ---
