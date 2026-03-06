@@ -805,19 +805,19 @@ If the module changes system, disk, or network state, you must:
 ### 5) Platform-specific considerations
 
 - Windows:
-   - Use commands compatible with supported Windows versions.
-   - Validate external tools before calling them.
-   - Keep report/checksum behavior consistent.
+  - Use commands compatible with supported Windows versions.
+  - Validate external tools before calling them.
+  - Keep report/checksum behavior consistent.
 
 - Linux:
-   - Handle distro differences (apt, dnf, yum, pacman, zypper).
-   - Avoid hardcoded assumptions for paths/services.
-   - Keep pipelines resilient to non-critical command misses.
+  - Handle distro differences (apt, dnf, yum, pacman, zypper).
+  - Avoid hardcoded assumptions for paths/services.
+  - Keep pipelines resilient to non-critical command misses.
 
 - macOS:
-   - Validate support on Intel and Apple Silicon.
-   - Do not assume non-default dependencies are installed.
-   - If using `launchd`, scope changes to Toolbox identifiers only.
+  - Validate support on Intel and Apple Silicon.
+  - Do not assume non-default dependencies are installed.
+  - If using `launchd`, scope changes to Toolbox identifiers only.
 
 ### 6) Quick pre-release checklist
 

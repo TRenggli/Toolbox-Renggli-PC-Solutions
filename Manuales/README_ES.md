@@ -805,19 +805,19 @@ Si el modulo modifica sistema, disco o red, debes cumplir esto:
 ### 5) Diferencias por plataforma que debes considerar
 
 - Windows:
-   - Usa comandos compatibles con Windows 10/11 y Server soportados.
-   - Si llamas herramientas externas, valida su existencia antes.
-   - Mantiene consistencia de salida con reporte HTML y checksum SHA256.
+  - Usa comandos compatibles con Windows 10/11 y Server soportados.
+  - Si llamas herramientas externas, valida su existencia antes.
+  - Mantiene consistencia de salida con reporte HTML y checksum SHA256.
 
 - Linux:
-   - Considera variaciones por distro (apt, dnf, yum, pacman, zypper).
-   - Evita asumir rutas unicas para todos los sistemas.
-   - Mantiene manejo robusto en pipelines para no abortar por falsos negativos.
+  - Considera variaciones por distro (apt, dnf, yum, pacman, zypper).
+  - Evita asumir rutas unicas para todos los sistemas.
+  - Mantiene manejo robusto en pipelines para no abortar por falsos negativos.
 
 - macOS:
-   - Verifica compatibilidad con Intel y Apple Silicon.
-   - Evita dependencias no instaladas por defecto sin validacion previa.
-   - Si usas `launchd`, limita cambios a identificadores de Toolbox.
+  - Verifica compatibilidad con Intel y Apple Silicon.
+  - Evita dependencias no instaladas por defecto sin validacion previa.
+  - Si usas `launchd`, limita cambios a identificadores de Toolbox.
 
 ### 6) Checklist rapido antes de publicar
 

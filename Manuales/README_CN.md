@@ -805,19 +805,19 @@ xcode-select --install
 ### 5) 平台差异注意事项
 
 - Windows：
-   - 命令需兼容受支持的 Windows 版本。
-   - 调用外部工具前先校验存在性。
-   - 保持报告与校验和行为一致。
+  - 命令需兼容受支持的 Windows 版本。
+  - 调用外部工具前先校验存在性。
+  - 保持报告与校验和行为一致。
 
 - Linux：
-   - 兼容不同发行版（apt、dnf、yum、pacman、zypper）。
-   - 避免硬编码路径/服务假设。
-   - 管道对非关键失败要有韧性。
+  - 兼容不同发行版（apt、dnf、yum、pacman、zypper）。
+  - 避免硬编码路径/服务假设。
+  - 管道对非关键失败要有韧性。
 
 - macOS：
-   - 校验 Intel 与 Apple Silicon 兼容性。
-   - 不应假设非默认依赖已安装。
-   - 使用 `launchd` 时仅操作 Toolbox 自有标识。
+  - 校验 Intel 与 Apple Silicon 兼容性。
+  - 不应假设非默认依赖已安装。
+  - 使用 `launchd` 时仅操作 Toolbox 自有标识。
 
 ### 6) 发布前快速检查清单
 
