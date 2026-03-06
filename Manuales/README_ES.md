@@ -726,6 +726,116 @@ xcode-select --install
 
 ---
 
+## 👨‍💻 GUIA PARA PROGRAMADORES: COMO AGREGAR NUEVOS MODULOS
+
+Esta seccion explica como extender la Toolbox en **Windows, Linux y macOS** de forma segura y consistente.
+
+### 1) Conocimientos recomendados
+
+Antes de agregar modulos, se recomienda:
+
+- Windows: Batch (`.bat`), comandos administrativos (`DISM`, `SFC`, `PowerShell`, `netsh`, `wmic`/alternativas).
+- Linux/macOS: Bash, permisos (`sudo`, `root`), utilidades de sistema (`systemctl`, `journalctl`, `ip`, `diskutil`, `launchctl`).
+- Seguridad operacional: entender comandos destructivos (discos, red, usuarios, apagados) y su impacto.
+- Trazabilidad: saber mantener logs legibles y auditables.
+- Git y flujo de cambios: ramas, commits pequenos, validacion local y PR.
+
+### 2) Dónde se agregan las funciones por sistema
+
+Para mantener paridad entre ediciones normal/corporate:
+
+- Windows normal: `Windows/toolbox.bat`
+- Windows corporate: `Windows/toolbox_corporate.bat`
+- Linux normal: `Linux/toolbox.sh`
+- Linux corporate: `Linux/toolbox_corporate.sh`
+- macOS normal: `Mac/toolbox.sh`
+- macOS corporate: `Mac/toolbox_corporate.sh`
+
+Regla general:
+
+- Agrega la opcion en el menu del perfil correcto (`DIAGNOSTICO`, `REPARACION` o `ADMINISTRACION`).
+- Enruta la opcion a un modulo dedicado (`MOD_...` en Windows, `mod_...` en Linux/macOS).
+- Implementa el modulo como bloque/funcion independiente.
+- Regresa siempre al menu despues de ejecutar el modulo.
+
+### 3) Estructura minima de un modulo nuevo
+
+Un modulo nuevo debe incluir, como minimo:
+
+- Titulo claro en pantalla (que accion realiza).
+- Validaciones previas (privilegios, existencia de comandos/archivos, parametros validos).
+- Confirmacion adicional si la accion es sensible.
+- Ejecucion principal con manejo de error controlado.
+- Registro en log con timestamp.
+- Retorno limpio al menu.
+
+Buenas practicas de nomenclatura:
+
+- Variables: `UPPER_SNAKE_CASE`.
+- Modulos: prefijo `MOD_` (Batch) o `mod_` (Bash).
+- Validaciones auxiliares: prefijo `CHECK_` / `check_`.
+
+### 4) Seguridad obligatoria al extender
+
+Si el modulo modifica sistema, disco o red, debes cumplir esto:
+
+- No tocar disco/particion del sistema sin bloqueo explicito.
+- No borrar con comodines amplios fuera del alcance de Toolbox.
+- No romper tareas externas del sistema (cron/launchd/Task Scheduler ajenas).
+- Mantener chequeos de administrador/root intactos.
+- Mostrar advertencias claras antes de operaciones irreversibles.
+
+### 5) Diferencias por plataforma que debes considerar
+
+- Windows:
+   - Usa comandos compatibles con Windows 10/11 y Server soportados.
+   - Si llamas herramientas externas, valida su existencia antes.
+   - Mantiene consistencia de salida con reporte HTML y checksum SHA256.
+
+- Linux:
+   - Considera variaciones por distro (apt, dnf, yum, pacman, zypper).
+   - Evita asumir rutas unicas para todos los sistemas.
+   - Mantiene manejo robusto en pipelines para no abortar por falsos negativos.
+
+- macOS:
+   - Verifica compatibilidad con Intel y Apple Silicon.
+   - Evita dependencias no instaladas por defecto sin validacion previa.
+   - Si usas `launchd`, limita cambios a identificadores de Toolbox.
+
+### 6) Checklist rapido antes de publicar
+
+1. El modulo aparece solo en el/los perfiles correctos.
+2. Funciona en version normal y corporate (o se bloquea con mensaje claro en corporate).
+3. Tiene validaciones, confirmaciones y log.
+4. No rompe opciones de salida (`0` y `00`) ni el retorno al menu.
+5. No introduce patrones inseguros en limpieza/apagado/disco.
+6. Pruebas manuales basicas completadas en el sistema objetivo.
+
+### 7) Documentacion que debes actualizar
+
+Cuando cambies comportamiento o agregues modulos, actualiza:
+
+- `HISTORIAL_DE_CAMBIOS.md`
+- `Manuales/README_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+
+Y sigue el flujo de contribucion definido en:
+
+- `CONTRIBUTING.md`
+
+### 8) Ejemplo de flujo recomendado (resumen)
+
+1. Diseñar el modulo y su perfil objetivo.
+2. Implementarlo en script normal del sistema operativo.
+3. Replicar/adaptar en script corporate.
+4. Probar rutas exitosas y de error.
+5. Verificar logs, salida y regreso al menu.
+6. Actualizar documentacion y registrar en historial.
+7. Crear PR con alcance, riesgos y validaciones realizadas.
+
+---
+
 ## 📞 SOPORTE
 
 ¿Problemas o preguntas?

@@ -81,6 +81,12 @@ Manuals by Language
 
 🇨🇳 Chinese — Manuals/README_CN.md
 
+Developer Documentation (How to Add New Modules)
+- 🇪🇸 ES: `Manuales/README_ES.md` → section `GUIA PARA PROGRAMADORES: COMO AGREGAR NUEVOS MODULOS`
+- 🇬🇧 EN: `Manuales/README_EN.md` → section `PROGRAMMER GUIDE: HOW TO ADD NEW MODULES`
+- 🇨🇳 CN: `Manuales/README_CN.md` → section `开发者指南：如何新增模块`
+- Contribution checklist template: `CONTRIBUTING.md` → section `New Module Template (Recommended)`
+
 Pre‑Generated PDFs
 Located in Manuals/PDFs/:
 

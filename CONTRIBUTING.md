@@ -39,3 +39,38 @@ Include:
 - Risk level (low/medium/high)
 - Files impacted
 - Validation performed
+
+## New Module Template (Recommended)
+When adding a new module/function, include this checklist in the PR description:
+
+- Module name and target profile:
+  - Name: `<module_name>`
+  - Profile: `DIAGNOSTICS` / `REPAIR` / `ADMINISTRATION`
+
+- Platform coverage:
+  - Windows: `toolbox.bat` / `toolbox_corporate.bat`
+  - Linux: `toolbox.sh` / `toolbox_corporate.sh`
+  - macOS: `toolbox.sh` / `toolbox_corporate.sh`
+  - If intentionally not supported on one platform, explain why.
+
+- Safety checks implemented:
+  - Admin/root validation preserved
+  - System disk protection (if storage-related)
+  - No broad wildcard cleanup outside Toolbox scope
+  - Explicit warning/confirmation for irreversible actions
+
+- Logging and UX:
+  - Timestamped log entries added
+  - Clean return to menu after execution
+  - Exit options (`0`, `00`) still behave as documented
+
+- Validation evidence:
+  - Happy-path test completed
+  - Failure-path test completed
+  - No syntax errors in edited scripts
+
+- Documentation updates:
+  - `HISTORIAL_DE_CAMBIOS.md`
+  - `Manuales/README_ES.md`
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`

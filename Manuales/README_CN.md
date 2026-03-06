@@ -726,6 +726,116 @@ xcode-select --install
 
 ---
 
+## 👨‍💻 开发者指南：如何新增模块
+
+本节说明如何在 **Windows、Linux、macOS** 上以安全且一致的方式扩展 Toolbox。
+
+### 1) 建议具备的知识
+
+新增模块前，建议具备以下能力：
+
+- Windows：Batch (`.bat`) 与管理命令（`DISM`、`SFC`、`PowerShell`、`netsh`、`wmic` 替代方案）。
+- Linux/macOS：Bash、权限模型（`sudo`、`root`）、系统工具（`systemctl`、`journalctl`、`ip`、`diskutil`、`launchctl`）。
+- 运维安全：理解破坏性操作（磁盘、网络、用户、关机）的影响。
+- 审计能力：保持清晰、可追踪、带时间戳的日志。
+- Git 流程：分支、小粒度提交、本地验证、Pull Request。
+
+### 2) 各系统应修改的位置
+
+为保证普通版/企业版一致性：
+
+- Windows 普通版：`Windows/toolbox.bat`
+- Windows 企业版：`Windows/toolbox_corporate.bat`
+- Linux 普通版：`Linux/toolbox.sh`
+- Linux 企业版：`Linux/toolbox_corporate.sh`
+- macOS 普通版：`Mac/toolbox.sh`
+- macOS 企业版：`Mac/toolbox_corporate.sh`
+
+通用规则：
+
+- 在正确的权限档位菜单中添加选项（`DIAGNOSTICS`、`REPAIR`、`ADMINISTRATION`）。
+- 将菜单选项路由到独立模块（Windows 使用 `MOD_...`，Linux/macOS 使用 `mod_...`）。
+- 模块保持独立代码块/函数。
+- 执行后必须稳定返回菜单。
+
+### 3) 新模块最小结构
+
+一个新模块至少应包含：
+
+- 清晰的界面标题（说明模块作用）。
+- 前置校验（权限、命令存在、输入合法）。
+- 敏感操作的二次确认。
+- 主逻辑执行与可控错误处理。
+- 带时间戳的日志记录。
+- 干净返回菜单。
+
+命名约定：
+
+- 变量：`UPPER_SNAKE_CASE`。
+- 模块：`MOD_`（Batch）或 `mod_`（Bash）。
+- 校验函数：`CHECK_` / `check_`。
+
+### 4) 必须遵守的安全要求
+
+如果模块会修改系统/磁盘/网络，必须满足：
+
+- 未经明确阻断逻辑，不得操作系统盘/系统分区。
+- 不得在 Toolbox 管辖范围外使用宽泛通配删除。
+- 不得影响非 Toolbox 管理的计划任务（cron/launchd/Task Scheduler）。
+- 保留管理员/root 检查。
+- 在不可逆操作前显示明确警告。
+
+### 5) 平台差异注意事项
+
+- Windows：
+   - 命令需兼容受支持的 Windows 版本。
+   - 调用外部工具前先校验存在性。
+   - 保持报告与校验和行为一致。
+
+- Linux：
+   - 兼容不同发行版（apt、dnf、yum、pacman、zypper）。
+   - 避免硬编码路径/服务假设。
+   - 管道对非关键失败要有韧性。
+
+- macOS：
+   - 校验 Intel 与 Apple Silicon 兼容性。
+   - 不应假设非默认依赖已安装。
+   - 使用 `launchd` 时仅操作 Toolbox 自有标识。
+
+### 6) 发布前快速检查清单
+
+1. 模块只出现在正确的档位菜单中。
+2. 普通版与企业版行为正确（或企业版有明确禁用提示）。
+3. 包含校验、确认与日志。
+4. 不破坏退出选项（`0` 与 `00`）及菜单返回。
+5. 不引入不安全的清理/关机/磁盘模式。
+6. 已在目标系统完成基础手动验证。
+
+### 7) 必须同步更新的文档
+
+当行为变更或新增模块时，更新：
+
+- `HISTORIAL_DE_CAMBIOS.md`
+- `Manuales/README_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+
+并遵循以下贡献流程文件：
+
+- `CONTRIBUTING.md`
+
+### 8) 推荐实施流程（摘要）
+
+1. 定义模块目标与所属档位。
+2. 先在目标系统普通版脚本实现。
+3. 在企业版脚本中复制/适配。
+4. 覆盖成功与失败路径测试。
+5. 验证日志、退出行为与菜单回跳。
+6. 更新文档与变更历史。
+7. 提交 PR，说明范围、风险与验证结果。
+
+---
+
 ## 📞 支持
 
 有问题或疑问？

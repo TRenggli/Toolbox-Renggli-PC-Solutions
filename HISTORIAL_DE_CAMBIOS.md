@@ -1,5 +1,35 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-05 (Actualizacion 8)
+
+### Guia para Extender Modulos (Documentacion de Desarrollo)
+- Se agrego seccion para programadores en:
+  - `Manuales/README_ES.md` (como agregar modulos en Windows/Linux/macOS)
+  - `Manuales/README_EN.md` (developer guide equivalente)
+  - `Manuales/README_CN.md` (developer guide equivalente)
+- Contenido incluido en los 3 idiomas:
+  - Conocimientos recomendados
+  - Donde agregar funciones por sistema y por edicion (normal/corporate)
+  - Estructura minima de modulo
+  - Reglas de seguridad obligatorias
+  - Consideraciones por plataforma
+  - Checklist pre-publicacion
+  - Documentacion obligatoria a actualizar
+
+### Estandarizacion de PR para Modulos Nuevos
+- Se agrego en `CONTRIBUTING.md` la seccion:
+  - `New Module Template (Recommended)`
+- Esta plantilla define una lista minima para PRs de nuevas funciones:
+  - Cobertura por plataforma
+  - Safety checks
+  - Evidencia de validacion
+  - Actualizacion documental
+
+### Descubribilidad en README Principal
+- Se agregaron enlaces directos en `README.md` a:
+  - Guias de desarrollo ES/EN/CN
+  - Plantilla de contribucion para modulos nuevos
+
 ## 2026-03-04 (Actualización 7)
 
 ### Cierre de Gobernanza y Visibilidad

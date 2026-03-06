@@ -726,6 +726,116 @@ xcode-select --install
 
 ---
 
+## 👨‍💻 PROGRAMMER GUIDE: HOW TO ADD NEW MODULES
+
+This section explains how to extend Toolbox on **Windows, Linux, and macOS** in a safe and consistent way.
+
+### 1) Recommended skills
+
+Before adding modules, it is recommended to have:
+
+- Windows: Batch (`.bat`) and admin commands (`DISM`, `SFC`, `PowerShell`, `netsh`, `wmic` alternatives).
+- Linux/macOS: Bash, privilege model (`sudo`, `root`), system tools (`systemctl`, `journalctl`, `ip`, `diskutil`, `launchctl`).
+- Operational safety: understanding destructive commands (disk, network, users, shutdown) and impact.
+- Auditability: ability to keep clear, timestamped logs.
+- Git workflow: branches, small commits, local validation, pull requests.
+
+### 2) Where to add functions per OS
+
+To keep parity across normal/corporate editions:
+
+- Windows normal: `Windows/toolbox.bat`
+- Windows corporate: `Windows/toolbox_corporate.bat`
+- Linux normal: `Linux/toolbox.sh`
+- Linux corporate: `Linux/toolbox_corporate.sh`
+- macOS normal: `Mac/toolbox.sh`
+- macOS corporate: `Mac/toolbox_corporate.sh`
+
+General rule:
+
+- Add the menu option under the right profile (`DIAGNOSTICS`, `REPAIR`, `ADMINISTRATION`).
+- Route the option to a dedicated module (`MOD_...` in Windows, `mod_...` in Linux/macOS).
+- Implement the module as an isolated block/function.
+- Return to menu cleanly after execution.
+
+### 3) Minimum structure for a new module
+
+A new module should include:
+
+- Clear title in UI (what action it performs).
+- Pre-checks (privileges, command availability, valid input).
+- Extra confirmation for sensitive actions.
+- Main execution with controlled error handling.
+- Log entry with timestamp.
+- Clean return to menu.
+
+Naming conventions:
+
+- Variables: `UPPER_SNAKE_CASE`.
+- Modules: prefix `MOD_` (Batch) or `mod_` (Bash).
+- Validation helpers: prefix `CHECK_` / `check_`.
+
+### 4) Mandatory safety requirements
+
+If the module changes system, disk, or network state, you must:
+
+- Never target system disk/partition without explicit block logic.
+- Avoid broad wildcard deletion outside Toolbox-owned scope.
+- Avoid modifying external scheduler jobs not owned by Toolbox.
+- Keep admin/root checks intact.
+- Show explicit warnings before irreversible actions.
+
+### 5) Platform-specific considerations
+
+- Windows:
+   - Use commands compatible with supported Windows versions.
+   - Validate external tools before calling them.
+   - Keep report/checksum behavior consistent.
+
+- Linux:
+   - Handle distro differences (apt, dnf, yum, pacman, zypper).
+   - Avoid hardcoded assumptions for paths/services.
+   - Keep pipelines resilient to non-critical command misses.
+
+- macOS:
+   - Validate support on Intel and Apple Silicon.
+   - Do not assume non-default dependencies are installed.
+   - If using `launchd`, scope changes to Toolbox identifiers only.
+
+### 6) Quick pre-release checklist
+
+1. Module appears only in the correct profile(s).
+2. Works in normal and corporate editions (or is explicitly blocked in corporate with clear message).
+3. Includes validation, confirmations, and logging.
+4. Does not break exit options (`0` and `00`) or menu return.
+5. Introduces no unsafe cleanup/shutdown/disk patterns.
+6. Basic manual validation was completed on target OS.
+
+### 7) Documentation updates required
+
+When behavior changes or a module is added, update:
+
+- `HISTORIAL_DE_CAMBIOS.md`
+- `Manuales/README_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+
+Also follow the contribution workflow defined in:
+
+- `CONTRIBUTING.md`
+
+### 8) Recommended implementation flow
+
+1. Define module goal and target profile.
+2. Implement in normal script for target OS.
+3. Replicate/adapt in corporate script.
+4. Test success and failure paths.
+5. Verify logs, exit behavior, and menu return.
+6. Update docs and changelog.
+7. Open PR with scope, risks, and validation evidence.
+
+---
+
 ## 📞 SUPPORT
 
 Problems or questions?
