@@ -30,6 +30,32 @@
   - Guias de desarrollo ES/EN/CN
   - Plantilla de contribucion para modulos nuevos
 
+## 2026-03-05 (Actualizacion 9)
+
+### Optimizacion de Estructura Documental
+- Se simplifico la documentacion para reducir duplicados y centralizar cambios tecnicos en un solo lugar.
+- Se removieron documentos auxiliares redundantes:
+  - `Manuales/README.md` (indice de manuales)
+  - `Windows/FIX_WMIC_DEPRECADO.md`
+  - `Windows/INTEGRACION_MAS.md`
+  - `Windows/MEJORA_UX_CORPORATE.md`
+- Los cambios tecnicos historicos de esos documentos se consolidan en este historial.
+- Se movio la operativa de generacion de PDFs fuera de `README.md` y se centralizo en `Manuales/COMO_GENERAR_PDFS.md`.
+
+### Resumen Tecnico Consolidado: Windows
+- Correccion WMIC deprecado:
+  - Se reemplazo uso de `wmic` por PowerShell/CIM en modulos de recursos y estado de Windows Update.
+  - Archivos impactados: `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`.
+
+- Integracion MAS (version normal):
+  - Se integro opcion de activacion via `MAS_AIO.cmd` con validacion de archivo, logging y retorno al menu.
+  - En version corporate el modulo de activacion permanece excluido por compliance.
+
+- Mejora UX corporate:
+  - Menus por perfil (DIAGNOSTICO/REPARACION/ADMINISTRACION) alineados a permisos reales.
+  - Eliminacion de flujos confusos de "acceso denegado" cuando el menu ya controla el acceso.
+  - Bloqueo explicito del modulo 13 en corporate con mensaje claro.
+
 ## 2026-03-04 (Actualización 7)
 
 ### Cierre de Gobernanza y Visibilidad

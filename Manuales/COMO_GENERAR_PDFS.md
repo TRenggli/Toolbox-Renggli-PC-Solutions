@@ -65,17 +65,31 @@ brew install --cask wkhtmltopdf
 1. Abre una **terminal** en la carpeta principal de la herramienta
 2. Ejecuta:
    ```cmd
-   generar_pdfs.bat
+   Scripts\generar_pdfs.bat
    ```
 3. Los PDFs se generarán en `Manuales\PDFs\`
+
+**Alternativa (si ya estás dentro de `Scripts/`):**
+
+```cmd
+cd Scripts
+generar_pdfs.bat
+```
 
 ### En Linux/Mac:
 1. Abre una **terminal** en la carpeta principal de la herramienta
 2. Ejecuta:
    ```bash
-   ./generar_pdfs.sh
+   ./Scripts/generar_pdfs.sh
    ```
 3. Los PDFs se generarán en `Manuales/PDFs/`
+
+**Alternativa (si ya estás dentro de `Scripts/`):**
+
+```bash
+cd Scripts
+./generar_pdfs.sh
+```
 
 ---
 

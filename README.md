@@ -133,17 +133,9 @@ System cleanup & maintenance
 
 ⚠️ Administration — Advanced & critical operations
 
-📖 Regenerating PDFs
-Windows
-cmd
-cd Scripts
-generar_pdfs.bat
-Linux / macOS
-bash
-cd Scripts
-./generar_pdfs.sh
-Requirements: Pandoc + wkhtmltopdf  
-Full guide: Manuals/COMO_GENERAR_PDFS.md
+📖 PDF Generation
+For PDF requirements, execution steps, troubleshooting, and technical details, use:
+`Manuales/COMO_GENERAR_PDFS.md`
 
 🆚 Editions
 Full Edition (toolbox)
