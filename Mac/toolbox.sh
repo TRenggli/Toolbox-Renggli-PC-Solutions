@@ -75,27 +75,63 @@ main_menu() {
         echo "=============================================================================================================="
         echo "Log Actual: $LOG_FILE"
         case $PROFILE_MODE in
-            1) echo "Perfil Activo: [DIAGNOSTICO] - Solo Lectura" ;;
-            2) echo "Perfil Activo: [REPARACION] - Mantenimiento" ;;
-            3) echo "Perfil Activo: [ADMINISTRACION] - Acceso Completo" ;;
+            1)
+                echo "Perfil Activo: [DIAGNOSTICO] - Solo Lectura"
+                echo "Solo consulta estado del sistema, hardware y red."
+                echo "No modifica configuraciones ni paquetes."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ DIAGNOSTICO ]"
+                echo "   1. [R] Estado de Discos"
+                echo "   2. [R] Info de Hardware"
+                echo "   3. [R] Test de Memoria"
+                echo "   4. [R] Info del Sistema"
+                echo "   5. [R] Espacio en Disco"
+                echo "   7. [R] Test de Conectividad"
+                echo "   8. [R] Info de Red"
+                echo "   9. [R] Puertos en Escucha"
+                echo "   12. [R] Reporte del Sistema"
+                echo "   13. [R] Info de Procesos"
+                ;;
+            2)
+                echo "Perfil Activo: [REPARACION] - Mantenimiento"
+                echo "Incluye diagnostico y tareas de mantenimiento guiado."
+                echo "Puede modificar cache, paquetes y estado del sistema."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ DIAGNOSTICO + REPARACION ]"
+                echo "   1. [R] Estado de Discos"
+                echo "   2. [R] Info de Hardware"
+                echo "   3. [R] Test de Memoria"
+                echo "   4. [R] Info del Sistema"
+                echo "   5. [R] Espacio en Disco"
+                echo "   6. [W] Limpieza de Cache"
+                echo "   7. [R] Test de Conectividad"
+                echo "   8. [R] Info de Red"
+                echo "   9. [R] Puertos en Escucha"
+                echo "   10. [W] Actualizar Sistema"
+                echo "   11. [W] Limpiar Paquetes"
+                echo "   12. [R] Reporte del Sistema"
+                echo "   13. [R] Info de Procesos"
+                echo "   14. [W] Apagado Programado"
+                ;;
+            3)
+                echo "Perfil Activo: [ADMINISTRACION] - Acceso Completo"
+                echo "Incluye todas las acciones disponibles."
+                echo "PRECAUCION: valida impacto antes de ejecutar limpieza/apagado/actualizaciones."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ MENU COMPLETO ]"
+                echo "   1. [R] Estado de Discos          4. [R] Info del Sistema          7. [R] Test de Conectividad"
+                echo "   2. [R] Info de Hardware          5. [R] Espacio en Disco          8. [R] Info de Red"
+                echo "   3. [R] Test de Memoria           6. [W] Limpieza de Cache         9. [R] Puertos en Escucha"
+                echo "   10. [W] Actualizar Sistema       12. [R] Reporte del Sistema      14. [W] Apagado Programado"
+                echo "   11. [W] Limpiar Paquetes         13. [R] Info de Procesos"
+                ;;
         esac
-        case $PROFILE_MODE in
-            1) echo "Este perfil es solo de consulta. No modifica el sistema." ;;
-            2) echo "Incluye tareas de mantenimiento. Puede modificar el sistema." ;;
-            3) echo "Acceso total. Incluye acciones criticas e irreversibles." ;;
-        esac
-        echo ""
-        echo "   [ DIAGNOSTICO DE HARDWARE ]      [ SISTEMA Y DISCO ]              [ REDES ]"
-        echo "   1. Estado de Discos              4. Info del Sistema              7. Test de Conectividad"
-        echo "   2. Info de Hardware              5. Espacio en Disco              8. Info de Red"
-        echo "   3. Test de Memoria               6. Limpieza de Cache             9. Puertos en Escucha"
-        echo ""
-        echo "   [ MANTENIMIENTO ]                [ AUTOMATIZACION ]"
-        echo "   10. Actualizar Sistema           12. Reporte del Sistema"
-        echo "   11. Limpiar Paquetes             13. Info de Procesos"
-        echo "                                    14. Apagado Programado"
         echo ""
         echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG"
+        echo "   [99] CAMBIAR PERFIL"
         echo "=============================================================================================================="
         echo ""
         read -p "Selecciona una opcion: " choice
@@ -103,20 +139,21 @@ main_menu() {
         case $choice in
             0) mod_system_report ; exit_script ;;
             00) exit_no_log ;;
+            99) profile_select ;;
             1) mod_disk_status ;;
             2) mod_hardware_info ;;
             3) mod_memory_test ;;
             4) mod_system_info ;;
             5) mod_disk_space ;;
-            6) mod_clean_cache ;;
+            6) if [ "$PROFILE_MODE" -ge 2 ]; then mod_clean_cache; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             7) mod_network_test ;;
             8) mod_network_info ;;
             9) mod_ports ;;
-            10) mod_update_system ;;
-            11) mod_clean_packages ;;
+            10) if [ "$PROFILE_MODE" -ge 2 ]; then mod_update_system; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            11) if [ "$PROFILE_MODE" -ge 2 ]; then mod_clean_packages; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             12) mod_system_report ;;
             13) mod_processes ;;
-            14) mod_shutdown ;;
+            14) if [ "$PROFILE_MODE" -ge 2 ]; then mod_shutdown; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             *) echo -e "${YELLOW}[!] Opcion no valida${NC}" && sleep 2 ;;
         esac
     done

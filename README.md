@@ -81,6 +81,11 @@ Manuals by Language
 
 🇨🇳 Chinese — Manuals/README_CN.md
 
+Detailed Option Catalogs (Multi-language)
+- `Manuales/CATALOGO_OPCIONES_ES.md` (ES: explica cada opcion, riesgos, casos de uso y recaudos)
+- `Manuales/CATALOGO_OPCIONES_EN.md` (EN: explains each option, risks, use cases, and precautions)
+- `Manuales/CATALOGO_OPCIONES_CN.md` (CN: 说明每个选项、风险、使用场景与注意事项)
+
 Developer Documentation (How to Add New Modules)
 - 🇪🇸 ES: `Manuales/README_ES.md` → section `GUIA PARA PROGRAMADORES: COMO AGREGAR NUEVOS MODULOS`
 - 🇬🇧 EN: `Manuales/README_EN.md` → section `PROGRAMMER GUIDE: HOW TO ADD NEW MODULES`
@@ -97,7 +102,7 @@ Manual_Toolbox_V14_EN.pdf
 Manual_Toolbox_V14_CN.pdf
 
 ⚙️ Features
-✔️ Windows (15 Modules)
+✔️ Windows (20 Modules)
 Hardware diagnostics (SMART, RAM, resource monitoring)
 
 System repair (DISM, SFC, registry tools)

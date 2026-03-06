@@ -1,5 +1,93 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-05 (Actualizacion 11)
+
+### Cierre de Catalogo Multilenguaje (EN/CN)
+- Se agregaron catalogos detallados adicionales:
+  - `Manuales/CATALOGO_OPCIONES_EN.md`
+  - `Manuales/CATALOGO_OPCIONES_CN.md`
+- Se actualizaron enlaces de descubrimiento en:
+  - `README.md` (catalogos detallados ES/EN/CN)
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`
+- Resultado: cobertura de catalogo detallado por opcion completa en espanol, ingles y chino.
+
+## 2026-03-05 (Actualizacion 10)
+
+### Nuevos Modulos Implementados en Windows (Normal + Corporate)
+- Se agregaron 5 modulos nuevos en:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+
+Modulos agregados:
+- `MOD_EVENT_CRITICAL` - Analisis de eventos criticos de sistema (IDs relevantes de disco/energia)
+- `MOD_BSOD_ANALYZER` - Analisis BSOD usando `%SystemRoot%\Minidump` + Event ID 1001
+- `MOD_PROCESS_AUDIT` - Auditoria forense de procesos en rutas temporales con verificacion de firma digital
+- `MOD_RAID_STATUS` - Estado RAID/Storage con cmdlets de Storage y fallback WMI
+- `MOD_DRIVER_BACKUP` - Backup de drivers de terceros con `dism /online /export-driver`
+
+Detalles de implementacion:
+- Integrados en menus por perfil con numeracion extendida.
+- Mantienen `MODULE_CONFIRM` y registro en `!LOG_FILE!`.
+- Version corporate conserva el bloqueo del modulo 13 (MAS) sin cambios de compliance.
+
+### Mejora UX de Menus (Windows)
+- Se reorganizo la presentacion visual de menus en `toolbox.bat` y `toolbox_corporate.bat`.
+- Se agruparon opciones en bloques (`DIAGNOSTICO BASE`, `REPARACION Y MANTENIMIENTO`, `ANALISIS AVANZADO`) para mejorar lectura.
+- No se modifico la logica ni el enrutamiento de opciones: solo mejora visual/orden de lectura.
+- Se etiqueto `ANALISIS AVANZADO` como `SOLO LECTURA` para evitar confusion operativa.
+- Se marco explicitamente `Backup de Drivers` como opcion que escribe en disco.
+
+### Menus por Perfil en Linux/macOS (Normal + Corporate)
+- Se corrigio la segmentacion por perfil en:
+  - `Linux/toolbox.sh`
+  - `Linux/toolbox_corporate.sh`
+  - `Mac/toolbox.sh`
+  - `Mac/toolbox_corporate.sh`
+- Ahora cada perfil muestra solo sus opciones objetivo:
+  - `DIAGNOSTICO`: solo lectura/consulta.
+  - `REPARACION`: diagnostico + mantenimiento guiado.
+  - `ADMINISTRACION`: menu completo.
+- Se agrego `99` para cambio de perfil sin reiniciar herramienta.
+- Se incorporaron descripciones y advertencias en cada menu para usuarios inexpertos.
+
+### Etiquetas de Riesgo en Menus (Todos los Sistemas)
+- Se agrego leyenda de riesgo y marcado por opcion en:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+  - `Linux/toolbox.sh`
+  - `Linux/toolbox_corporate.sh`
+  - `Mac/toolbox.sh`
+  - `Mac/toolbox_corporate.sh`
+- Convencion aplicada:
+  - `[R]` = Solo lectura
+  - `[W]` = Escribe/cambia sistema
+  - `[!]` = Critico/irreversible
+- Se marco explicitamente `Backup de Drivers` como operacion que escribe en disco.
+
+### Catalogo Detallado de Opciones (ES)
+- Se agrego `Manuales/CATALOGO_OPCIONES_ES.md` con detalle por opcion:
+  - que hace
+  - para que sirve
+  - cuando usarla
+  - recaudos y riesgo (`[R]`, `[W]`, `[!]`)
+- Cobertura incluida para Windows, Linux y macOS (normal y corporate) en perfiles D/R/A.
+- Se agregaron enlaces al catalogo desde:
+  - `README.md`
+  - `Manuales/README_ES.md`
+
+### Documentacion Actualizada
+- Se actualizo conteo de modulos Windows (de 15 a 20) en:
+  - `README.md`
+  - `Manuales/README_ES.md`
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`
+- Se agrego seccion de modulos nuevos Windows en los 3 manuales.
+
+### Modulos Propuestos No Implementados
+- **Thermal Stress / Test de estres**: no implementado por riesgo operativo alto (temperatura, estabilidad, desgaste).
+- **Blindaje Escolar / Lockdown**: no implementado por nivel de impacto y riesgo alto en permisos/registro/persistencia.
+
 ## 2026-03-05 (Actualizacion 8)
 
 ### Guia para Extender Modulos (Documentacion de Desarrollo)

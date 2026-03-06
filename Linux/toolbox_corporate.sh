@@ -119,38 +119,85 @@ main_menu() {
         echo "=============================================================================================================="
         echo "Log: $LOG_FILE"
         case $PROFILE_MODE in
-            1) echo "Perfil: [DIAGNOSTICO] - Solo Lectura" ;;
-            2) echo "Perfil: [REPARACION] - Mantenimiento" ;;
-            3) echo "Perfil: [ADMINISTRACION] - Acceso Completo" ;;
-        esac
-        case $PROFILE_MODE in
             1)
-                echo "Este perfil es solo de consulta. No modifica el sistema."
+                echo "Perfil: [DIAGNOSTICO] - Solo Lectura"
+                echo "Este perfil solo consulta estado de hardware, sistema y red."
+                echo "No realiza modificaciones. Ideal para auditoria preventiva."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ DIAGNOSTICO BASE ]"
+                echo "   1. [R] Estado SMART de Discos"
+                echo "   2. [R] Info Hardware Completo"
+                echo "   3. [R] Test de Memoria RAM"
+                echo "   4. [R] Info Sistema Operativo"
+                echo "   5. [R] Temperatura y Sensores"
+                echo "   12. [R] Test de Velocidad"
+                echo "   13. [R] Auditoria DNS/Puertos"
+                echo "   15. [R] Monitor de Red en Vivo"
+                echo "   18. [R] Analisis de Disco"
+                echo "   20. [R] Espacio en Disco"
+                echo "   22. [R] Top Procesos CPU/RAM"
+                echo "   23. [R] Ver Logs del Sistema"
+                echo "   25. [R] Monitoreo en Tiempo Real"
+                echo "   29. [R] Reporte Bateria"
+                echo "   30. [R] Verificar Integridad"
                 ;;
             2)
-                echo "Incluye tareas de mantenimiento y reparacion. Puede modificar el sistema."
+                echo "Perfil: [REPARACION] - Mantenimiento"
+                echo "Incluye diagnostico y reparaciones guiadas."
+                echo "Puede modificar el sistema. Guarda trabajo antes de ejecutar modulos."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ DIAGNOSTICO + REPARACION ]"
+                echo "   1. [R] Estado SMART de Discos"
+                echo "   2. [R] Info Hardware Completo"
+                echo "   3. [R] Test de Memoria RAM"
+                echo "   4. [R] Info Sistema Operativo"
+                echo "   5. [R] Temperatura y Sensores"
+                echo "   6. [W] Verificar Sistema (fsck)"
+                echo "   7. [W] Reparar Gestor Paquetes"
+                echo "   8. [W] Limpieza Profunda"
+                echo "   10. [W] Limpieza Docker"
+                echo "   11. [W] Reset de Red"
+                echo "   12. [R] Test de Velocidad"
+                echo "   13. [R] Auditoria DNS/Puertos"
+                echo "   14. [W] Diagnostico Firewall"
+                echo "   15. [R] Monitor de Red en Vivo"
+                echo "   18. [R] Analisis de Disco"
+                echo "   20. [R] Espacio en Disco"
+                echo "   21. [W] Gestion de Servicios"
+                echo "   22. [R] Top Procesos CPU/RAM"
+                echo "   23. [R] Ver Logs del Sistema"
+                echo "   25. [R] Monitoreo en Tiempo Real"
+                echo "   26. [W] Actualizar Sistema"
+                echo "   27. [W] Apagado Programado"
+                echo "   28. [W] Backup de Datos"
+                echo "   29. [R] Reporte Bateria"
+                echo "   30. [R] Verificar Integridad"
                 ;;
             3)
-                echo "Acceso total. Incluye acciones criticas e irreversibles."
+                echo "Perfil: [ADMINISTRACION] - Acceso Completo"
+                echo "Incluye todas las opciones, incluso tareas criticas e irreversibles."
+                echo "PRECAUCION: revisa disco/particion/usuarios antes de confirmar acciones destructivas."
+                echo "Leyenda: [R] lectura  [W] cambios de sistema  [!] critico/irreversible"
+                echo ""
+                echo "   [ MENU COMPLETO ]"
+                echo "   1. [R] Estado SMART de Discos    6. [W] Verificar Sistema (fsck)  11. [W] Reset de Red"
+                echo "   2. [R] Info Hardware Completo    7. [W] Reparar Gestor Paquetes   12. [R] Test de Velocidad"
+                echo "   3. [R] Test de Memoria RAM       8. [W] Limpieza Profunda         13. [R] Auditoria DNS/Puertos"
+                echo "   4. [R] Info Sistema Operativo    9. [!] Reparar Bootloader (GRUB) 14. [W] Diagnostico Firewall"
+                echo "   5. [R] Temperatura y Sensores    10. [W] Limpieza Docker          15. [R] Monitor de Red en Vivo"
+                echo "   16. [!] Formateo Seguro USB      21. [W] Gestion de Servicios     26. [W] Actualizar Sistema"
+                echo "   17. [!] Conversion MBR a GPT     22. [R] Top Procesos CPU/RAM     27. [W] Apagado Programado"
+                echo "   18. [R] Analisis de Disco        23. [R] Ver Logs del Sistema     28. [W] Backup de Datos"
+                echo "   19. [!] Montaje de Particiones   24. [!] Usuarios y Permisos      29. [R] Reporte Bateria"
+                echo "   20. [R] Espacio en Disco         25. [R] Monitoreo en Tiempo Real 30. [R] Verificar Integridad"
                 ;;
         esac
-        echo "Nota: El reporte de bateria solo aplica en equipos portatiles."
-        echo ""
-        echo "   [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]"
-        echo "   1. Estado SMART de Discos        6. Verificar Sistema (fsck)      11. Reset de Red"
-        echo "   2. Info Hardware Completo        7. Reparar Gestor Paquetes       12. Test de Velocidad"
-        echo "   3. Test de Memoria RAM           8. Limpieza Profunda             13. Auditoria DNS/Puertos"
-        echo "   4. Info Sistema Operativo        9. Reparar Bootloader (GRUB)     14. Diagnostico Firewall"
-        echo "   5. Temperatura y Sensores        10. Limpieza Docker              15. Monitor de Red en Vivo"
-        echo ""
-        echo "   [ GESTION DE ALMACENAMIENTO ]    [ SERVICIOS Y PROCESOS ]         [ AUTOMATIZACION ]"
-        echo "   16. Formateo Seguro USB          21. Gestión de Servicios         26. Actualizar Sistema"
-        echo "   17. Conversión MBR a GPT         22. Top Procesos CPU/RAM         27. Apagado Programado"
-        echo "   18. Análisis de Disco            23. Ver Logs del Sistema         28. Backup de Datos"
-        echo "   19. Montaje de Particiones       24. Usuarios y Permisos          29. Reporte Batería"
-        echo "   20. Espacio en Disco             25. Monitoreo en Tiempo Real     30. Verificar Integridad"
+
         echo ""
         echo "   [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG"
+        echo "   [99] CAMBIAR PERFIL"
         echo "=============================================================================================================="
         echo -e "${NC}"
         read -p "=> Selecciona una opcion: " choice
@@ -158,34 +205,35 @@ main_menu() {
         case $choice in
             0) generate_report ; exit_script ;;
             00) exit_no_log ;;
+            99) profile_select ;;
             1) mod_smart ;;
             2) mod_hardware ;;
             3) mod_memory ;;
             4) mod_sysinfo ;;
             5) mod_sensors ;;
-            6) mod_fsck ;;
-            7) mod_pkg_repair ;;
-            8) mod_deep_clean ;;
-            9) mod_grub ;;
-            10) mod_docker_clean ;;
-            11) mod_net_reset ;;
+            6) if [ "$PROFILE_MODE" -ge 2 ]; then mod_fsck; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            7) if [ "$PROFILE_MODE" -ge 2 ]; then mod_pkg_repair; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            8) if [ "$PROFILE_MODE" -ge 2 ]; then mod_deep_clean; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            9) if [ "$PROFILE_MODE" -eq 3 ]; then mod_grub; else echo -e "${RED}[!] Requiere perfil ADMINISTRACION${NC}"; sleep 2; fi ;;
+            10) if [ "$PROFILE_MODE" -ge 2 ]; then mod_docker_clean; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            11) if [ "$PROFILE_MODE" -ge 2 ]; then mod_net_reset; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             12) mod_speed_test ;;
             13) mod_dns_audit ;;
-            14) mod_firewall ;;
+            14) if [ "$PROFILE_MODE" -ge 2 ]; then mod_firewall; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             15) mod_net_monitor ;;
-            16) mod_format ;;
-            17) mod_mbr_gpt ;;
+            16) if [ "$PROFILE_MODE" -eq 3 ]; then mod_format; else echo -e "${RED}[!] Requiere perfil ADMINISTRACION${NC}"; sleep 2; fi ;;
+            17) if [ "$PROFILE_MODE" -eq 3 ]; then mod_mbr_gpt; else echo -e "${RED}[!] Requiere perfil ADMINISTRACION${NC}"; sleep 2; fi ;;
             18) mod_disk_analysis ;;
-            19) mod_mount ;;
+            19) if [ "$PROFILE_MODE" -eq 3 ]; then mod_mount; else echo -e "${RED}[!] Requiere perfil ADMINISTRACION${NC}"; sleep 2; fi ;;
             20) mod_disk_space ;;
-            21) mod_services ;;
+            21) if [ "$PROFILE_MODE" -ge 2 ]; then mod_services; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             22) mod_processes ;;
             23) mod_logs ;;
-            24) mod_users ;;
+            24) if [ "$PROFILE_MODE" -eq 3 ]; then mod_users; else echo -e "${RED}[!] Requiere perfil ADMINISTRACION${NC}"; sleep 2; fi ;;
             25) mod_monitor ;;
-            26) mod_update ;;
-            27) mod_shutdown ;;
-            28) mod_backup ;;
+            26) if [ "$PROFILE_MODE" -ge 2 ]; then mod_update; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            27) if [ "$PROFILE_MODE" -ge 2 ]; then mod_shutdown; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
+            28) if [ "$PROFILE_MODE" -ge 2 ]; then mod_backup; else echo -e "${RED}[!] Requiere perfil REPARACION${NC}"; sleep 2; fi ;;
             29) mod_battery ;;
             30) mod_integrity ;;
             *) echo -e "${YELLOW}[!] Opcion no valida${NC}" && sleep 2 ;;

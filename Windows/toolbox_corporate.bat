@@ -91,11 +91,23 @@ echo.
 echo   Este menu es solo de consulta. No realiza cambios en el sistema.
 echo   Ideal para auditar hardware, recursos, red y estado de Windows Update.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
+echo   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
 echo.
-echo    [ DIAGNOSTICO DE HARDWARE ]      [ INFORMACION DE SISTEMA ]       [ MONITOREO ]
-echo    1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Test de Velocidad de Red
-echo    2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
-echo    3. Info de Recursos del Sistema  6. Estado de Windows Update
+echo    [ DIAGNOSTICO BASE ]
+echo    1. [R] Estado SMART de Discos
+echo    2. [R] Test de RAM (mdsched)
+echo    3. [R] Info de Recursos del Sistema
+echo    4. [R] Info BIOS y Placa Madre
+echo    5. [R] Auditoria de Puertos/DNS
+echo    6. [R] Estado de Windows Update
+echo    7. [R] Test de Velocidad de Red
+echo    8. [R] Reporte de Bateria
+echo.
+echo    [ ANALISIS AVANZADO - SOLO LECTURA ]
+echo    9. [R] Eventos Criticos
+echo    10. [R] Analisis BSOD
+echo    11. [R] Auditoria Forense de Procesos
+echo    12. [R] Estado RAID/Storage
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -115,6 +127,10 @@ if "%choice%"=="5"  (call :MOD_DNS & goto :MAIN_MENU)
 if "%choice%"=="6"  (call :MOD_WU_STATUS & goto :MAIN_MENU)
 if "%choice%"=="7"  (call :MOD_SPEED & goto :MAIN_MENU)
 if "%choice%"=="8"  (call :MOD_BATTERY & goto :MAIN_MENU)
+if "%choice%"=="9"  (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
+if "%choice%"=="10" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
+if "%choice%"=="11" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
+if "%choice%"=="12" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -127,12 +143,28 @@ echo.
 echo   Incluye diagnostico y tareas que modifican el sistema.
 echo   Recomendado para mantenimiento, limpieza y reparaciones guiadas.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
+echo   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
 echo.
-echo    [ DIAGNOSTICO ]                  [ REPARACION DE SISTEMA ]        [ REDES Y ACTUALIZACIONES ]
-echo    1. Estado SMART de Discos        5. Mantenimiento (DISM/SFC)      9. Reset de Red e IP
-echo    2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Test de Velocidad
-echo    3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
-echo    4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
+echo    [ REPARACION Y MANTENIMIENTO ]
+echo    1. [R] Estado SMART de Discos
+echo    2. [R] Test de RAM (mdsched)
+echo    3. [R] Info BIOS y Placa Madre
+echo    4. [R] Reporte de Bateria
+echo    5. [W] Mantenimiento (DISM/SFC)
+echo    6. [W] Reparar Windows Update
+echo    7. [W] Limpieza EMMC/Temporales
+echo    8. [R] Auditoria de Puertos/DNS
+echo    9. [W] Reset de Red e IP
+echo    10. [R] Test de Velocidad
+echo    11. [W] Actualizar Apps (Winget)
+echo    12. [W] Apagado Programado
+echo    13. [W] Backup de Drivers (ESCRIBE EN DISCO)
+echo.
+echo    [ ANALISIS AVANZADO - SOLO LECTURA ]
+echo    14. [R] Eventos Criticos
+echo    15. [R] Analisis BSOD
+echo    16. [R] Auditoria Forense de Procesos
+echo    17. [R] Estado RAID/Storage
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -156,6 +188,11 @@ if "%choice%"=="9"  (call :MOD_NET & goto :MAIN_MENU)
 if "%choice%"=="10" (call :MOD_SPEED & goto :MAIN_MENU)
 if "%choice%"=="11" (call :MOD_WINGET & goto :MAIN_MENU)
 if "%choice%"=="12" (call :MOD_OFF & goto :MAIN_MENU)
+if "%choice%"=="13" (call :MOD_DRIVER_BACKUP & goto :MAIN_MENU)
+if "%choice%"=="14" (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
+if "%choice%"=="15" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
+if "%choice%"=="16" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
+if "%choice%"=="17" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -168,15 +205,31 @@ echo.
 echo   Acceso total. Incluye acciones irreversibles y cambios criticos.
 echo   Usa este perfil solo si comprendes el impacto de cada operacion.
 echo   Nota: El reporte de bateria solo aplica en equipos portatiles.
+echo   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
 echo.
-echo    [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]
-echo    1. Estado SMART de Discos        4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
-echo    2. Info BIOS y Placa Madre       5. Reparar Windows Update        8. Test de Velocidad Real
-echo    3. Test de RAM (mdsched)         6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+echo    [ ADMINISTRACION OPERATIVA ]
+echo    1. [R] Estado SMART de Discos
+echo    2. [R] Info BIOS y Placa Madre
+echo    3. [R] Test de RAM (mdsched)
+echo    4. [W] Mantenimiento (DISM/SFC)
+echo    5. [W] Reparar Windows Update
+echo    6. [W] Limpieza EMMC/Temporales
+echo    7. [W] Reset de Red e IP
+echo    8. [R] Test de Velocidad Real
+echo    9. [R] Auditoria de Puertos/DNS
+echo    10. [!] Formateo Seguro (Auditado)
+echo    11. [!] Conversion MBR a GPT
+echo    12. [W] Actualizar Apps (Winget)
+echo    13. [W] [MODULO 13 REMOVIDO]
+echo    14. [W] Apagado Programado
+echo    15. [R] Reporte de Bateria
+echo    16. [W] Backup de Drivers (ESCRIBE EN DISCO)
 echo.
-echo    [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTOMATIZACION ]
-echo    10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
-echo    11. Conversion MBR a GPT         [MODULO 13 REMOVIDO]             15. Reporte de Bateria
+echo    [ ANALISIS AVANZADO - SOLO LECTURA ]
+echo    17. [R] Eventos Criticos
+echo    18. [R] Analisis BSOD
+echo    19. [R] Auditoria Forense de Procesos
+echo    20. [R] Estado RAID/Storage
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -202,6 +255,11 @@ if "%choice%"=="11" (call :MOD_GPT & goto :MAIN_MENU)
 if "%choice%"=="12" (call :MOD_WINGET & goto :MAIN_MENU)
 if "%choice%"=="14" (call :MOD_OFF & goto :MAIN_MENU)
 if "%choice%"=="15" (call :MOD_BATTERY & goto :MAIN_MENU)
+if "%choice%"=="16" (call :MOD_DRIVER_BACKUP & goto :MAIN_MENU)
+if "%choice%"=="17" (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
+if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
+if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
+if "%choice%"=="20" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 
 :: Opcion 13 bloqueada en version Corporate
 if "%choice%"=="13" (
@@ -938,6 +996,145 @@ echo  [OK] Reporte generado: battery-report.html
 echo  [i] Abriendo reporte...
 start "" "%BATTERY_REPORT%"
 echo [%time%] Reporte de bateria generado >> "!LOG_FILE!"
+pause
+exit /b
+
+:MOD_EVENT_CRITICAL
+cls
+color 0B
+echo  ==============================================================================
+echo   [ANALISIS DE EVENTOS CRITICOS]
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Consulta errores criticos de Sistema (disco/energia)." "Solo lectura."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] Eventos criticos cancelado por el usuario >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo  [i] Consultando eventos criticos recientes...
+echo.
+powershell -NoProfile -Command "$ids=7,11,41,51,55,157,6008; Get-WinEvent -FilterHashtable @{LogName='System'; Id=$ids; Level=1,2} -MaxEvents 25 | Select-Object TimeCreated, Id, ProviderName, LevelDisplayName, Message | Format-Table -Wrap -AutoSize"
+echo.
+echo  [OK] Consulta completada.
+echo [%time%] Analisis de eventos criticos ejecutado >> "!LOG_FILE!"
+pause
+exit /b
+
+:MOD_BSOD_ANALYZER
+cls
+color 0B
+echo  ==============================================================================
+echo   [ANALIZADOR BSOD - MINIDUMP]
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Lista minidumps y eventos de bugcheck." "Solo lectura."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] BSOD analyzer cancelado por el usuario >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+set "DUMP_FOUND=0"
+for %%F in ("%SystemRoot%\Minidump\*.dmp") do if exist "%%~fF" set "DUMP_FOUND=1"
+echo  [i] Ruta Minidump: %SystemRoot%\Minidump
+echo.
+if "!DUMP_FOUND!"=="0" (
+    echo  [i] No se encontraron archivos .dmp en Minidump.
+) else (
+    echo  [i] Ultimos minidumps detectados:
+    dir /b /o-d "%SystemRoot%\Minidump\*.dmp"
+)
+echo.
+echo  [i] Ultimos eventos de bugcheck (Event ID 1001):
+powershell -NoProfile -Command "Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001} -MaxEvents 10 | Select-Object TimeCreated, ProviderName, Id, Message | Format-Table -Wrap -AutoSize"
+echo.
+if "!DUMP_FOUND!"=="1" (
+    echo  [i] Abriendo carpeta Minidump...
+    start "" "%SystemRoot%\Minidump"
+)
+echo  [OK] Analisis BSOD completado.
+echo [%time%] Analisis BSOD/Minidump ejecutado >> "!LOG_FILE!"
+pause
+exit /b
+
+:MOD_PROCESS_AUDIT
+cls
+color 0B
+echo  ==============================================================================
+echo   [AUDITORIA FORENSE DE PROCESOS]
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Detecta procesos desde rutas temporales y firma digital." "Solo lectura."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] Auditoria forense de procesos cancelada >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo  [i] Analizando procesos sospechosos...
+echo.
+powershell -NoProfile -Command "$rx='\\AppData\\Local\\Temp\\|\\Windows\\Temp\\|\\Temp\\|\\tmp\\'; $rows=Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and ($_.ExecutablePath -match $rx) } | ForEach-Object { $sig='N/A'; try { $sig=(Get-AuthenticodeSignature -FilePath $_.ExecutablePath -ErrorAction Stop).Status } catch { $sig='UNAVAILABLE' }; [pscustomobject]@{ Process=$_.Name; PID=$_.ProcessId; Signature=$sig; Path=$_.ExecutablePath } }; if ($rows) { $rows | Sort-Object Signature,Process | Format-Table -Wrap -AutoSize } else { Write-Host '[i] No se detectaron procesos en rutas temporales.' }"
+echo.
+echo  [OK] Auditoria forense completada.
+echo [%time%] Auditoria forense de procesos ejecutada >> "!LOG_FILE!"
+pause
+exit /b
+
+:MOD_RAID_STATUS
+cls
+color 0B
+echo  ==============================================================================
+echo   [ESTADO RAID / STORAGE]
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Consulta subsistema de almacenamiento y estado de discos." "Solo lectura."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] Estado RAID/Storage cancelado por el usuario >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo  [i] Consultando estado de almacenamiento...
+echo.
+powershell -NoProfile -Command "$hasStorage=(Get-Command Get-StorageSubSystem -ErrorAction SilentlyContinue); if ($hasStorage) { Write-Host '--- STORAGE SUBSYSTEM ---'; Get-StorageSubSystem | Select-Object FriendlyName,HealthStatus,OperationalStatus | Format-Table -AutoSize; Write-Host ''; Write-Host '--- VIRTUAL DISKS ---'; Get-VirtualDisk | Select-Object FriendlyName,ResiliencySettingName,OperationalStatus,HealthStatus,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize; Write-Host ''; Write-Host '--- PHYSICAL DISKS ---'; Get-PhysicalDisk | Select-Object FriendlyName,MediaType,OperationalStatus,HealthStatus,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize } else { Write-Host '[i] Cmdlets de Storage no disponibles en este sistema.' }; Write-Host ''; Write-Host '--- WMI FALLBACK ---'; Get-CimInstance Win32_DiskDrive | Select-Object Model,Status,InterfaceType,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize"
+echo.
+echo  [OK] Consulta RAID/Storage completada.
+echo [%time%] Estado RAID/Storage consultado >> "!LOG_FILE!"
+pause
+exit /b
+
+:MOD_DRIVER_BACKUP
+cls
+color 0A
+echo  ==============================================================================
+echo   [BACKUP DE DRIVERS]
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Exporta drivers de terceros con DISM." "Requiere espacio en disco."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] Backup de drivers cancelado por el usuario >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+for /f "tokens=*" %%a in ('powershell -NoProfile -Command "Get-Date -Format 'yyyyMMdd_HHmmss'"') do set "DRV_TS=%%a"
+set "DRV_BACKUP_DIR=%~dp0DriverBackups\Drivers_!DRV_TS!"
+if not exist "%~dp0DriverBackups" mkdir "%~dp0DriverBackups"
+mkdir "!DRV_BACKUP_DIR!" >nul 2>&1
+echo  [i] Exportando drivers a: !DRV_BACKUP_DIR!
+echo [%time%] Iniciando backup de drivers: !DRV_BACKUP_DIR! >> "!LOG_FILE!"
+dism /online /export-driver /destination:"!DRV_BACKUP_DIR!"
+echo.
+for /f %%c in ('dir /b /a:-d /s "!DRV_BACKUP_DIR!" ^| find /c /v ""') do set "DRV_COUNT=%%c"
+if "!DRV_COUNT!"=="0" (
+    echo  [!] No se exportaron drivers o la operacion fallo.
+    echo [%time%] Backup de drivers sin archivos exportados >> "!LOG_FILE!"
+) else (
+    echo  [OK] Backup de drivers completado. Archivos exportados: !DRV_COUNT!
+    echo [%time%] Backup de drivers completado. Archivos: !DRV_COUNT! >> "!LOG_FILE!"
+)
 pause
 exit /b
 

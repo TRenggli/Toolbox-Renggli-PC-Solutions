@@ -726,6 +726,23 @@ xcode-select --install
 
 ---
 
+## 🆕 Windows 新增模块 (V14)
+
+以下模块已添加到 `Windows/toolbox.bat` 和 `Windows/toolbox_corporate.bat`：
+
+- 系统关键事件分析（磁盘/电源）
+- BSOD 分析（Minidump + Event ID 1001）
+- 进程取证审计（临时路径 + 数字签名）
+- RAID/Storage 状态（Storage cmdlets + WMI 回退）
+- 驱动备份（DISM export-driver）
+
+说明：
+
+- 诊断类模块为只读。
+- `驱动备份` 会写入磁盘并需要可用空间。
+
+---
+
 ## 👨‍💻 开发者指南：如何新增模块
 
 本节说明如何在 **Windows、Linux、macOS** 上以安全且一致的方式扩展 Toolbox。
@@ -836,6 +853,22 @@ xcode-select --install
 
 ---
 
+## 📘 菜单与选项详细目录
+
+若要了解**每个选项**（功能、用途、使用场景与注意事项），请查看：
+
+- `Manuales/CATALOGO_OPCIONES_CN.md`
+
+覆盖范围包括：
+
+- Windows（普通版与企业版）
+- Linux（普通版与企业版）
+- macOS（普通版与企业版）
+- 配置档位 `DIAGNOSTICO`、`REPARACION`、`ADMINISTRACION`
+- 风险标签 `[R]`、`[W]`、`[!]`
+
+---
+
 ## 📞 支持
 
 有问题或疑问？
@@ -847,7 +880,7 @@ xcode-select --install
 ## 🎯 版本
 
 **工具箱 V14 多平台**
-- Windows: 15 个模块
+- Windows: 20 个模块
 - Linux: 30 个模块
 - macOS: 30 个模块
 

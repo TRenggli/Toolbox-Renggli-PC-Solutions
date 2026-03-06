@@ -726,6 +726,23 @@ xcode-select --install
 
 ---
 
+## 🆕 MODULOS NUEVOS EN WINDOWS (V14)
+
+Se agregaron los siguientes modulos en `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`:
+
+- Eventos Criticos del Sistema (disco/energia)
+- Analisis BSOD (Minidump + Event ID 1001)
+- Auditoria Forense de Procesos (rutas temporales + firma digital)
+- Estado RAID/Storage (Storage cmdlets + fallback WMI)
+- Backup de Drivers (DISM export-driver)
+
+Notas:
+
+- Los modulos de diagnostico son de solo lectura.
+- `Backup de Drivers` genera cambios en disco y requiere espacio disponible.
+
+---
+
 ## 👨‍💻 GUIA PARA PROGRAMADORES: COMO AGREGAR NUEVOS MODULOS
 
 Esta seccion explica como extender la Toolbox en **Windows, Linux y macOS** de forma segura y consistente.
@@ -836,6 +853,22 @@ Y sigue el flujo de contribucion definido en:
 
 ---
 
+## 📘 CATALOGO DETALLADO DE MENUS Y OPCIONES
+
+Para entender **cada opcion** (que hace, para que sirve, cuando usarla y recaudos), consulta:
+
+- `Manuales/CATALOGO_OPCIONES_ES.md`
+
+Incluye cobertura de:
+
+- Windows (normal y corporate)
+- Linux (normal y corporate)
+- macOS (normal y corporate)
+- Perfiles `DIAGNOSTICO`, `REPARACION`, `ADMINISTRACION`
+- Etiquetas de riesgo `[R]`, `[W]`, `[!]`
+
+---
+
 ## 📞 SOPORTE
 
 ¿Problemas o preguntas?
@@ -847,7 +880,7 @@ Y sigue el flujo de contribucion definido en:
 ## 🎯 VERSION
 
 **Toolbox V14 Multiplataforma**
-- Windows: 15 módulos
+- Windows: 20 módulos
 - Linux: 30 módulos
 - macOS: 30 módulos
 
