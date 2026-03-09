@@ -4,11 +4,13 @@ Este documento explica cada opcion de los menus por sistema operativo.
 Incluye: que hace, para que sirve, cuando usarla y recaudos.
 
 Leyenda de riesgo:
+
 - `[R]` = Solo lectura (sin cambios de configuracion)
 - `[W]` = Escribe/cambia sistema
 - `[!]` = Critico o potencialmente irreversible
 
 Perfiles:
+
 - `D` = Diagnostico
 - `R` = Reparacion
 - `A` = Administracion
@@ -16,7 +18,7 @@ Perfiles:
 ## Windows (20 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
-|---|--------|----------|--------|----------|---------------|----------|
+| --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
 | 1 | Info BIOS/placa o SMART (segun menu) | D/R/A | [R] | Consulta firmware/modelo/estado de disco | Inventario o auditoria tecnica | Ninguno, solo lectura |
 | 2 | RAM o recursos (segun menu) | D/R/A | [R] | Muestra memoria/CPU o lanza diagnostico RAM | Lentitud, congelamientos, chequeo preventivo | Test RAM puede reiniciar o requerir ventana fuera de toolbox |
 | 3 | Recursos/RAM (segun menu) | D/R/A | [R] | Consulta hardware operativo del sistema | Ver capacidad real de equipo | Ninguno, solo lectura |
@@ -39,13 +41,14 @@ Perfiles:
 | 20 | RAID/Storage (A) | A | [R] | Estado de virtual/physical disks y fallback WMI | Servidores o storage complejo | Solo lectura |
 
 Notas Windows:
+
 - El numero exacto puede representar una accion distinta segun perfil (D/R/A).
 - En `toolbox_corporate.bat`, la opcion 13 de MAS esta removida por compliance.
 
 ## Linux (30 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
-|---|--------|----------|--------|----------|---------------|----------|
+| --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
 | 1 | Estado SMART discos | D/R/A | [R] | Lee salud SMART | Ver fallas de disco | Puede instalar smartmontools si falta |
 | 2 | Info hardware completo | D/R/A | [R] | CPU/RAM/board | Inventario tecnico | Solo lectura |
 | 3 | Test memoria RAM | D/R/A | [R] | Consulta memoria y sintomas | Lentitud, errores memoria | Test profundo puede requerir herramienta externa |
@@ -80,7 +83,7 @@ Notas Windows:
 ## macOS (14 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
-|---|--------|----------|--------|----------|---------------|----------|
+| --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
 | 1 | Estado de discos | D/R/A | [R] | `diskutil` + estado general | Revisar almacenamiento | Solo lectura |
 | 2 | Info de hardware | D/R/A | [R] | `system_profiler` y CPU/RAM | Inventario tecnico | Solo lectura |
 | 3 | Test de memoria (informativo) | D/R/A | [R] | Muestra estado de memoria | Diagnostico de performance | Para test completo usar Apple Diagnostics |

@@ -4,11 +4,13 @@ This document explains each menu option by operating system.
 It includes: what it does, why it exists, when to use it, and precautions.
 
 Risk legend:
+
 - `[R]` = Read-only (no configuration changes)
 - `[W]` = Writes/changes system state
 - `[!]` = Critical or potentially irreversible
 
 Profiles:
+
 - `D` = Diagnostics
 - `R` = Repair
 - `A` = Administration
@@ -16,7 +18,7 @@ Profiles:
 ## Windows (20 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
-|---|--------|----------|------|--------------|-------------|-------------|
+| --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
 | 1 | BIOS/board or SMART info (menu-dependent) | D/R/A | [R] | Reads firmware/model/disk health | Inventory or technical audit | None, read-only |
 | 2 | RAM or resources (menu-dependent) | D/R/A | [R] | Shows memory/CPU or launches RAM test | Slowdowns, freezes, preventive checks | RAM test may require reboot/outside flow |
 | 3 | Resources/RAM (menu-dependent) | D/R/A | [R] | Reads operational hardware metrics | Validate machine capacity | None, read-only |
@@ -39,13 +41,14 @@ Profiles:
 | 20 | RAID/Storage (A) | A | [R] | Reads virtual/physical disk health + WMI fallback | Servers or complex storage | Read-only |
 
 Notes (Windows):
+
 - Exact number can map to different action depending on profile (D/R/A).
 - In `toolbox_corporate.bat`, option 13 (MAS) is removed by compliance design.
 
 ## Linux (30 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
-|---|--------|----------|------|--------------|-------------|-------------|
+| --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
 | 1 | SMART disk health | D/R/A | [R] | Reads SMART status | Detect disk degradation | May auto-install smartmontools |
 | 2 | Full hardware info | D/R/A | [R] | CPU/RAM/board data | Asset inventory | Read-only |
 | 3 | RAM diagnostics | D/R/A | [R] | Memory status/symptoms | Performance or memory issues | Deep tests may require external tools |
@@ -80,7 +83,7 @@ Notes (Windows):
 ## macOS (14 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
-|---|--------|----------|------|--------------|-------------|-------------|
+| --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
 | 1 | Disk status | D/R/A | [R] | `diskutil` and disk overview | Storage checks | Read-only |
 | 2 | Hardware info | D/R/A | [R] | `system_profiler`, CPU, RAM | Technical inventory | Read-only |
 | 3 | Memory test (informational) | D/R/A | [R] | Memory status snapshot | Performance checks | Use Apple Diagnostics for deep tests |
