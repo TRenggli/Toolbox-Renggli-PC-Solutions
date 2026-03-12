@@ -15,7 +15,7 @@ Profiles:
 - `R` = Repair
 - `A` = Administration
 
-## Windows (20 options)
+## Windows (21 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
 | --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
@@ -39,6 +39,7 @@ Profiles:
 | 18 | BSOD (A) | A | [R] | Reads minidumps and bugcheck events | Stability incidents | Read-only |
 | 19 | Process forensics (A) | A | [R] | Finds temp-path processes and signature status | Hardening and audits | Read-only |
 | 20 | RAID/Storage (A) | A | [R] | Reads virtual/physical disk health + WMI fallback | Servers or complex storage | Read-only |
+| 21 | Classroom Security Profile (A) | A | [W] | Applies classroom hardening: persistent `T:` mapping, granular ACLs, and offline `NoDrives` policy in student hive | School/lab endpoints with standard users | Run DRY-RUN first and keep rollback ready |
 
 Notes (Windows):
 

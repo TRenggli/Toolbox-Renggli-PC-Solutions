@@ -1,5 +1,48 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-12 (Actualizacion 12)
+
+### Nuevo Modulo Windows: Perfil Seguridad Aula (Normal + Corporate)
+- Se agrego una nueva opcion de administracion en:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+- Opcion incorporada en menu ADMINISTRACION:
+  - `21. [W] Perfil Seguridad Aula (T:/ACL/NoDrives)`
+
+Funciones incluidas en el modulo:
+- `DRY-RUN`: simulacion sin cambios para validar parametros y comandos.
+- `Aplicar`: hardening de aula con:
+  - mapeo persistente kernel-level en `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices`
+  - ACL granular en carpeta de trabajos (permite trabajar y deniega borrado estructural)
+  - denegacion de lectura al perfil administrativo usando SID del alumno
+  - inyeccion de `NoDrives=4` en `NTUSER.DAT` del alumno mediante carga offline de hive
+- `Estado`: verificacion de mapeo, ACLs y politica `NoDrives`.
+- `Rollback`: remocion de cambios aplicados por el modulo (registro/ACL/politica).
+
+Notas operativas:
+- El modulo requiere perfil `ADMINISTRACION` y privilegios elevados.
+- Incluye edicion de parametros (usuario alumno/admin, ruta de trabajos, unidad virtual).
+- Se agrego confirmacion reforzada por frase obligatoria para `Aplicar` (`APLICAR-AULA`) y `Rollback` (`ROLLBACK-AULA`).
+- Se agrego tercera barrera: espera de seguridad de 5 segundos + confirmacion final `S/N` antes de ejecutar `Aplicar` o `Rollback`.
+- Se agrego aclaracion en pantalla dentro del modulo indicando que automatiza y que pasos quedan manuales (estructura escolar/accesos directos/verificacion con sesion alumno).
+- Se agrego checklist final en pantalla al terminar `Aplicar` con los pasos manuales pendientes para cierre operativo.
+- Todo el flujo registra eventos en `!LOG_FILE!` para auditoria.
+
+### Documentacion actualizada
+- Se actualizo el conteo de modulos Windows a 21 en:
+  - `README.md`
+  - `Manuales/README_ES.md`
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`
+- Se actualizo catalogo de opciones Windows a 21 en:
+  - `Manuales/CATALOGO_OPCIONES_ES.md`
+  - `Manuales/CATALOGO_OPCIONES_EN.md`
+  - `Manuales/CATALOGO_OPCIONES_CN.md`
+- Se agrego Perfil Seguridad Aula a la seccion "Modulos nuevos en Windows (V14)" en:
+  - `Manuales/README_ES.md`
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`
+
 ## 2026-03-05 (Actualizacion 11)
 
 ### Cierre de Catalogo Multilenguaje (EN/CN)

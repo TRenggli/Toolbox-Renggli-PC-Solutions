@@ -15,7 +15,7 @@ Perfiles:
 - `R` = Reparacion
 - `A` = Administracion
 
-## Windows (20 opciones)
+## Windows (21 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
 | --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
@@ -39,6 +39,7 @@ Perfiles:
 | 18 | BSOD (A) | A | [R] | Analiza minidumps y eventos bugcheck | Incidentes de estabilidad | Solo lectura |
 | 19 | Forense procesos (A) | A | [R] | Busca procesos en rutas temporales y firma | Hardening y auditoria | Solo lectura |
 | 20 | RAID/Storage (A) | A | [R] | Estado de virtual/physical disks y fallback WMI | Servidores o storage complejo | Solo lectura |
+| 21 | Perfil Seguridad Aula (A) | A | [W] | Aplica hardening escolar: mapeo persistente `T:`, ACL granular y `NoDrives` en hive offline del alumno | Laboratorios/aulas con usuarios estandar | Usar primero DRY-RUN y tener rollback listo |
 
 Notas Windows:
 

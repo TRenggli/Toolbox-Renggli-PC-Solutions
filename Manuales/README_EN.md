@@ -735,11 +735,13 @@ The following modules were added to `Windows/toolbox.bat` and `Windows/toolbox_c
 - Process Forensics Audit (temp paths + digital signature)
 - RAID/Storage Status (Storage cmdlets + WMI fallback)
 - Driver Backup (DISM export-driver)
+- Classroom Security Profile (persistent T: mapping, granular ACLs, offline NoDrives in student hive)
 
 Notes:
 
 - Diagnostic modules are read-only.
 - `Driver Backup` writes files to disk and requires free space.
+- `Classroom Security Profile` modifies registry, ACLs and student hive. Run DRY-RUN first and keep rollback ready.
 
 ---
 
@@ -880,7 +882,7 @@ Problems or questions?
 ## 🎯 VERSION
 
 **Toolbox V14 Multi-Platform**
-- Windows: 20 modules
+- Windows: 21 modules
 - Linux: 30 modules
 - macOS: 30 modules
 

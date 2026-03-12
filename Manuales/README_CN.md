@@ -735,11 +735,13 @@ xcode-select --install
 - 进程取证审计（临时路径 + 数字签名）
 - RAID/Storage 状态（Storage cmdlets + WMI 回退）
 - 驱动备份（DISM export-driver）
+- 教室安全配置（持久 T: 映射、细粒度 ACL、离线写入学生 hive 的 NoDrives）
 
 说明：
 
 - 诊断类模块为只读。
 - `驱动备份` 会写入磁盘并需要可用空间。
+- `教室安全配置` 会修改注册表、ACL 和学生 hive。请先执行 DRY-RUN，并预留回滚窗口。
 
 ---
 
@@ -880,7 +882,7 @@ xcode-select --install
 ## 🎯 版本
 
 **工具箱 V14 多平台**
-- Windows: 20 个模块
+- Windows: 21 个模块
 - Linux: 30 个模块
 - macOS: 30 个模块
 

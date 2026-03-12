@@ -227,6 +227,7 @@ echo    17. [R] Eventos Criticos
 echo    18. [R] Analisis BSOD
 echo    19. [R] Auditoria Forense de Procesos
 echo    20. [R] Estado RAID/Storage
+echo    21. [W] Perfil Seguridad Aula (T:/ACL/NoDrives)
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -258,6 +259,7 @@ if "%choice%"=="17" (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
 if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="20" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
+if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
 
 :VALIDATE_CHOICE
 :: Si la opcion no es valida:
@@ -1131,6 +1133,301 @@ if errorlevel 1 (
     exit /b
 )
 call :MAS_LOGIC
+exit /b
+
+:MOD_CLASSROOM_SECURITY
+if not "%PROFILE_MODE%"=="3" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo solo se permite en perfil ADMINISTRACION.
+    echo [%time%] Seguridad Aula bloqueada: perfil insuficiente >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+set "CLS_STUDENT=Usuario"
+set "CLS_ADMIN=Admin"
+set "CLS_WORKDIR=C:\Trabajos Alumnos"
+set "CLS_DRIVE=T:"
+goto :CLASSROOM_SECURITY_MENU
+
+:CLASSROOM_SECURITY_MENU
+cls
+color 0E
+echo  ============================================================================== 
+echo   [SEGURIDAD AULA] Kernel Mapping + ACL + Perfil Offline
+echo  ============================================================================== 
+echo.
+echo  Configuracion actual:
+echo    Alumno: !CLS_STUDENT!
+echo    Admin protegido: !CLS_ADMIN!
+echo    Carpeta de trabajos: !CLS_WORKDIR!
+echo    Unidad virtual: !CLS_DRIVE!
+echo.
+echo  Este modulo SI automatiza:
+echo    - Mapeo persistente de !CLS_DRIVE! en registro (DOS Devices)
+echo    - ACL de proteccion (perfil Admin + carpeta de trabajos)
+echo    - Ocultamiento de C: para alumno (NoDrives en NTUSER.DAT offline)
+echo.
+echo  Pendiente manual (si lo deseas en tu metodologia):
+echo    - Crear estructura escolar (PRIMARIA/SECUNDARIA y anios)
+echo    - Crear accesos directos en el escritorio del alumno
+echo    - Validacion final iniciando sesion en cuenta Alumno
+echo.
+echo  1. Simular cambios (DRY-RUN)
+echo  2. Aplicar hardening
+echo  3. Ver estado actual
+echo  4. Rollback (revertir)
+echo  5. Editar parametros
+echo  0. Volver al menu
+echo.
+set "cls_choice="
+set /p "cls_choice=> Selecciona una opcion [0-5]: "
+
+if "%cls_choice%"=="1" (call :CLASSROOM_SECURITY_APPLY DRY & pause & goto :CLASSROOM_SECURITY_MENU)
+if "%cls_choice%"=="2" (
+    call :MODULE_CONFIRM "Aplicar perfil de seguridad de aula." "Cambia ACL/registro y perfil de usuario."
+    if errorlevel 1 (
+        echo [%time%] Seguridad Aula: aplicacion cancelada por usuario >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    set "CLS_CONFIRM="
+    echo.
+    set /p "CLS_CONFIRM=Escribe APLICAR-AULA para confirmar: "
+    if /i not "!CLS_CONFIRM!"=="APLICAR-AULA" (
+        echo  [i] Confirmacion invalida. No se aplicaron cambios.
+        echo [%time%] Seguridad Aula: aplicacion cancelada por frase invalida >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    echo.
+    echo  [!] Espera de seguridad: 5 segundos...
+    timeout /t 5 /nobreak >nul
+    set "CLS_CONFIRM="
+    set /p "CLS_CONFIRM=Confirmacion final (S/N): "
+    if /i not "!CLS_CONFIRM!"=="S" (
+        echo  [i] Operacion cancelada en confirmacion final.
+        echo [%time%] Seguridad Aula: aplicacion cancelada en confirmacion final >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    call :CLASSROOM_SECURITY_APPLY APPLY
+    pause
+    goto :CLASSROOM_SECURITY_MENU
+)
+if "%cls_choice%"=="3" (call :CLASSROOM_SECURITY_STATUS & pause & goto :CLASSROOM_SECURITY_MENU)
+if "%cls_choice%"=="4" (
+    call :MODULE_CONFIRM "Revertir perfil de seguridad de aula." "Intentara remover ACL y claves aplicadas por Toolbox."
+    if errorlevel 1 (
+        echo [%time%] Seguridad Aula: rollback cancelado por usuario >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    set "CLS_CONFIRM="
+    echo.
+    set /p "CLS_CONFIRM=Escribe ROLLBACK-AULA para confirmar: "
+    if /i not "!CLS_CONFIRM!"=="ROLLBACK-AULA" (
+        echo  [i] Confirmacion invalida. No se ejecuto rollback.
+        echo [%time%] Seguridad Aula: rollback cancelado por frase invalida >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    echo.
+    echo  [!] Espera de seguridad: 5 segundos...
+    timeout /t 5 /nobreak >nul
+    set "CLS_CONFIRM="
+    set /p "CLS_CONFIRM=Confirmacion final (S/N): "
+    if /i not "!CLS_CONFIRM!"=="S" (
+        echo  [i] Rollback cancelado en confirmacion final.
+        echo [%time%] Seguridad Aula: rollback cancelado en confirmacion final >> "!LOG_FILE!"
+        pause
+        goto :CLASSROOM_SECURITY_MENU
+    )
+    call :CLASSROOM_SECURITY_ROLLBACK
+    pause
+    goto :CLASSROOM_SECURITY_MENU
+)
+if "%cls_choice%"=="5" (call :CLASSROOM_SECURITY_EDIT & goto :CLASSROOM_SECURITY_MENU)
+if "%cls_choice%"=="0" exit /b
+
+echo.
+echo  [!] Opcion no valida.
+timeout /t 2 >nul
+goto :CLASSROOM_SECURITY_MENU
+
+:CLASSROOM_SECURITY_EDIT
+set "tmp_val="
+echo.
+set /p "tmp_val=Alumno [!CLS_STUDENT!]: "
+if defined tmp_val set "CLS_STUDENT=!tmp_val!"
+set "tmp_val="
+set /p "tmp_val=Admin protegido [!CLS_ADMIN!]: "
+if defined tmp_val set "CLS_ADMIN=!tmp_val!"
+set "tmp_val="
+set /p "tmp_val=Carpeta de trabajos [!CLS_WORKDIR!]: "
+if defined tmp_val set "CLS_WORKDIR=!tmp_val!"
+set "tmp_val="
+set /p "tmp_val=Unidad virtual [!CLS_DRIVE!]: "
+if defined tmp_val set "CLS_DRIVE=!tmp_val!"
+echo [%time%] Seguridad Aula: parametros actualizados (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!, Dir=!CLS_WORKDIR!, Drive=!CLS_DRIVE!) >> "!LOG_FILE!"
+exit /b
+
+:CLASSROOM_SECURITY_PRECHECK
+set "CLS_STUDENT_SID="
+set "CLS_HIVE_FILE=C:\Users\!CLS_STUDENT!\NTUSER.DAT"
+set "CLS_ADMIN_PROFILE=C:\Users\!CLS_ADMIN!"
+
+if /i "!CLS_DRIVE:~1,1!" NEQ ":" (
+    echo  [ERROR] Unidad invalida: !CLS_DRIVE! (formato esperado: T:)
+    echo [%time%] Seguridad Aula: unidad invalida !CLS_DRIVE! >> "!LOG_FILE!"
+    exit /b 1
+)
+
+if not exist "!CLS_ADMIN_PROFILE!" (
+    echo  [ERROR] No existe el perfil admin objetivo: !CLS_ADMIN_PROFILE!
+    echo [%time%] Seguridad Aula: admin objetivo inexistente !CLS_ADMIN_PROFILE! >> "!LOG_FILE!"
+    exit /b 1
+)
+
+if not exist "!CLS_HIVE_FILE!" (
+    echo  [ERROR] No existe NTUSER.DAT del alumno: !CLS_HIVE_FILE!
+    echo [%time%] Seguridad Aula: NTUSER.DAT no encontrado !CLS_HIVE_FILE! >> "!LOG_FILE!"
+    exit /b 1
+)
+
+for /f "usebackq delims=" %%s in (`powershell -NoProfile -Command "$u=Get-LocalUser -Name '!CLS_STUDENT!' -ErrorAction SilentlyContinue; if($u){$u.SID.Value}"`) do set "CLS_STUDENT_SID=%%s"
+if not defined CLS_STUDENT_SID (
+    echo  [ERROR] No se pudo resolver SID del alumno !CLS_STUDENT!.
+    echo [%time%] Seguridad Aula: SID no resuelto para !CLS_STUDENT! >> "!LOG_FILE!"
+    exit /b 1
+)
+exit /b 0
+
+:CLASSROOM_SECURITY_APPLY
+set "CLS_MODE=%~1"
+cls
+color 0E
+echo  ============================================================================== 
+echo   [SEGURIDAD AULA] Aplicacion - !CLS_MODE!
+echo  ============================================================================== 
+echo.
+call :CLASSROOM_SECURITY_PRECHECK
+if errorlevel 1 exit /b 1
+
+if /i "!CLS_MODE!"=="DRY" (
+    echo  [DRY] mkdir "!CLS_WORKDIR!"
+    echo  [DRY] reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f
+    echo  [DRY] icacls "!CLS_WORKDIR!" /grant "!CLS_STUDENT!":(OI)(CI)(M)
+    echo  [DRY] icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC)
+    echo  [DRY] icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX)
+    echo  [DRY] reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!"
+    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f
+    echo  [DRY] reg unload "HKU\ToolboxAlumno"
+    echo  [OK] Simulacion completada (sin cambios).
+    echo [%time%] Seguridad Aula: simulacion completada >> "!LOG_FILE!"
+    exit /b 0
+)
+
+if not exist "!CLS_WORKDIR!" mkdir "!CLS_WORKDIR!"
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+
+icacls "!CLS_WORKDIR!" /grant "!CLS_STUDENT!":(OI)(CI)(M) >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC) >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+
+icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX) >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+
+reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f >nul
+if errorlevel 1 (
+    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+    goto :CLASSROOM_SECURITY_APPLY_FAIL
+)
+reg unload "HKU\ToolboxAlumno" >nul
+
+echo  [OK] Hardening de aula aplicado correctamente.
+echo.
+echo  [CHECKLIST FINAL - PASOS MANUALES]
+echo    [ ] Crear estructura escolar (PRIMARIA/SECUNDARIA y anios) si aun no existe
+echo    [ ] Ingresar con cuenta Alumno y crear accesos directos de carpetas de trabajo
+echo    [ ] Verificar que C: este oculto y que T: aparezca al iniciar sesion
+echo    [ ] Validar que Alumno no pueda abrir C:\Users\!CLS_ADMIN!
+echo [%time%] Seguridad Aula: hardening aplicado (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!, Dir=!CLS_WORKDIR!, Drive=!CLS_DRIVE!) >> "!LOG_FILE!"
+exit /b 0
+
+:CLASSROOM_SECURITY_APPLY_FAIL
+echo  [ERROR] Fallo durante la aplicacion. Revisa permisos/rutas y vuelve a intentar.
+reg unload "HKU\ToolboxAlumno" >nul 2>&1
+echo [%time%] Seguridad Aula: ERROR en aplicacion >> "!LOG_FILE!"
+exit /b 1
+
+:CLASSROOM_SECURITY_STATUS
+cls
+color 0B
+echo  ============================================================================== 
+echo   [SEGURIDAD AULA] Estado actual
+echo  ============================================================================== 
+echo.
+call :CLASSROOM_SECURITY_PRECHECK
+if errorlevel 1 exit /b 1
+
+echo  [i] Mapeo de unidad en DOS Devices:
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!"
+echo.
+
+echo  [i] ACL en carpeta de trabajos (buscando deny DE/DC):
+icacls "!CLS_WORKDIR!" | findstr /i /c:"!CLS_STUDENT!:(DENY)(DE,DC)"
+if errorlevel 1 echo    [!] No se detecto regla deny DE/DC exacta para !CLS_STUDENT!.
+echo.
+
+echo  [i] ACL en perfil admin (buscando deny RX por SID alumno):
+icacls "!CLS_ADMIN_PROFILE!" | findstr /i "!CLS_STUDENT_SID!"
+if errorlevel 1 echo    [!] No se detecto regla deny RX por SID del alumno.
+echo.
+
+echo  [i] Politica NoDrives en hive de alumno:
+reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
+if errorlevel 1 (
+    echo    [ERROR] No se pudo cargar hive de alumno.
+) else (
+    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives
+    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+)
+echo.
+echo [%time%] Seguridad Aula: consulta de estado ejecutada >> "!LOG_FILE!"
+exit /b
+
+:CLASSROOM_SECURITY_ROLLBACK
+cls
+color 0C
+echo  ============================================================================== 
+echo   [SEGURIDAD AULA] Rollback
+echo  ============================================================================== 
+echo.
+call :CLASSROOM_SECURITY_PRECHECK
+if errorlevel 1 exit /b 1
+
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /f >nul 2>&1
+icacls "!CLS_WORKDIR!" /remove:d "!CLS_STUDENT!" >nul 2>&1
+icacls "!CLS_ADMIN_PROFILE!" /remove:d *!CLS_STUDENT_SID! >nul 2>&1
+
+reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
+if not errorlevel 1 (
+    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /f >nul 2>&1
+    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+)
+
+echo  [OK] Rollback ejecutado. Verifica estado para confirmar.
+echo [%time%] Seguridad Aula: rollback ejecutado (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!) >> "!LOG_FILE!"
 exit /b
 
 :: ==============================================================================
