@@ -735,13 +735,13 @@ The following modules were added to `Windows/toolbox.bat` and `Windows/toolbox_c
 - Process Forensics Audit (temp paths + digital signature)
 - RAID/Storage Status (Storage cmdlets + WMI fallback)
 - Driver Backup (DISM export-driver)
-- Classroom Security Profile (persistent T: mapping, granular ACLs, offline NoDrives in student hive)
+- Classroom Security Profile (persistent T: mapping, reinforced structure ACLs, offline NoDrives and NoViewOnDrive in the student hive)
 
 Notes:
 
 - Diagnostic modules are read-only.
 - `Driver Backup` writes files to disk and requires free space.
-- `Classroom Security Profile` modifies registry, ACLs and student hive. Run DRY-RUN first and keep rollback ready.
+- `Classroom Security Profile` modifies registry, ACLs and the student hive. Run DRY-RUN first, keep rollback ready, and validate the real classroom file workflow.
 
 ---
 

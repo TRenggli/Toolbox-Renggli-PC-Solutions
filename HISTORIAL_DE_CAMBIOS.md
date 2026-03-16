@@ -1,5 +1,19 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-16 (Actualizacion 13)
+
+### Refinamiento del modulo Windows: Perfil Seguridad Aula
+- Se reforzo la politica de la carpeta de trabajos en:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+- Ajustes aplicados:
+  - `NoViewOnDrive=4` adicional a `NoDrives=4` para ocultar C: y bloquear su apertura desde Explorer.
+  - ACL mas estricta en la estructura de `Trabajos Alumnos` para bloquear borrado y renombrado de carpetas.
+  - `ConfirmFileDelete=1` en el perfil del alumno para reforzar confirmacion visual en Explorer.
+  - Estado y rollback ampliados para cubrir `NoViewOnDrive` y `ConfirmFileDelete`.
+- Nota tecnica:
+  - NTFS no separa de forma perfecta `mover archivo` y `borrar archivo` usando solo ACL locales; el modulo documenta ese limite y prioriza proteger la estructura de carpetas del aula.
+
 ## 2026-03-12 (Actualizacion 12)
 
 ### Nuevo Modulo Windows: Perfil Seguridad Aula (Normal + Corporate)

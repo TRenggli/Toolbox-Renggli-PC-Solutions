@@ -735,13 +735,13 @@ Se agregaron los siguientes modulos en `Windows/toolbox.bat` y `Windows/toolbox_
 - Auditoria Forense de Procesos (rutas temporales + firma digital)
 - Estado RAID/Storage (Storage cmdlets + fallback WMI)
 - Backup de Drivers (DISM export-driver)
-- Perfil Seguridad Aula (mapeo persistente T:, ACL granular, NoDrives en hive offline)
+- Perfil Seguridad Aula (mapeo persistente T:, ACL reforzada de estructura, NoDrives y NoViewOnDrive en hive offline)
 
 Notas:
 
 - Los modulos de diagnostico son de solo lectura.
 - `Backup de Drivers` genera cambios en disco y requiere espacio disponible.
-- `Perfil Seguridad Aula` modifica registro, ACLs y hive del alumno. Usar DRY-RUN primero y tener rollback listo.
+- `Perfil Seguridad Aula` modifica registro, ACLs y hive del alumno. Usar DRY-RUN primero, tener rollback listo y validar la operatoria real de archivos del aula.
 
 ---
 

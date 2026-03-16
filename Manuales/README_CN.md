@@ -735,13 +735,13 @@ xcode-select --install
 - 进程取证审计（临时路径 + 数字签名）
 - RAID/Storage 状态（Storage cmdlets + WMI 回退）
 - 驱动备份（DISM export-driver）
-- 教室安全配置（持久 T: 映射、细粒度 ACL、离线写入学生 hive 的 NoDrives）
+- 教室安全配置（持久 T: 映射、强化目录结构 ACL、离线写入学生 hive 的 NoDrives 与 NoViewOnDrive）
 
 说明：
 
 - 诊断类模块为只读。
 - `驱动备份` 会写入磁盘并需要可用空间。
-- `教室安全配置` 会修改注册表、ACL 和学生 hive。请先执行 DRY-RUN，并预留回滚窗口。
+- `教室安全配置` 会修改注册表、ACL 和学生 hive。请先执行 DRY-RUN，预留回滚窗口，并按教室实际文件流转方式完成验证。
 
 ---
 

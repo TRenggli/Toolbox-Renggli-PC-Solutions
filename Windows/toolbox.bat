@@ -1168,13 +1168,15 @@ echo    Unidad virtual: !CLS_DRIVE!
 echo.
 echo  Este modulo SI automatiza:
 echo    - Mapeo persistente de !CLS_DRIVE! en registro (DOS Devices)
-echo    - ACL de proteccion (perfil Admin + carpeta de trabajos)
-echo    - Ocultamiento de C: para alumno (NoDrives en NTUSER.DAT offline)
+echo    - ACL reforzada para proteger estructura y perfil Admin
+echo    - Ocultamiento y bloqueo visual de C: (NoDrives + NoViewOnDrive)
 echo.
 echo  Pendiente manual (si lo deseas en tu metodologia):
 echo    - Crear estructura escolar (PRIMARIA/SECUNDARIA y anios)
 echo    - Crear accesos directos en el escritorio del alumno
 echo    - Validacion final iniciando sesion en cuenta Alumno
+echo    - Nota: NTFS no separa perfecto mover archivo y borrar archivo con solo ACL.
+echo      Este modulo prioriza proteger carpetas y estructura del aula.
 echo.
 echo  1. Simular cambios (DRY-RUN)
 echo  2. Aplicar hardening
@@ -1320,11 +1322,14 @@ if errorlevel 1 exit /b 1
 if /i "!CLS_MODE!"=="DRY" (
     echo  [DRY] mkdir "!CLS_WORKDIR!"
     echo  [DRY] reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f
-    echo  [DRY] icacls "!CLS_WORKDIR!" /grant "!CLS_STUDENT!":(OI)(CI)(M)
+    echo  [DRY] icacls "!CLS_WORKDIR!" /grant:r "!CLS_STUDENT!":(OI)(CI)(RX,W)
     echo  [DRY] icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC)
+    echo  [DRY] icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(CI)(IO)(DE,DC)
     echo  [DRY] icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX)
     echo  [DRY] reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!"
     echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f
+    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /t REG_DWORD /d 4 /f
+    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /t REG_DWORD /d 1 /f
     echo  [DRY] reg unload "HKU\ToolboxAlumno"
     echo  [OK] Simulacion completada (sin cambios).
     echo [%time%] Seguridad Aula: simulacion completada >> "!LOG_FILE!"
@@ -1337,9 +1342,11 @@ if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f >nul
 if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 
-icacls "!CLS_WORKDIR!" /grant "!CLS_STUDENT!":(OI)(CI)(M) >nul
+icacls "!CLS_WORKDIR!" /grant:r "!CLS_STUDENT!":(OI)(CI)(RX,W) >nul
 if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC) >nul
+if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(CI)(IO)(DE,DC) >nul
 if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 
 icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX) >nul
@@ -1348,6 +1355,16 @@ if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul
 if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
 reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f >nul
+if errorlevel 1 (
+    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+    goto :CLASSROOM_SECURITY_APPLY_FAIL
+)
+reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /t REG_DWORD /d 4 /f >nul
+if errorlevel 1 (
+    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+    goto :CLASSROOM_SECURITY_APPLY_FAIL
+)
+reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /t REG_DWORD /d 1 /f >nul
 if errorlevel 1 (
     reg unload "HKU\ToolboxAlumno" >nul 2>&1
     goto :CLASSROOM_SECURITY_APPLY_FAIL
@@ -1361,6 +1378,8 @@ echo    [ ] Crear estructura escolar (PRIMARIA/SECUNDARIA y anios) si aun no exi
 echo    [ ] Ingresar con cuenta Alumno y crear accesos directos de carpetas de trabajo
 echo    [ ] Verificar que C: este oculto y que T: aparezca al iniciar sesion
 echo    [ ] Validar que Alumno no pueda abrir C:\Users\!CLS_ADMIN!
+echo    [ ] Validar que Alumno no pueda renombrar ni borrar carpetas dentro de !CLS_WORKDIR!
+echo    [ ] Validar flujo real de archivos segun metodologia del aula
 echo [%time%] Seguridad Aula: hardening aplicado (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!, Dir=!CLS_WORKDIR!, Drive=!CLS_DRIVE!) >> "!LOG_FILE!"
 exit /b 0
 
@@ -1384,9 +1403,9 @@ echo  [i] Mapeo de unidad en DOS Devices:
 reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!"
 echo.
 
-echo  [i] ACL en carpeta de trabajos (buscando deny DE/DC):
-icacls "!CLS_WORKDIR!" | findstr /i /c:"!CLS_STUDENT!:(DENY)(DE,DC)"
-if errorlevel 1 echo    [!] No se detecto regla deny DE/DC exacta para !CLS_STUDENT!.
+echo  [i] ACL en carpeta de trabajos (allow RX,W + deny DE/DC sobre estructura):
+icacls "!CLS_WORKDIR!" | findstr /i /c:"!CLS_STUDENT!:(OI)(CI)(RX,W)" /c:"!CLS_STUDENT!:(DENY)(DE,DC)" /c:"!CLS_STUDENT!:(CI)(IO)(DENY)(DE,DC)"
+if errorlevel 1 echo    [!] No se detectaron todas las ACL esperadas para !CLS_STUDENT!.
 echo.
 
 echo  [i] ACL en perfil admin (buscando deny RX por SID alumno):
@@ -1394,12 +1413,14 @@ icacls "!CLS_ADMIN_PROFILE!" | findstr /i "!CLS_STUDENT_SID!"
 if errorlevel 1 echo    [!] No se detecto regla deny RX por SID del alumno.
 echo.
 
-echo  [i] Politica NoDrives en hive de alumno:
+echo  [i] Politicas Explorer en hive de alumno:
 reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
 if errorlevel 1 (
     echo    [ERROR] No se pudo cargar hive de alumno.
 ) else (
     reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives
+    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive
+    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete
     reg unload "HKU\ToolboxAlumno" >nul 2>&1
 )
 echo.
@@ -1423,6 +1444,8 @@ icacls "!CLS_ADMIN_PROFILE!" /remove:d *!CLS_STUDENT_SID! >nul 2>&1
 reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
 if not errorlevel 1 (
     reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /f >nul 2>&1
+    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /f >nul 2>&1
+    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /f >nul 2>&1
     reg unload "HKU\ToolboxAlumno" >nul 2>&1
 )
 
