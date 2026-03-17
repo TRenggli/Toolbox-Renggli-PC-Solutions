@@ -227,7 +227,7 @@ echo    17. [R] Eventos Criticos
 echo    18. [R] Analisis BSOD
 echo    19. [R] Auditoria Forense de Procesos
 echo    20. [R] Estado RAID/Storage
-echo    21. [W] Perfil Seguridad Aula (T:/ACL/NoDrives)
+echo    21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -1147,311 +1147,895 @@ if not "%PROFILE_MODE%"=="3" (
     pause
     exit /b
 )
-set "CLS_STUDENT=Usuario"
-set "CLS_ADMIN=Admin"
-set "CLS_WORKDIR=C:\Trabajos Alumnos"
-set "CLS_DRIVE=T:"
-goto :CLASSROOM_SECURITY_MENU
+echo [%time%] Blindaje V1: ingreso al modulo de Seguridad Alta >> "!LOG_FILE!"
+set "BL_TARGET_USER_ALUMNO=Usuario"
+set "BL_DEFAULT_ROOT_DIR=C:\Trabajos Alumnos"
+set "BL_DEFAULT_DRIVE_LETTER=T:"
+set "BL_USER_ALUMNO=%BL_TARGET_USER_ALUMNO%"
+set "BL_ROOT_DIR=%BL_DEFAULT_ROOT_DIR%"
+set "BL_DRIVE_LETTER=%BL_DEFAULT_DRIVE_LETTER%"
+set "BL_USER_HIVE="
+set "BL_TEMP_HIVE=HKU\AL_TEMP"
+set "BL_MODE_KEY=HKLM\SOFTWARE\Renggli\BlindajeV1"
+set "BL_BIN_CLSID={645FF040-5081-101B-9F08-00AA002F954E}"
+set "BL_SEC_DIR="
+set "BL_PROFILE_DIR="
+set "BL_CONFIG_KEY=%BL_MODE_KEY%\Config"
+set "BL_LOGON_MAP_VALUE=RenggliDriveMap"
 
-:CLASSROOM_SECURITY_MENU
+call :BL_LOAD_SAVED_CONFIG
+call :BL_REFRESH_DERIVED_PATHS
+
+:BL_MENU
 cls
-color 0E
-echo  ============================================================================== 
-echo   [SEGURIDAD AULA] Kernel Mapping + ACL + Perfil Offline
-echo  ============================================================================== 
+color 0B
+echo ======================================================================
+echo           PERFIL SEGURIDAD ALTA - BLINDAJE V1 INTEGRADO
+echo ======================================================================
+echo.
+echo    Alumno objetivo: %BL_USER_ALUMNO%
+echo    Carpeta raiz:    %BL_ROOT_DIR%
+echo    Unidad virtual:  %BL_DRIVE_LETTER%
+echo.
+echo    [1] APLICAR BLINDAJE ESTRICTO
+echo    [2] DESHACER TODO ^(revertir cambios^)
+echo    [3] VERIFICAR ESTADO ACTUAL
+echo    [4] CONFIGURAR RUTA/UNIDAD
+echo    [5] VOLVER AL MENU PRINCIPAL
+echo.
+echo    Manual tecnico: blindajev1_MANUAL.md
+echo.
+set "opt="
+set /p "opt=Seleccione una opcion [1-5]: "
+
+if "%opt%"=="1" (
+    call :BL_CONFIRMAR_Y_APLICAR
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="2" goto BL_DESHACER
+if "%opt%"=="3" goto BL_VERIFICAR
+if "%opt%"=="4" (
+    call :BL_CONFIGURAR_PARAMETROS
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="5" (
+    echo [%time%] Blindaje V1: salida del modulo Seguridad Alta >> "!LOG_FILE!"
+    exit /b 0
+)
+goto BL_MENU
+
+:BL_CONFIRMAR_Y_APLICAR
+set "BL_USER_ALUMNO=%BL_TARGET_USER_ALUMNO%"
+call :BL_REFRESH_DERIVED_PATHS
+cls
+color 0A
+echo ========================================================
+echo   CONFIRMACION DE APLICACION
+echo ========================================================
 echo.
 echo  Configuracion actual:
-echo    Alumno: !CLS_STUDENT!
-echo    Admin protegido: !CLS_ADMIN!
-echo    Carpeta de trabajos: !CLS_WORKDIR!
-echo    Unidad virtual: !CLS_DRIVE!
+echo    - Alumno:  %BL_TARGET_USER_ALUMNO% ^(fijo^)
+echo    - Carpeta: %BL_ROOT_DIR%
+echo    - Unidad:  %BL_DRIVE_LETTER%
 echo.
-echo  Este modulo SI automatiza:
-echo    - Mapeo persistente de !CLS_DRIVE! en registro (DOS Devices)
-echo    - ACL reforzada para proteger estructura y perfil Admin
-echo    - Ocultamiento y bloqueo visual de C: (NoDrives + NoViewOnDrive)
+echo  Alcance de cambios:
+echo    - Politicas de Explorer: solo para %BL_TARGET_USER_ALUMNO%.
+echo    - ACL en %BL_ROOT_DIR% y mapeo de %BL_DRIVE_LETTER%: impacto a nivel equipo.
 echo.
-echo  Pendiente manual (si lo deseas en tu metodologia):
-echo    - Crear estructura escolar (PRIMARIA/SECUNDARIA y anios)
-echo    - Crear accesos directos en el escritorio del alumno
-echo    - Validacion final iniciando sesion en cuenta Alumno
-echo    - Nota: NTFS no separa perfecto mover archivo y borrar archivo con solo ACL.
-echo      Este modulo prioriza proteger carpetas y estructura del aula.
-echo.
-echo  1. Simular cambios (DRY-RUN)
-echo  2. Aplicar hardening
-echo  3. Ver estado actual
-echo  4. Rollback (revertir)
-echo  5. Editar parametros
-echo  0. Volver al menu
-echo.
-set "cls_choice="
-set /p "cls_choice=> Selecciona una opcion [0-5]: "
-
-if "%cls_choice%"=="1" (call :CLASSROOM_SECURITY_APPLY DRY & pause & goto :CLASSROOM_SECURITY_MENU)
-if "%cls_choice%"=="2" (
-    call :MODULE_CONFIRM "Aplicar perfil de seguridad de aula." "Cambia ACL/registro y perfil de usuario."
+set "edit_cfg="
+set /p "edit_cfg=Editar parametros antes de aplicar (S/N): "
+if /I "%edit_cfg%"=="S" (
+    call :BL_CONFIGURAR_PARAMETROS
     if errorlevel 1 (
-        echo [%time%] Seguridad Aula: aplicacion cancelada por usuario >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
+        echo [i] Aplicacion cancelada.
+        exit /b 1
     )
-    set "CLS_CONFIRM="
-    echo.
-    set /p "CLS_CONFIRM=Escribe APLICAR-AULA para confirmar: "
-    if /i not "!CLS_CONFIRM!"=="APLICAR-AULA" (
-        echo  [i] Confirmacion invalida. No se aplicaron cambios.
-        echo [%time%] Seguridad Aula: aplicacion cancelada por frase invalida >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
-    )
-    echo.
-    echo  [!] Espera de seguridad: 5 segundos...
-    timeout /t 5 /nobreak >nul
-    set "CLS_CONFIRM="
-    set /p "CLS_CONFIRM=Confirmacion final (S/N): "
-    if /i not "!CLS_CONFIRM!"=="S" (
-        echo  [i] Operacion cancelada en confirmacion final.
-        echo [%time%] Seguridad Aula: aplicacion cancelada en confirmacion final >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
-    )
-    call :CLASSROOM_SECURITY_APPLY APPLY
-    pause
-    goto :CLASSROOM_SECURITY_MENU
 )
-if "%cls_choice%"=="3" (call :CLASSROOM_SECURITY_STATUS & pause & goto :CLASSROOM_SECURITY_MENU)
-if "%cls_choice%"=="4" (
-    call :MODULE_CONFIRM "Revertir perfil de seguridad de aula." "Intentara remover ACL y claves aplicadas por Toolbox."
+
+call :BL_PRECHECK
+if errorlevel 1 exit /b 1
+
+echo.
+echo  Se aplicara BLINDAJE ESTRICTO.
+echo  Recomendado cuando queres priorizar que no se borre nada.
+echo.
+echo  Este modo tambien mantiene acceso diario a:
+echo    - Escritorio
+echo    - Documentos
+echo    - Descargas
+echo    - Musica
+echo    - Imagenes
+echo    - Videos
+echo.
+echo  Requisitos:
+echo    - La sesion del alumno debe estar cerrada.
+echo    - Reiniciar o cerrar sesion despues de aplicar.
+echo    - No se modifica contenido existente de Escritorio.
+echo.
+
+set "confirm_apply="
+set /p "confirm_apply=Confirmar aplicacion (S/N): "
+if /I not "%confirm_apply%"=="S" (
+    echo [i] Operacion cancelada.
+    exit /b 1
+)
+
+call :BL_APPLY_STRICT
+exit /b %errorlevel%
+
+:BL_PRECHECK
+if not exist "%BL_USER_HIVE%" (
+    color 0C
+    echo [X] No existe NTUSER.DAT para %BL_USER_ALUMNO%.
+    echo [i] Ruta esperada: %BL_USER_HIVE%
+    exit /b 1
+)
+
+echo [.] Validando que la sesion de %BL_USER_ALUMNO% este cerrada...
+reg unload "%BL_TEMP_HIVE%" >nul 2>&1
+reg load "%BL_TEMP_HIVE%" "%BL_USER_HIVE%" >nul 2>&1
+if errorlevel 1 (
+    color 0C
+    echo [X] La sesion de %BL_USER_ALUMNO% debe estar CERRADA para aplicar cambios.
+    echo [i] Cierra la sesion del usuario objetivo y reintenta.
+    exit /b 1
+)
+reg unload "%BL_TEMP_HIVE%" >nul 2>&1
+if errorlevel 1 (
+    color 0C
+    echo [X] No se pudo descargar el hive temporal de %BL_USER_ALUMNO%.
+    echo [i] Reinicia el equipo y vuelve a intentar.
+    exit /b 1
+)
+echo [OK] Sesion del usuario objetivo validada.
+exit /b 0
+
+:BL_CONFIGURAR_PARAMETROS
+cls
+color 0E
+echo ========================================================
+echo   CONFIGURAR RUTA Y UNIDAD
+echo ========================================================
+echo.
+echo  [i] Enter mantiene el valor actual.
+echo  [i] Usuario objetivo fijo: %BL_TARGET_USER_ALUMNO%
+echo  [i] Formato carpeta:
+echo      - Recomendado: C:\Trabajos Alumnos
+echo      - Si escribis solo un nombre ^(ej: Trabajos Alumnos^), se usara C:\^<nombre^>
+echo  [i] Formato unidad:
+echo      - Letra sola o con : ^(ej: T o T:^)
+echo.
+echo  Valores actuales:
+echo    - Alumno:  %BL_TARGET_USER_ALUMNO% ^(fijo^)
+echo    - Carpeta: %BL_ROOT_DIR%
+echo    - Unidad:  %BL_DRIVE_LETTER%
+echo.
+
+set "OLD_ROOT_DIR=%BL_ROOT_DIR%"
+set "OLD_DRIVE_LETTER=%BL_DRIVE_LETTER%"
+
+set "new_root="
+set /p "new_root=Carpeta raiz [%BL_ROOT_DIR%]: "
+if not "%new_root%"=="" (
+    set "BL_ROOT_DIR=%new_root%"
+    call :BL_NORMALIZE_ROOT_DIR
     if errorlevel 1 (
-        echo [%time%] Seguridad Aula: rollback cancelado por usuario >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
+        color 0C
+        echo [X] Ruta invalida. Ejemplos validos: C:\Trabajos Alumnos o Trabajos Alumnos.
+        set "BL_ROOT_DIR=%OLD_ROOT_DIR%"
+        set "BL_DRIVE_LETTER=%OLD_DRIVE_LETTER%"
+        call :BL_REFRESH_DERIVED_PATHS
+        exit /b 1
     )
-    set "CLS_CONFIRM="
-    echo.
-    set /p "CLS_CONFIRM=Escribe ROLLBACK-AULA para confirmar: "
-    if /i not "!CLS_CONFIRM!"=="ROLLBACK-AULA" (
-        echo  [i] Confirmacion invalida. No se ejecuto rollback.
-        echo [%time%] Seguridad Aula: rollback cancelado por frase invalida >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
-    )
-    echo.
-    echo  [!] Espera de seguridad: 5 segundos...
-    timeout /t 5 /nobreak >nul
-    set "CLS_CONFIRM="
-    set /p "CLS_CONFIRM=Confirmacion final (S/N): "
-    if /i not "!CLS_CONFIRM!"=="S" (
-        echo  [i] Rollback cancelado en confirmacion final.
-        echo [%time%] Seguridad Aula: rollback cancelado en confirmacion final >> "!LOG_FILE!"
-        pause
-        goto :CLASSROOM_SECURITY_MENU
-    )
-    call :CLASSROOM_SECURITY_ROLLBACK
-    pause
-    goto :CLASSROOM_SECURITY_MENU
 )
-if "%cls_choice%"=="5" (call :CLASSROOM_SECURITY_EDIT & goto :CLASSROOM_SECURITY_MENU)
-if "%cls_choice%"=="0" exit /b
+
+set "new_drive="
+set /p "new_drive=Unidad virtual [%BL_DRIVE_LETTER%]: "
+if not "%new_drive%"=="" (
+    set "BL_DRIVE_LETTER=%new_drive%"
+    call :BL_NORMALIZE_DRIVE_LETTER
+    if errorlevel 1 (
+        color 0C
+        echo [X] Letra de unidad invalida. Usa formato como T o T:
+        set "BL_ROOT_DIR=%OLD_ROOT_DIR%"
+        set "BL_DRIVE_LETTER=%OLD_DRIVE_LETTER%"
+        call :BL_REFRESH_DERIVED_PATHS
+        exit /b 1
+    )
+)
+
+call :BL_REFRESH_DERIVED_PATHS
 
 echo.
-echo  [!] Opcion no valida.
-timeout /t 2 >nul
-goto :CLASSROOM_SECURITY_MENU
-
-:CLASSROOM_SECURITY_EDIT
-set "tmp_val="
+echo  Configuracion propuesta:
+echo    - Alumno:  %BL_TARGET_USER_ALUMNO% ^(fijo^)
+echo    - Carpeta: %BL_ROOT_DIR%
+echo    - Unidad:  %BL_DRIVE_LETTER%
 echo.
-set /p "tmp_val=Alumno [!CLS_STUDENT!]: "
-if defined tmp_val set "CLS_STUDENT=!tmp_val!"
-set "tmp_val="
-set /p "tmp_val=Admin protegido [!CLS_ADMIN!]: "
-if defined tmp_val set "CLS_ADMIN=!tmp_val!"
-set "tmp_val="
-set /p "tmp_val=Carpeta de trabajos [!CLS_WORKDIR!]: "
-if defined tmp_val set "CLS_WORKDIR=!tmp_val!"
-set "tmp_val="
-set /p "tmp_val=Unidad virtual [!CLS_DRIVE!]: "
-if defined tmp_val set "CLS_DRIVE=!tmp_val!"
-echo [%time%] Seguridad Aula: parametros actualizados (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!, Dir=!CLS_WORKDIR!, Drive=!CLS_DRIVE!) >> "!LOG_FILE!"
-exit /b
-
-:CLASSROOM_SECURITY_PRECHECK
-set "CLS_STUDENT_SID="
-set "CLS_HIVE_FILE=C:\Users\!CLS_STUDENT!\NTUSER.DAT"
-set "CLS_ADMIN_PROFILE=C:\Users\!CLS_ADMIN!"
-
-if /i "!CLS_DRIVE:~1,1!" NEQ ":" (
-    echo  [ERROR] Unidad invalida: !CLS_DRIVE! (formato esperado: T:)
-    echo [%time%] Seguridad Aula: unidad invalida !CLS_DRIVE! >> "!LOG_FILE!"
+set "cfg_confirm="
+set /p "cfg_confirm=Confirmar estos valores (S/N): "
+if /I not "%cfg_confirm%"=="S" (
+    set "BL_ROOT_DIR=%OLD_ROOT_DIR%"
+    set "BL_DRIVE_LETTER=%OLD_DRIVE_LETTER%"
+    call :BL_REFRESH_DERIVED_PATHS
+    echo [i] Configuracion cancelada.
     exit /b 1
 )
 
-if not exist "!CLS_ADMIN_PROFILE!" (
-    echo  [ERROR] No existe el perfil admin objetivo: !CLS_ADMIN_PROFILE!
-    echo [%time%] Seguridad Aula: admin objetivo inexistente !CLS_ADMIN_PROFILE! >> "!LOG_FILE!"
+call :BL_SAVE_CONFIG
+if errorlevel 1 (
+    color 0C
+    echo [X] No se pudo guardar la configuracion en registro.
     exit /b 1
 )
+echo [OK] Configuracion guardada.
+echo [%time%] Blindaje V1: parametros guardados (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+exit /b 0
 
-if not exist "!CLS_HIVE_FILE!" (
-    echo  [ERROR] No existe NTUSER.DAT del alumno: !CLS_HIVE_FILE!
-    echo [%time%] Seguridad Aula: NTUSER.DAT no encontrado !CLS_HIVE_FILE! >> "!LOG_FILE!"
-    exit /b 1
+:BL_SAVE_CONFIG
+reg add "%BL_CONFIG_KEY%" /v "RootDir" /t REG_SZ /d "%BL_ROOT_DIR%" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_CONFIG_KEY%" /v "Drive" /t REG_SZ /d "%BL_DRIVE_LETTER%" /f >nul
+if errorlevel 1 exit /b 1
+exit /b 0
+
+:BL_LOAD_SAVED_CONFIG
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "%BL_CONFIG_KEY%" /v "RootDir" 2^>nul') do set "BL_ROOT_DIR=%%C"
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "%BL_CONFIG_KEY%" /v "Drive" 2^>nul') do set "BL_DRIVE_LETTER=%%C"
+call :BL_NORMALIZE_ROOT_DIR >nul 2>&1
+if errorlevel 1 set "BL_ROOT_DIR=%BL_DEFAULT_ROOT_DIR%"
+call :BL_NORMALIZE_DRIVE_LETTER >nul 2>&1
+if errorlevel 1 set "BL_DRIVE_LETTER=%BL_DEFAULT_DRIVE_LETTER%"
+set "BL_USER_ALUMNO=%BL_TARGET_USER_ALUMNO%"
+exit /b 0
+
+:BL_REFRESH_DERIVED_PATHS
+set "BL_USER_HIVE=C:\Users\%BL_USER_ALUMNO%\NTUSER.DAT"
+set "BL_SEC_DIR=%BL_ROOT_DIR%\SECUNDARIA"
+set "BL_PROFILE_DIR=%BL_ROOT_DIR%\PERFIL\%BL_USER_ALUMNO%"
+exit /b 0
+
+:BL_LOAD_MARKER_CONTEXT
+set "BL_MARKER_STUDENT="
+set "BL_MARKER_ROOT="
+set "BL_MARKER_DRIVE="
+
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "%BL_MODE_KEY%" /v "Student" 2^>nul') do set "BL_MARKER_STUDENT=%%C"
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "%BL_MODE_KEY%" /v "RootDir" 2^>nul') do set "BL_MARKER_ROOT=%%C"
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "%BL_MODE_KEY%" /v "Drive" 2^>nul') do set "BL_MARKER_DRIVE=%%C"
+
+if defined BL_MARKER_STUDENT set "BL_USER_ALUMNO=%BL_MARKER_STUDENT%"
+if defined BL_MARKER_ROOT set "BL_ROOT_DIR=%BL_MARKER_ROOT%"
+if defined BL_MARKER_DRIVE set "BL_DRIVE_LETTER=%BL_MARKER_DRIVE%"
+
+call :BL_NORMALIZE_ROOT_DIR >nul 2>&1
+if errorlevel 1 set "BL_ROOT_DIR=%BL_DEFAULT_ROOT_DIR%"
+call :BL_NORMALIZE_DRIVE_LETTER >nul 2>&1
+if errorlevel 1 set "BL_DRIVE_LETTER=%BL_DEFAULT_DRIVE_LETTER%"
+call :BL_REFRESH_DERIVED_PATHS
+exit /b 0
+
+:BL_NORMALIZE_DRIVE_LETTER
+set "BL_TMP_DRIVE=%BL_DRIVE_LETTER%"
+set "BL_TMP_DRIVE=%BL_TMP_DRIVE: =%"
+set "BL_TMP_DRIVE=%BL_TMP_DRIVE::=%"
+set "BL_TMP_DRIVE=%BL_TMP_DRIVE:~0,1%"
+echo(%BL_TMP_DRIVE%| findstr /R /I "^[A-Z]$" >nul
+if errorlevel 1 exit /b 1
+for %%L in (%BL_TMP_DRIVE%) do set "BL_DRIVE_LETTER=%%L:"
+exit /b 0
+
+:BL_NORMALIZE_ROOT_DIR
+set "BL_TMP_ROOT=%BL_ROOT_DIR%"
+set "BL_TMP_ROOT=%BL_TMP_ROOT:"=%"
+set "BL_TMP_ROOT=%BL_TMP_ROOT:/=\%"
+if "%BL_TMP_ROOT%"=="" exit /b 1
+
+if "%BL_TMP_ROOT:~1,1%"==":" (
+    set "BL_ROOT_DIR=%BL_TMP_ROOT%"
+) else (
+    set "BL_ROOT_DIR=C:\%BL_TMP_ROOT%"
 )
 
-for /f "usebackq delims=" %%s in (`powershell -NoProfile -Command "$u=Get-LocalUser -Name '!CLS_STUDENT!' -ErrorAction SilentlyContinue; if($u){$u.SID.Value}"`) do set "CLS_STUDENT_SID=%%s"
-if not defined CLS_STUDENT_SID (
-    echo  [ERROR] No se pudo resolver SID del alumno !CLS_STUDENT!.
-    echo [%time%] Seguridad Aula: SID no resuelto para !CLS_STUDENT! >> "!LOG_FILE!"
-    exit /b 1
+echo(%BL_ROOT_DIR%| findstr /R /I "^[A-Z]:\\.*" >nul
+if errorlevel 1 exit /b 1
+
+if "%BL_ROOT_DIR:~-1%"=="\" (
+    if not "%BL_ROOT_DIR:~3,1%"=="" set "BL_ROOT_DIR=%BL_ROOT_DIR:~0,-1%"
 )
 exit /b 0
 
-:CLASSROOM_SECURITY_APPLY
-set "CLS_MODE=%~1"
-cls
-color 0E
-echo  ============================================================================== 
-echo   [SEGURIDAD AULA] Aplicacion - !CLS_MODE!
-echo  ============================================================================== 
-echo.
-call :CLASSROOM_SECURITY_PRECHECK
-if errorlevel 1 exit /b 1
+:BL_PREPARE_STRUCTURE
+echo [.] Unificando nombres al formato con guion...
+set "BL_SEC_DIR=%BL_ROOT_DIR%\SECUNDARIA"
 
-if /i "!CLS_MODE!"=="DRY" (
-    echo  [DRY] mkdir "!CLS_WORKDIR!"
-    echo  [DRY] reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f
-    echo  [DRY] icacls "!CLS_WORKDIR!" /grant:r "!CLS_STUDENT!":(OI)(CI)(RX,W)
-    echo  [DRY] icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC)
-    echo  [DRY] icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(CI)(IO)(DE,DC)
-    echo  [DRY] icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX)
-    echo  [DRY] reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!"
-    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f
-    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /t REG_DWORD /d 4 /f
-    echo  [DRY] reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /t REG_DWORD /d 1 /f
-    echo  [DRY] reg unload "HKU\ToolboxAlumno"
-    echo  [OK] Simulacion completada (sin cambios).
-    echo [%time%] Seguridad Aula: simulacion completada >> "!LOG_FILE!"
+for %%a in (4to 5to 6to) do (
+    if exist "%BL_SEC_DIR%\%%a ECONOMIA" move "%BL_SEC_DIR%\%%a ECONOMIA" "%BL_SEC_DIR%\%%a-Economia" >nul 2>&1
+    if exist "%BL_SEC_DIR%\%%a SOCIALES" move "%BL_SEC_DIR%\%%a SOCIALES" "%BL_SEC_DIR%\%%a-Sociales" >nul 2>&1
+)
+
+for /D %%d in ("%BL_ROOT_DIR%\PRIMARIA\*-Anio") do (
+    set "folder=%%~nd"
+    move "%%d" "%BL_ROOT_DIR%\PRIMARIA\!folder:-Anio=!" >nul 2>&1
+)
+
+echo [OK] Carpetas normalizadas.
+echo [.] Verificando estructura final...
+
+if not exist "%BL_ROOT_DIR%" mkdir "%BL_ROOT_DIR%"
+if not exist "%BL_ROOT_DIR%\PRIMARIA" mkdir "%BL_ROOT_DIR%\PRIMARIA"
+for %%n in (1ro 2do 3ro 4to 5to 6to) do if not exist "%BL_ROOT_DIR%\PRIMARIA\%%n" mkdir "%BL_ROOT_DIR%\PRIMARIA\%%n"
+
+if not exist "%BL_ROOT_DIR%\SECUNDARIA" mkdir "%BL_ROOT_DIR%\SECUNDARIA"
+for %%n in (1ro 2do 3ro) do if not exist "%BL_ROOT_DIR%\SECUNDARIA\%%n" mkdir "%BL_ROOT_DIR%\SECUNDARIA\%%n"
+
+for %%a in (4to 5to 6to) do (
+    if not exist "%BL_SEC_DIR%\%%a-Economia" mkdir "%BL_SEC_DIR%\%%a-Economia"
+    if not exist "%BL_SEC_DIR%\%%a-Sociales" mkdir "%BL_SEC_DIR%\%%a-Sociales"
+)
+
+if not exist "%BL_ROOT_DIR%\PERFIL" mkdir "%BL_ROOT_DIR%\PERFIL"
+if not exist "%BL_PROFILE_DIR%" mkdir "%BL_PROFILE_DIR%"
+for %%p in (Desktop Documents Downloads Music Pictures Videos) do if not exist "%BL_PROFILE_DIR%\%%p" mkdir "%BL_PROFILE_DIR%\%%p"
+
+echo [OK] Estructura escolar lista.
+exit /b 0
+
+:BL_EXPOSE_BGINFO
+if exist "C:\BGInfo" (
+    if exist "%BL_ROOT_DIR%\BGInfo" (
+        echo [OK] BGInfo ya esta disponible en %BL_DRIVE_LETTER%\BGInfo.
+    ) else (
+        mklink /J "%BL_ROOT_DIR%\BGInfo" "C:\BGInfo" >nul 2>&1
+        if errorlevel 1 (
+            echo [!] No se pudo exponer BGInfo en %BL_DRIVE_LETTER%\BGInfo.
+        ) else (
+            echo [OK] BGInfo disponible en %BL_DRIVE_LETTER%\BGInfo.
+        )
+    )
+) else (
+    echo [i] C:\BGInfo no existe; se omite exposicion.
+)
+exit /b 0
+
+:BL_APPLY_DRIVE_MAP
+echo [.] Configurando disco virtual %BL_DRIVE_LETTER%...
+set "BL_EXPECTED_DOS=\??\%BL_ROOT_DIR%"
+set "BL_CURRENT_DOS="
+for /f "skip=2 tokens=1,2,*" %%A in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "%BL_DRIVE_LETTER%" 2^>nul') do set "BL_CURRENT_DOS=%%C"
+
+if defined BL_CURRENT_DOS (
+    if /I not "%BL_CURRENT_DOS%"=="%BL_EXPECTED_DOS%" (
+        echo [X] %BL_DRIVE_LETTER% ya esta asignada a otra ruta: %BL_CURRENT_DOS%
+        echo [i] Cambia la letra desde la opcion Configurar ruta/unidad.
+        exit /b 1
+    )
+) else (
+    if exist "%BL_DRIVE_LETTER%\" (
+        echo [X] %BL_DRIVE_LETTER% ya esta en uso por otra unidad.
+        echo [i] Cambia la letra desde la opcion Configurar ruta/unidad.
+        exit /b 1
+    )
+)
+
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "%BL_DRIVE_LETTER%" /t REG_SZ /d "%BL_EXPECTED_DOS%" /f >nul
+if errorlevel 1 (
+    echo [X] No se pudo mapear %BL_DRIVE_LETTER%.
+    exit /b 1
+)
+
+if not exist "%BL_DRIVE_LETTER%\" subst %BL_DRIVE_LETTER% "%BL_ROOT_DIR%" >nul 2>&1
+
+if defined BL_CURRENT_DOS (
+    echo [OK] %BL_DRIVE_LETTER% ya estaba mapeada correctamente.
+) else (
+    echo [OK] %BL_DRIVE_LETTER% apunta a %BL_ROOT_DIR%.
+)
+exit /b 0
+
+:BL_CLEAR_ACL_RULES
+echo [.] Limpiando reglas ACL previas para %BL_USER_ALUMNO%...
+icacls "%BL_ROOT_DIR%" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+icacls "%BL_ROOT_DIR%" /remove:g "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+exit /b 0
+
+:BL_APPLY_ACL_STRICT
+echo [.] Aplicando ACL de blindaje estricto...
+icacls "%BL_ROOT_DIR%" /inheritance:e /T /C >nul
+if errorlevel 1 exit /b 1
+icacls "%BL_ROOT_DIR%" /grant:r "%BL_USER_ALUMNO%":(OI)(CI)(M) /T /C >nul
+if errorlevel 1 exit /b 1
+icacls "%BL_ROOT_DIR%" /deny "%BL_USER_ALUMNO%":(DE,DC) >nul
+if errorlevel 1 exit /b 1
+icacls "%BL_ROOT_DIR%" /deny "%BL_USER_ALUMNO%":(CI)(IO)(DC) /T /C >nul
+if errorlevel 1 exit /b 1
+icacls "%BL_ROOT_DIR%" /deny "%BL_USER_ALUMNO%":(OI)(CI)(DE) /T /C >nul
+if errorlevel 1 exit /b 1
+echo [OK] ACL estricta aplicada.
+exit /b 0
+
+:BL_LOAD_HIVE
+echo [.] Cargando perfil offline del alumno...
+reg load "%BL_TEMP_HIVE%" "%BL_USER_HIVE%" >nul 2>&1
+if errorlevel 1 (
+    color 0C
+    echo [X] ERROR: La sesion del alumno debe estar CERRADA.
+    exit /b 1
+)
+echo [OK] Hive cargado.
+exit /b 0
+
+:BL_UNLOAD_HIVE
+reg unload "%BL_TEMP_HIVE%" >nul 2>&1
+exit /b 0
+
+:BL_APPLY_USER_POLICIES
+echo [.] Aplicando politicas del alumno...
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDrives" /t REG_DWORD /d 4 /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoViewOnDrive" /t REG_DWORD /d 4 /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoEmptyRecycleBin" /t REG_DWORD /d 1 /f >nul
+if errorlevel 1 exit /b 1
+reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDeleteFiles" /f >nul 2>&1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "ConfirmFileDelete" /t REG_DWORD /d 1 /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" /v "%BL_BIN_CLSID%" /t REG_SZ /d "" /f >nul
+if errorlevel 1 exit /b 1
+echo [OK] Politicas de Explorer aplicadas.
+exit /b 0
+
+:BL_APPLY_PROFILE_NORMAL_ACL
+echo [.] Habilitando permisos normales en carpetas diarias del perfil...
+if not exist "%BL_PROFILE_DIR%" (
+    echo [i] Perfil diario no encontrado; se omite ajuste ACL del perfil.
     exit /b 0
 )
 
-if not exist "!CLS_WORKDIR!" mkdir "!CLS_WORKDIR!"
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
+icacls "%BL_PROFILE_DIR%" /inheritance:d /T /C >nul
+if errorlevel 1 exit /b 1
+icacls "%BL_PROFILE_DIR%" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+icacls "%BL_PROFILE_DIR%" /grant:r "%BL_USER_ALUMNO%":(OI)(CI)(M) /T /C >nul
+if errorlevel 1 exit /b 1
 
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /t REG_SZ /d "\??\!CLS_WORKDIR!" /f >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-
-icacls "!CLS_WORKDIR!" /grant:r "!CLS_STUDENT!":(OI)(CI)(RX,W) >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(DE,DC) >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-icacls "!CLS_WORKDIR!" /deny "!CLS_STUDENT!":(CI)(IO)(DE,DC) >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-
-icacls "!CLS_ADMIN_PROFILE!" /deny *!CLS_STUDENT_SID!:(RX) >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-
-reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul
-if errorlevel 1 goto :CLASSROOM_SECURITY_APPLY_FAIL
-reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t REG_DWORD /d 4 /f >nul
-if errorlevel 1 (
-    reg unload "HKU\ToolboxAlumno" >nul 2>&1
-    goto :CLASSROOM_SECURITY_APPLY_FAIL
-)
-reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /t REG_DWORD /d 4 /f >nul
-if errorlevel 1 (
-    reg unload "HKU\ToolboxAlumno" >nul 2>&1
-    goto :CLASSROOM_SECURITY_APPLY_FAIL
-)
-reg add "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /t REG_DWORD /d 1 /f >nul
-if errorlevel 1 (
-    reg unload "HKU\ToolboxAlumno" >nul 2>&1
-    goto :CLASSROOM_SECURITY_APPLY_FAIL
-)
-reg unload "HKU\ToolboxAlumno" >nul
-
-echo  [OK] Hardening de aula aplicado correctamente.
-echo.
-echo  [CHECKLIST FINAL - PASOS MANUALES]
-echo    [ ] Crear estructura escolar (PRIMARIA/SECUNDARIA y anios) si aun no existe
-echo    [ ] Ingresar con cuenta Alumno y crear accesos directos de carpetas de trabajo
-echo    [ ] Verificar que C: este oculto y que T: aparezca al iniciar sesion
-echo    [ ] Validar que Alumno no pueda abrir C:\Users\!CLS_ADMIN!
-echo    [ ] Validar que Alumno no pueda renombrar ni borrar carpetas dentro de !CLS_WORKDIR!
-echo    [ ] Validar flujo real de archivos segun metodologia del aula
-echo [%time%] Seguridad Aula: hardening aplicado (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!, Dir=!CLS_WORKDIR!, Drive=!CLS_DRIVE!) >> "!LOG_FILE!"
+echo [OK] Perfil diario con permisos normales para %BL_USER_ALUMNO%.
 exit /b 0
 
-:CLASSROOM_SECURITY_APPLY_FAIL
-echo  [ERROR] Fallo durante la aplicacion. Revisa permisos/rutas y vuelve a intentar.
-reg unload "HKU\ToolboxAlumno" >nul 2>&1
-echo [%time%] Seguridad Aula: ERROR en aplicacion >> "!LOG_FILE!"
-exit /b 1
+:BL_APPLY_DAILY_FOLDERS_EXCEPTION
+echo [.] Aplicando excepcion para carpetas diarias del alumno...
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Desktop" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Personal" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Music" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Pictures" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Video" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos" /f >nul
+if errorlevel 1 exit /b 1
 
-:CLASSROOM_SECURITY_STATUS
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Desktop" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Music" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Pictures" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Video" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos" /f >nul
+if errorlevel 1 exit /b 1
+
+echo [OK] Excepcion de carpetas diarias aplicada.
+exit /b 0
+
+:BL_SYNC_VISIBLE_FOLDERS
+echo [.] Copiando contenido actual de Escritorio y Musica ^(sin borrar origen^)...
+call :BL_SYNC_FOLDER "C:\Users\%BL_USER_ALUMNO%\Desktop" "%BL_PROFILE_DIR%\Desktop" "Escritorio"
+if errorlevel 1 exit /b 1
+call :BL_SYNC_FOLDER "C:\Users\%BL_USER_ALUMNO%\Music" "%BL_PROFILE_DIR%\Music" "Musica"
+if errorlevel 1 exit /b 1
+echo [OK] Copia inicial completada.
+exit /b 0
+
+:BL_SYNC_FOLDER
+set "BL_SRC_PATH=%~1"
+set "BL_DST_PATH=%~2"
+set "BL_FOLDER_NAME=%~3"
+
+if not exist "%BL_SRC_PATH%" (
+    echo [i] %BL_FOLDER_NAME%: origen no encontrado, se omite.
+    exit /b 0
+)
+
+if not exist "%BL_DST_PATH%" mkdir "%BL_DST_PATH%" >nul 2>&1
+robocopy "%BL_SRC_PATH%" "%BL_DST_PATH%" /E /COPY:DAT /DCOPY:DAT /R:0 /W:0 /NFL /NDL /NJH /NJS /NP >nul
+set "BL_ROBO_RC=%errorlevel%"
+if %BL_ROBO_RC% GEQ 8 (
+    echo [!] %BL_FOLDER_NAME%: error al copiar ^(codigo %BL_ROBO_RC%^).
+    exit /b 1
+)
+
+echo [OK] %BL_FOLDER_NAME% copiada.
+exit /b 0
+
+:BL_APPLY_LOGON_DRIVE_REMAP
+echo [.] Configurando re-mapeo automatico de %BL_DRIVE_LETTER% al iniciar sesion...
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" /t REG_SZ /d "cmd /c if not exist %BL_DRIVE_LETTER%\ subst %BL_DRIVE_LETTER% ""%BL_ROOT_DIR%""" /f >nul
+if errorlevel 1 exit /b 1
+echo [OK] Re-mapeo automatico configurado.
+exit /b 0
+
+:BL_WRITE_MODE_MARKER
+reg add "%BL_MODE_KEY%" /v "Mode" /t REG_SZ /d "%~1" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_MODE_KEY%" /v "Student" /t REG_SZ /d "%BL_USER_ALUMNO%" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_MODE_KEY%" /v "RootDir" /t REG_SZ /d "%BL_ROOT_DIR%" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_MODE_KEY%" /v "Drive" /t REG_SZ /d "%BL_DRIVE_LETTER%" /f >nul
+if errorlevel 1 exit /b 1
+exit /b 0
+
+:BL_APPLY_STRICT
+cls
+color 0A
+echo [+] INICIANDO BLINDAJE ESTRICTO...
+echo.
+call :BL_PREPARE_STRUCTURE
+if errorlevel 1 exit /b 1
+call :BL_APPLY_DRIVE_MAP
+if errorlevel 1 exit /b 1
+call :BL_CLEAR_ACL_RULES
+call :BL_APPLY_ACL_STRICT
+if errorlevel 1 (
+    echo [X] Fallo aplicando ACL estricta.
+    echo [%time%] Blindaje V1: ERROR aplicando ACL estricta >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_PROFILE_NORMAL_ACL
+if errorlevel 1 (
+    echo [X] Fallo aplicando permisos normales al perfil diario.
+    echo [%time%] Blindaje V1: ERROR aplicando ACL de perfil diario >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_EXPOSE_BGINFO
+call :BL_LOAD_HIVE
+if errorlevel 1 exit /b 1
+call :BL_APPLY_USER_POLICIES
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo aplicando politicas del alumno.
+    echo [%time%] Blindaje V1: ERROR aplicando politicas offline >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_DAILY_FOLDERS_EXCEPTION
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo aplicando excepcion de carpetas diarias.
+    echo [%time%] Blindaje V1: ERROR aplicando redireccion de carpetas diarias >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_LOGON_DRIVE_REMAP
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo configurando re-mapeo automatico de unidad.
+    echo [%time%] Blindaje V1: ERROR configurando remapeo de unidad >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_SYNC_VISIBLE_FOLDERS
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo copiando contenido de Escritorio/Musica.
+    echo [%time%] Blindaje V1: ERROR en copia inicial de carpetas visibles >> "!LOG_FILE!"
+    exit /b 1
+)
+
+call :BL_UNLOAD_HIVE
+call :BL_WRITE_MODE_MARKER STRICT
+if errorlevel 1 (
+    echo [X] Fallo guardando marcador de modo.
+    echo [%time%] Blindaje V1: ERROR guardando marcador de modo >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_SAVE_CONFIG
+if errorlevel 1 (
+    echo [!] No se pudo guardar la configuracion para futuras ejecuciones.
+)
+echo.
+echo ========================================================
+echo   BLINDAJE ESTRICTO ACTIVADO
+echo ========================================================
+echo   - Borrado NTFS bloqueado en archivos y carpetas.
+echo   - Renombrado de carpetas bloqueado.
+echo   - C: oculto y bloqueado en Explorer.
+echo   - Excepcion diaria activa: Escritorio/Documentos/Descargas/Musica/Imagenes/Videos.
+echo   - En carpetas diarias se permite borrado normal del alumno.
+echo   - Re-mapeo automatico al iniciar sesion: activo.
+echo   - Papelera endurecida desde Explorer.
+echo   - Copia inicial de Escritorio/Musica: sin borrar origen.
+echo   - BGInfo: disponible dentro de %BL_DRIVE_LETTER%\BGInfo si existe C:\BGInfo.
+echo.
+echo   Reinicia o cierra sesion para validar el resultado final.
+echo [%time%] Blindaje V1: aplicado correctamente (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+exit /b 0
+
+:BL_VERIFICAR
 cls
 color 0B
-echo  ============================================================================== 
-echo   [SEGURIDAD AULA] Estado actual
-echo  ============================================================================== 
-echo.
-call :CLASSROOM_SECURITY_PRECHECK
-if errorlevel 1 exit /b 1
-
-echo  [i] Mapeo de unidad en DOS Devices:
-reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!"
+echo ========================================================
+echo   VERIFICACION DE ESTADO DEL BLINDAJE
+echo ========================================================
 echo.
 
-echo  [i] ACL en carpeta de trabajos (allow RX,W + deny DE/DC sobre estructura):
-icacls "!CLS_WORKDIR!" | findstr /i /c:"!CLS_STUDENT!:(OI)(CI)(RX,W)" /c:"!CLS_STUDENT!:(DENY)(DE,DC)" /c:"!CLS_STUDENT!:(CI)(IO)(DENY)(DE,DC)"
-if errorlevel 1 echo    [!] No se detectaron todas las ACL esperadas para !CLS_STUDENT!.
-echo.
+set "BL_DETECTED_MODE=NO REGISTRADO"
+for /f "tokens=3" %%A in ('reg query "%BL_MODE_KEY%" /v Mode 2^>nul ^| findstr /I "Mode"') do set "BL_DETECTED_MODE=%%A"
 
-echo  [i] ACL en perfil admin (buscando deny RX por SID alumno):
-icacls "!CLS_ADMIN_PROFILE!" | findstr /i "!CLS_STUDENT_SID!"
-if errorlevel 1 echo    [!] No se detecto regla deny RX por SID del alumno.
-echo.
+if /I "!BL_DETECTED_MODE!"=="STRICT" call :BL_LOAD_MARKER_CONTEXT
 
-echo  [i] Politicas Explorer en hive de alumno:
-reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
+echo [1/4] Verificando disco %BL_DRIVE_LETTER% ...
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "%BL_DRIVE_LETTER%" | findstr /I /C:"\??\%BL_ROOT_DIR%" >nul
 if errorlevel 1 (
-    echo    [ERROR] No se pudo cargar hive de alumno.
+    echo [X] %BL_DRIVE_LETTER% NO esta apuntando a %BL_ROOT_DIR%
 ) else (
-    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives
-    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive
-    reg query "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete
-    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+    echo [OK] %BL_DRIVE_LETTER% apunta a %BL_ROOT_DIR%
 )
 echo.
-echo [%time%] Seguridad Aula: consulta de estado ejecutada >> "!LOG_FILE!"
-exit /b
 
-:CLASSROOM_SECURITY_ROLLBACK
-cls
-color 0C
-echo  ============================================================================== 
-echo   [SEGURIDAD AULA] Rollback
-echo  ============================================================================== 
+echo [2/4] Verificando modo registrado ...
+if /I "!BL_DETECTED_MODE!"=="STRICT" (
+    echo [OK] MODO REGISTRADO: !BL_DETECTED_MODE!
+) else (
+    echo [!] MODO REGISTRADO: !BL_DETECTED_MODE! ^(esperado: STRICT^)
+)
 echo.
-call :CLASSROOM_SECURITY_PRECHECK
+
+echo [3/4] Verificando ACL en %BL_ROOT_DIR% ...
+set "BL_ACL_DE_OK=0"
+set "BL_ACL_DC_OK=0"
+icacls "%BL_ROOT_DIR%" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(OI)(CI)(DE)" /C:"%BL_USER_ALUMNO%:(OI)(CI)(DENY)(DE)" /C:"%BL_USER_ALUMNO%:(DENY)(DE,DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DE)" >nul
+if not errorlevel 1 set "BL_ACL_DE_OK=1"
+icacls "%BL_ROOT_DIR%" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(CI)(IO)(DC)" /C:"%BL_USER_ALUMNO%:(CI)(IO)(DENY)(DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DE,DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DC)" >nul
+if not errorlevel 1 set "BL_ACL_DC_OK=1"
+if "%BL_ACL_DE_OK%"=="1" (
+    if "%BL_ACL_DC_OK%"=="1" (
+        echo [OK] ACL estricta detectada ^(bloqueo DE/DC^).
+    ) else (
+        echo [X] No se detecto la ACL estricta esperada.
+    )
+) else (
+    echo [X] No se detecto la ACL estricta esperada.
+)
+echo.
+
+echo [4/4] Verificando politicas del usuario %BL_USER_ALUMNO% ...
+call :BL_LOAD_HIVE
+if errorlevel 1 (
+    echo [!] No se pudo cargar NTUSER.DAT. Cierra la sesion de %BL_USER_ALUMNO% para verificar politicas offline.
+) else (
+    call :BL_CHECK_POLICY NoDrives 0x4
+    call :BL_CHECK_POLICY NoViewOnDrive 0x4
+    call :BL_CHECK_POLICY NoEmptyRecycleBin 0x1
+    call :BL_CHECK_POLICY ConfirmFileDelete 0x1
+    reg query "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" /v "%BL_BIN_CLSID%" >nul 2>&1
+    if errorlevel 1 (
+        echo [X] Bloqueo visual de Papelera NO detectado.
+    ) else (
+        echo [OK] Bloqueo visual de Papelera detectado.
+    )
+    call :BL_CHECK_REDIRECT "Desktop" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop"
+    call :BL_CHECK_REDIRECT "Personal" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents"
+    call :BL_CHECK_REDIRECT "{374DE290-123F-4565-9164-39C4925E467B}" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads"
+    call :BL_CHECK_REDIRECT "My Music" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music"
+    call :BL_CHECK_REDIRECT "My Pictures" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures"
+    call :BL_CHECK_REDIRECT "My Video" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos"
+    reg query "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" >nul 2>&1
+    if errorlevel 1 (
+        echo [X] Re-mapeo automatico de %BL_DRIVE_LETTER% NO detectado.
+    ) else (
+        echo [OK] Re-mapeo automatico de %BL_DRIVE_LETTER% detectado.
+    )
+    if exist "%BL_PROFILE_DIR%" (
+        icacls "%BL_PROFILE_DIR%" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)" >nul
+        if errorlevel 1 (
+            echo [OK] Perfil diario sin denegaciones ACL del alumno.
+        ) else (
+            echo [!] Perfil diario con denegaciones ACL. Puede bloquear borrado en carpetas diarias.
+        )
+    ) else (
+        echo [i] Perfil diario no encontrado para verificar ACL de excepcion.
+    )
+    call :BL_UNLOAD_HIVE
+)
+call :BL_LOAD_SAVED_CONFIG
+call :BL_REFRESH_DERIVED_PATHS
+echo [%time%] Blindaje V1: verificacion ejecutada (Mode=!BL_DETECTED_MODE!, Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+echo.
+pause
+goto BL_MENU
+
+:BL_CHECK_POLICY
+reg query "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "%~1" | findstr /I /C:"%~2" >nul
+if errorlevel 1 (
+    echo [X] %~1 no esta en %~2
+) else (
+    echo [OK] %~1=%~2
+)
+exit /b 0
+
+:BL_CHECK_REDIRECT
+reg query "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "%~1" | findstr /I /C:"%~2" >nul
+if errorlevel 1 (
+    echo [X] Redireccion %~1 no detectada hacia %~2
+) else (
+    echo [OK] Redireccion %~1=%~2
+)
+exit /b 0
+
+:BL_RESTORE_DAILY_FOLDERS_DEFAULTS
+echo [.] Restaurando carpetas diarias por defecto...
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Desktop" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Desktop" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Personal" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Documents" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Downloads" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Music" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Music" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Pictures" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Pictures" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Video" /t REG_EXPAND_SZ /d "%%USERPROFILE%%\Videos" /f >nul
 if errorlevel 1 exit /b 1
 
-reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "!CLS_DRIVE!" /f >nul 2>&1
-icacls "!CLS_WORKDIR!" /remove:d "!CLS_STUDENT!" >nul 2>&1
-icacls "!CLS_ADMIN_PROFILE!" /remove:d *!CLS_STUDENT_SID! >nul 2>&1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Desktop" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Desktop" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Documents" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Downloads" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Music" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Music" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Pictures" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Pictures" /f >nul
+if errorlevel 1 exit /b 1
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Video" /t REG_SZ /d "C:\Users\%BL_USER_ALUMNO%\Videos" /f >nul
+if errorlevel 1 exit /b 1
 
-reg load "HKU\ToolboxAlumno" "!CLS_HIVE_FILE!" >nul 2>&1
-if not errorlevel 1 (
-    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /f >nul 2>&1
-    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoViewOnDrive /f >nul 2>&1
-    reg delete "HKU\ToolboxAlumno\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ConfirmFileDelete /f >nul 2>&1
-    reg unload "HKU\ToolboxAlumno" >nul 2>&1
+echo [OK] Carpetas diarias restauradas al perfil local.
+exit /b 0
+
+:BL_REMOVE_CREATED_FOLDERS
+echo [.] Eliminando carpetas creadas por el blindaje...
+
+rd "%BL_ROOT_DIR%\BGInfo" >nul 2>&1
+if exist "%BL_ROOT_DIR%" icacls "%BL_ROOT_DIR%" /grant:r *S-1-5-32-544:(OI)(CI)F /T /C >nul 2>&1
+
+for %%p in (Desktop Documents Downloads Music Pictures Videos) do rd "%BL_PROFILE_DIR%\%%p" >nul 2>&1
+rd "%BL_PROFILE_DIR%" >nul 2>&1
+rd "%BL_ROOT_DIR%\PERFIL" >nul 2>&1
+
+for %%a in (4to 5to 6to) do (
+    rd "%BL_SEC_DIR%\%%a-Economia" >nul 2>&1
+    rd "%BL_SEC_DIR%\%%a-Sociales" >nul 2>&1
 )
 
-echo  [OK] Rollback ejecutado. Verifica estado para confirmar.
-echo [%time%] Seguridad Aula: rollback ejecutado (Alumno=!CLS_STUDENT!, Admin=!CLS_ADMIN!) >> "!LOG_FILE!"
-exit /b
+for %%n in (1ro 2do 3ro) do rd "%BL_ROOT_DIR%\SECUNDARIA\%%n" >nul 2>&1
+rd "%BL_ROOT_DIR%\SECUNDARIA" >nul 2>&1
+
+for %%n in (1ro 2do 3ro 4to 5to 6to) do rd "%BL_ROOT_DIR%\PRIMARIA\%%n" >nul 2>&1
+rd "%BL_ROOT_DIR%\PRIMARIA" >nul 2>&1
+
+rd "%BL_ROOT_DIR%" >nul 2>&1
+
+if exist "%BL_ROOT_DIR%" (
+    echo [i] Aun existe %BL_ROOT_DIR% porque tiene contenido.
+    set "force_delete_opt="
+    set /p "force_delete_opt=Forzar borrado TOTAL de %BL_ROOT_DIR% y todo su contenido (S/N): "
+    if /I "%force_delete_opt%"=="S" (
+        call :BL_FORCE_DELETE_ROOT
+        exit /b %errorlevel%
+    )
+    echo [i] Se conservaron datos existentes en %BL_ROOT_DIR%.
+    exit /b 0
+)
+
+echo [OK] Carpetas creadas removidas.
+exit /b 0
+
+:BL_FORCE_DELETE_ROOT
+if not exist "%BL_ROOT_DIR%" exit /b 0
+echo [.] Intentando borrado forzado de %BL_ROOT_DIR%...
+
+if /I "%BL_ROOT_DIR%"=="C:\" (
+    echo [X] Seguridad: no se permite borrado forzado de C:\
+    exit /b 1
+)
+
+takeown /F "%BL_ROOT_DIR%" /R /D Y >nul 2>&1
+icacls "%BL_ROOT_DIR%" /inheritance:e /T /C >nul 2>&1
+icacls "%BL_ROOT_DIR%" /grant:r *S-1-5-32-544:(OI)(CI)F /T /C >nul 2>&1
+attrib -R -S -H "%BL_ROOT_DIR%\*" /S /D >nul 2>&1
+
+rd /s /q "%BL_ROOT_DIR%" >nul 2>&1
+if exist "%BL_ROOT_DIR%" (
+    set "BL_EMPTY_MIRROR=%TEMP%\renggli_empty_%RANDOM%%RANDOM%"
+    mkdir "%BL_EMPTY_MIRROR%" >nul 2>&1
+    robocopy "%BL_EMPTY_MIRROR%" "%BL_ROOT_DIR%" /MIR /R:0 /W:0 /NFL /NDL /NJH /NJS /NP >nul
+    rd "%BL_EMPTY_MIRROR%" >nul 2>&1
+    rd /s /q "%BL_ROOT_DIR%" >nul 2>&1
+)
+
+if exist "%BL_ROOT_DIR%" (
+    echo [X] No se pudo borrar completamente %BL_ROOT_DIR%.
+    echo [i] Causa probable: archivos en uso o bloqueados por otro proceso.
+    exit /b 1
+)
+
+echo [OK] %BL_ROOT_DIR% eliminado completamente.
+exit /b 0
+
+:BL_DESHACER
+cls
+color 0E
+echo [!] REVERTIENDO TODA LA CONFIGURACION...
+echo.
+set "BL_REVERT_WARN=0"
+call :BL_LOAD_MARKER_CONTEXT
+subst %BL_DRIVE_LETTER% /D >nul 2>&1
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "%BL_DRIVE_LETTER%" /f >nul 2>&1
+reg delete "%BL_MODE_KEY%" /v "Mode" /f >nul 2>&1
+reg delete "%BL_MODE_KEY%" /v "Student" /f >nul 2>&1
+reg delete "%BL_MODE_KEY%" /v "RootDir" /f >nul 2>&1
+reg delete "%BL_MODE_KEY%" /v "Drive" /f >nul 2>&1
+
+if exist "%BL_ROOT_DIR%" (
+    icacls "%BL_ROOT_DIR%" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+    icacls "%BL_ROOT_DIR%" /remove:g "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+)
+
+call :BL_LOAD_HIVE
+if errorlevel 1 (
+    echo [!] No se pudo cargar NTUSER.DAT. Cierra la sesion de %BL_USER_ALUMNO% para restaurar politicas y carpetas del perfil.
+    set "BL_REVERT_WARN=1"
+) else (
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDrives" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoViewOnDrive" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoEmptyRecycleBin" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDeleteFiles" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "ConfirmFileDelete" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" /v "%BL_BIN_CLSID%" /f >nul 2>&1
+    reg delete "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" /f >nul 2>&1
+    call :BL_RESTORE_DAILY_FOLDERS_DEFAULTS
+    if errorlevel 1 set "BL_REVERT_WARN=1"
+    call :BL_UNLOAD_HIVE
+)
+
+set "remove_dirs_opt="
+set /p "remove_dirs_opt=Eliminar carpetas creadas por el blindaje en %BL_ROOT_DIR% (S/N): "
+if /I "%remove_dirs_opt%"=="S" (
+    call :BL_REMOVE_CREATED_FOLDERS
+    if errorlevel 1 set "BL_REVERT_WARN=1"
+)
+
+if "%BL_REVERT_WARN%"=="1" (
+    echo [!] Reversion parcial completada.
+    echo [i] Reintenta con la sesion del alumno cerrada para completar la restauracion.
+    echo [%time%] Blindaje V1: reversion parcial (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+) else (
+    echo [OK] Configuracion revertida.
+    echo [%time%] Blindaje V1: reversion completa (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+)
+call :BL_LOAD_SAVED_CONFIG
+call :BL_REFRESH_DERIVED_PATHS
+echo [i] Reinicia o cierra sesion para limpiar Explorer y la unidad virtual.
+echo [i] IMPORTANTE: despues de deshacer y reiniciar, revisa C:\ y confirma si %BL_ROOT_DIR% se elimino por completo.
+echo [i] Si la carpeta sigue presente, puede haber archivos bloqueados; borra manualmente o repite Deshacer.
+pause
+goto BL_MENU
 
 :: ==============================================================================
 :: SISTEMA DE REPORTES ENTERPRISE

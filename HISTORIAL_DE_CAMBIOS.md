@@ -1,5 +1,41 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-17 (Actualizacion 14)
+
+### Integracion de Blindaje V1 en opcion 21 (Normal + Corporate)
+
+- Se reemplazo el modulo previo de `Perfil Seguridad Aula` por la logica completa y validada de `blindajev1.bat` dentro de:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+- La opcion de menu 21 pasa a mostrarse como:
+  - `21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)`
+- La opcion 21 ahora incluye, en ambos scripts:
+  - aplicacion de blindaje estricto
+  - verificacion de estado
+  - deshacer completo
+  - configuracion persistente de ruta raiz y letra de unidad
+  - redireccion de carpetas diarias a `T:\PERFIL\Usuario`
+  - copia inicial de `Desktop` y `Music`
+  - re-mapeo automatico al iniciar sesion
+
+### Mejora operativa en rollback
+
+- Se agrego advertencia explicita al finalizar `Deshacer todo`:
+  - despues de deshacer y reiniciar, revisar manualmente `C:\` para confirmar si `Trabajos Alumnos` se elimino por completo
+  - si la carpeta persiste, puede haber archivos bloqueados y se recomienda borrado manual o repetir deshacer
+
+### Consolidacion post-integracion (EN/CN + alcance multi-OS)
+
+- Se retiro el archivo standalone `blindajev1.bat`; el blindaje queda disponible unicamente integrado en opcion 21 de Windows.
+- Se sincronizo documentacion EN/CN al nuevo comportamiento integrado y sin DRY-RUN en:
+  - `Manuales/CATALOGO_OPCIONES_EN.md`
+  - `Manuales/CATALOGO_OPCIONES_CN.md`
+  - `Manuales/README_EN.md`
+  - `Manuales/README_CN.md`
+- Se dejo aclarado el alcance por sistema operativo:
+  - Blindaje V1 aplica solo a Windows.
+  - Linux y macOS mantienen sus propios modulos y no incluyen equivalente de blindaje en opcion 21.
+
 ## 2026-03-16 (Actualizacion 13)
 
 ### Refinamiento del modulo Windows: Perfil Seguridad Aula

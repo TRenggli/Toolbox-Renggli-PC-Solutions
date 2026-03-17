@@ -735,13 +735,14 @@ xcode-select --install
 - 进程取证审计（临时路径 + 数字签名）
 - RAID/Storage 状态（Storage cmdlets + WMI 回退）
 - 驱动备份（DISM export-driver）
-- 教室安全配置（持久 T: 映射、强化目录结构 ACL、离线写入学生 hive 的 NoDrives 与 NoViewOnDrive）
+- 高安全配置（Blindaje V1 集成：持久 T: 映射、严格 ACL、离线 Explorer 策略、日常文件夹重定向，以及内置验证/回退）
 
 说明：
 
 - 诊断类模块为只读。
 - `驱动备份` 会写入磁盘并需要可用空间。
-- `教室安全配置` 会修改注册表、ACL 和学生 hive。请先执行 DRY-RUN，预留回滚窗口，并按教室实际文件流转方式完成验证。
+- `高安全配置` 会修改注册表、ACL 和学生 hive。执行“撤销”后请重启，并在 `C:\` 手动确认 `Trabajos Alumnos` 是否已完全删除；若文件被占用可能仍会残留。
+- 该模块仅适用于 Windows。Linux 与 macOS 使用各自模块集合，不包含等效的 Blindaje 模块。
 
 ---
 

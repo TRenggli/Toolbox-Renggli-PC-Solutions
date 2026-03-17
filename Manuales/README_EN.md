@@ -735,13 +735,14 @@ The following modules were added to `Windows/toolbox.bat` and `Windows/toolbox_c
 - Process Forensics Audit (temp paths + digital signature)
 - RAID/Storage Status (Storage cmdlets + WMI fallback)
 - Driver Backup (DISM export-driver)
-- Classroom Security Profile (persistent T: mapping, reinforced structure ACLs, offline NoDrives and NoViewOnDrive in the student hive)
+- High Security Profile (Blindaje V1 integrated: persistent T: mapping, strict ACLs, offline Explorer policies, daily folder redirection, and built-in verify/undo)
 
 Notes:
 
 - Diagnostic modules are read-only.
 - `Driver Backup` writes files to disk and requires free space.
-- `Classroom Security Profile` modifies registry, ACLs and the student hive. Run DRY-RUN first, keep rollback ready, and validate the real classroom file workflow.
+- `High Security Profile` modifies registry, ACLs and the student hive. After `Undo`, reboot and manually verify in `C:\` whether `Trabajos Alumnos` was fully removed; locked files can leave it behind.
+- This module is Windows-only. Linux and macOS keep their own module sets and do not include an equivalent blindage module.
 
 ---
 

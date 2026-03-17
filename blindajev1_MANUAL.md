@@ -1,11 +1,15 @@
-# Manual Tecnico de blindajev1.bat
+# Manual Tecnico de Blindaje V1
 
-Este manual aplica solo a blindajev1.bat.
-No describe la toolbox general ni otros scripts del repositorio.
+Este manual describe el motor de Blindaje V1 ahora integrado en la opcion 21 ^(Perfil Seguridad Alta^) de:
 
-## Objetivo del script
+- `Windows/toolbox.bat`
+- `Windows/toolbox_corporate.bat`
 
-blindajev1.bat prepara un entorno escolar para un usuario alumno con estas metas:
+El motor se opera desde esa opcion integrada de Windows.
+
+## Objetivo del motor
+
+El motor integrado prepara un entorno escolar para un usuario alumno con estas metas:
 
 - exponer Trabajos Alumnos como unidad T:
 - ocultar y bloquear C: desde Explorer
@@ -13,7 +17,7 @@ blindajev1.bat prepara un entorno escolar para un usuario alumno con estas metas
 - endurecer el manejo de borrado y papelera
 - aplicar un unico modo de blindaje estricto
 - usar usuario objetivo fijo: Usuario
-- permitir configurar carpeta raiz y letra de unidad sin editar el .bat
+- permitir configurar carpeta raiz y letra de unidad sin editar el script principal
 
 ## Uso del menu
 
@@ -102,7 +106,7 @@ Consecuencia practica:
 - si bloqueas DELETE con mucha dureza, tambien podes romper mover o renombrar archivos
 - si permitis mover o renombrar archivos con menos friccion, el borrado individual no queda bloqueado de forma perfecta solo con NTFS
 
-Por eso blindajev1.bat adopta el modo estricto y prioriza la proteccion de datos.
+Por eso el motor integrado adopta el modo estricto y prioriza la proteccion de datos.
 
 ## Politicas aplicadas al alumno
 
@@ -159,6 +163,11 @@ Ademas, ahora puede eliminar carpetas creadas por el blindaje:
 - el forzado toma posesion, normaliza ACL para Administradores y limpia atributos antes del borrado final
 
 Esto evita borrar datos por accidente sin confirmacion.
+
+Advertencia operativa importante:
+
+- despues de deshacer y reiniciar, revisar manualmente `C:\` para confirmar si `Trabajos Alumnos` se elimino por completo
+- si la carpeta persiste, suele deberse a archivos en uso o bloqueados, y puede requerir borrado manual
 
 ## Verificacion recomendada
 
