@@ -143,7 +143,7 @@ After selecting the profile, you'll see the specific menu for that profile:
    2. RAM Test (mdsched)            5. Ports/DNS Audit               8. Battery Report
    3. System Resources Info         6. Windows Update Status
 
-   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
 ==============================================================================================================
 
@@ -164,7 +164,7 @@ After selecting the profile, you'll see the specific menu for that profile:
    3. BIOS & Motherboard Info       7. EMMC/Temp Cleanup            11. Update Apps (Winget)
    4. Battery Report                8. Ports/DNS Audit              12. Scheduled Shutdown
 
-   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
 ==============================================================================================================
 
@@ -188,7 +188,7 @@ After selecting the profile, you'll see the specific menu for that profile:
    10. Secure Format (Audited)      12. Update Apps (Winget)         14. Scheduled Shutdown
    11. MBR to GPT Conversion        13. Activate Windows (MAS)       15. Battery Report
 
-   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
 ==============================================================================================================
 
@@ -224,7 +224,7 @@ After selecting the profile, you'll see the specific menu for that profile:
 
 Logs are automatically saved in:
 ```
-Herramienta-toolbox\Windows\Logs\
+Windows/Logs/
 ├── Audit_2024-02-10.log         (Record of all operations)
 ├── Report_2024-02-10.html       (Visual report)
 └── battery-report.html          (If you used battery function)
@@ -387,7 +387,7 @@ You'll see a menu with **30 options** organized in categories:
    19. Partition Mounting           24. Users & Permissions          29. Battery Report
    20. Disk Space                   25. Real-Time Monitoring         30. Verify Integrity
 
-   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT
+   [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
 ==============================================================================================================
 ```
 
@@ -413,7 +413,7 @@ You'll see a menu with **30 options** organized in categories:
 
 Logs are saved in:
 ```
-Herramienta-toolbox/Linux/Logs/
+Linux/Logs/
 ├── Audit_2024-02-10.log           (Operations record)
 └── Report_Linux_2024-02-10.html   (Visual report)
 ```
@@ -602,14 +602,14 @@ Choose the number and press Enter.
 
 ### Step 8: Use the Main Menu
 
-The menu is similar to Linux, with 30 options adapted for macOS.
+The macOS menu currently includes 14 options, organized by profile.
 
-Mac-specific functions include:
-- FileVault status (disk encryption)
-- Gatekeeper status (app security)
-- SIP status (System Integrity Protection)
-- Time Machine backup
-- App Store updates
+Core macOS functions include:
+- Hardware, resources, and process diagnostics
+- Disk and file-system verification
+- Network diagnostics and reset
+- System update and cleanup
+- Scheduled shutdown and system report
 
 **Exit options (macOS):**
 - **0** = exit with report
@@ -621,7 +621,7 @@ Mac-specific functions include:
 
 Logs are saved in:
 ```
-Herramienta-toolbox/Mac/Logs/
+Mac/Logs/
 ├── Audit_2024-02-10.log
 └── Report_Mac_2024-02-10.html
 ```
@@ -885,6 +885,6 @@ Problems or questions?
 **Toolbox V14 Multi-Platform**
 - Windows: 21 modules
 - Linux: 30 modules
-- macOS: 30 modules
+- macOS: 14 modules
 
 **© 2024 RENGGLI PC SOLUTIONS**

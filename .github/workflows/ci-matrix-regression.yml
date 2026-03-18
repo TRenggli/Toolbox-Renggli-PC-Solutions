@@ -88,7 +88,23 @@ jobs:
           $es = Get-Content -Path 'Manuales/README_ES.md' -Raw
           $en = Get-Content -Path 'Manuales/README_EN.md' -Raw
           $cn = Get-Content -Path 'Manuales/README_CN.md' -Raw
+          $root = Get-Content -Path 'README.md' -Raw
 
           if ($es -notmatch 'SIN REPORTE Y SIN LOG') { throw 'ES docs are missing no-log wording' }
           if ($en -notmatch 'exit without report and without log') { throw 'EN docs are missing no-log wording' }
+          if ($en -notmatch 'EXIT WITHOUT REPORT AND WITHOUT LOG') { throw 'EN menu examples are missing no-log wording' }
           if ($cn -notmatch '退出不生成报告且不保留日志') { throw 'CN docs are missing no-log wording' }
+
+          if ($es -notmatch 'macOS: 14 módulos') { throw 'ES docs are missing macOS module count update' }
+          if ($en -notmatch 'macOS: 14 modules') { throw 'EN docs are missing macOS module count update' }
+          if ($cn -notmatch 'macOS: 14 个模块') { throw 'CN docs are missing macOS module count update' }
+
+          if ($es -match '30 opciones adaptadas para macOS|macOS: 30 módulos') { throw 'ES docs still contain outdated 30-option macOS wording' }
+          if ($en -match '30 options adapted for macOS|macOS: 30 modules') { throw 'EN docs still contain outdated 30-option macOS wording' }
+          if ($cn -match '30 个针对 macOS 优化的选项|macOS: 30 个模块') { throw 'CN docs still contain outdated 30-option macOS wording' }
+
+          if ($root -match 'Manuals/') { throw 'Root README still contains legacy Manuals/ path' }
+          if ($root -notmatch 'Manuales/') { throw 'Root README is missing Manuales/ references' }
+          if ($root -notmatch 'Windows: Windows/Logs/') { throw 'Root README is missing Windows log path alignment' }
+          if ($root -notmatch 'Linux: Linux/Logs/') { throw 'Root README is missing Linux log path alignment' }
+          if ($root -notmatch 'macOS: Mac/Logs/') { throw 'Root README is missing macOS log path alignment' }

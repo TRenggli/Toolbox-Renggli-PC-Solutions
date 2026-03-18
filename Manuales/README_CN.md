@@ -224,7 +224,7 @@
 
 日志自动保存在:
 ```
-Herramienta-toolbox\Windows\Logs\
+Windows/Logs/
 ├── Audit_2024-02-10.log         (所有操作的记录)
 ├── Report_2024-02-10.html       (可视化报告)
 └── battery-report.html          (如果使用了电池功能)
@@ -413,7 +413,7 @@ sudo ./toolbox_corporate.sh
 
 日志保存在:
 ```
-Herramienta-toolbox/Linux/Logs/
+Linux/Logs/
 ├── Audit_2024-02-10.log           (操作记录)
 └── Report_Linux_2024-02-10.html   (可视化报告)
 ```
@@ -602,14 +602,14 @@ sudo ./toolbox_corporate.sh
 
 ### 步骤 8: 使用主菜单
 
-菜单与 Linux 类似，有 30 个针对 macOS 优化的选项。
+macOS 菜单当前包含 14 个选项，按配置文件组织。
 
-Mac 特定功能包括:
-- FileVault 状态 (磁盘加密)
-- Gatekeeper 状态 (应用安全)
-- SIP 状态 (系统完整性保护)
-- Time Machine 备份
-- App Store 更新
+macOS 核心功能包括:
+- 硬件、资源与进程诊断
+- 磁盘与文件系统校验
+- 网络诊断与重置
+- 系统更新与清理
+- 定时关机与系统报告
 
 **退出选项 (macOS):**
 - **0** = 生成报告并退出
@@ -621,7 +621,7 @@ Mac 特定功能包括:
 
 日志保存在:
 ```
-Herramienta-toolbox/Mac/Logs/
+Mac/Logs/
 ├── Audit_2024-02-10.log
 └── Report_Mac_2024-02-10.html
 ```
@@ -885,6 +885,6 @@ xcode-select --install
 **工具箱 V14 多平台**
 - Windows: 21 个模块
 - Linux: 30 个模块
-- macOS: 30 个模块
+- macOS: 14 个模块
 
 **© 2024 RENGGLI PC SOLUTIONS**

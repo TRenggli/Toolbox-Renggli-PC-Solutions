@@ -224,7 +224,7 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 Los logs se guardan automáticamente en:
 ```
-Herramienta-toolbox\Windows\Logs\
+Windows/Logs/
 ├── Audit_2024-02-10.log         (Registro de todas las operaciones)
 ├── Report_2024-02-10.html       (Reporte visual)
 └── battery-report.html          (Si usaste la función de batería)
@@ -413,7 +413,7 @@ Verás un menú con **30 opciones** organizadas en categorías:
 
 Los logs se guardan en:
 ```
-Herramienta-toolbox/Linux/Logs/
+Linux/Logs/
 ├── Audit_2024-02-10.log           (Registro de operaciones)
 └── Report_Linux_2024-02-10.html   (Reporte visual)
 ```
@@ -602,14 +602,14 @@ Elige el número y presiona Enter.
 
 ### Paso 8: Usar el Menú Principal
 
-El menú es similar al de Linux, con 30 opciones adaptadas para macOS.
+El menú de macOS incluye actualmente 14 opciones, organizadas por perfil.
 
-Funciones específicas de Mac incluyen:
-- FileVault status (encriptación de disco)
-- Gatekeeper status (seguridad de apps)
-- SIP status (System Integrity Protection)
-- Time Machine backup
-- App Store updates
+Funciones principales de macOS incluyen:
+- Diagnóstico de hardware, recursos y procesos
+- Verificación de disco y sistema de archivos
+- Diagnóstico y reset de red
+- Actualización y limpieza del sistema
+- Apagado programado y reporte del sistema
 
 **Opciones de salida (macOS):**
 - **0** = salir con reporte
@@ -621,7 +621,7 @@ Funciones específicas de Mac incluyen:
 
 Los logs se guardan en:
 ```
-Herramienta-toolbox/Mac/Logs/
+Mac/Logs/
 ├── Audit_2024-02-10.log
 └── Report_Mac_2024-02-10.html
 ```
@@ -884,6 +884,6 @@ Incluye cobertura de:
 **Toolbox V14 Multiplataforma**
 - Windows: 21 módulos
 - Linux: 30 módulos
-- macOS: 30 módulos
+- macOS: 14 módulos
 
 **© 2024 RENGGLI PC SOLUTIONS**

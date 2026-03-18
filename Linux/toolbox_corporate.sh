@@ -1298,7 +1298,6 @@ check_existing_cron_shutdown() {
     esac
     
     return 0
-}"
 }
 
 mod_backup() {

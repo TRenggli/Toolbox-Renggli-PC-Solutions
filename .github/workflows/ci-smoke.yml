@@ -58,4 +58,25 @@ jobs:
           set -euo pipefail
           rg -n '\[00\].*SIN REPORTE Y SIN LOG' Manuales/README_ES.md
           rg -n '\*\*00\*\* = exit without report and without log' Manuales/README_EN.md
+          rg -n '\[00\].*EXIT WITHOUT REPORT AND WITHOUT LOG' Manuales/README_EN.md
           rg -n '\[00\].*退出不生成报告且不保留日志|\*\*00\*\* = 退出不生成报告且不保留日志' Manuales/README_CN.md
+          rg -n 'macOS: 14 módulos' Manuales/README_ES.md
+          rg -n 'macOS: 14 modules' Manuales/README_EN.md
+          rg -n 'macOS: 14 个模块' Manuales/README_CN.md
+          if rg -n '30 opciones adaptadas para macOS|30 options adapted for macOS|30 个针对 macOS 优化的选项|macOS: 30 módulos|macOS: 30 modules|macOS: 30 个模块' Manuales/README_ES.md Manuales/README_EN.md Manuales/README_CN.md; then
+            echo "Found outdated macOS 30-option wording in docs"
+            exit 1
+          fi
+
+      - name: Check root README path and log consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          if rg -n 'Manuals/' README.md; then
+            echo "Found legacy Manuals/ path in README.md"
+            exit 1
+          fi
+          rg -n 'Manuales/' README.md
+          rg -n 'Windows: Windows/Logs/' README.md
+          rg -n 'Linux: Linux/Logs/' README.md
+          rg -n 'macOS: Mac/Logs/' README.md

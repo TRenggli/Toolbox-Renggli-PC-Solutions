@@ -1144,32 +1144,54 @@ if "%BL_ROOT_DIR:~-1%"=="\" (
 exit /b 0
 
 :BL_PREPARE_STRUCTURE
-echo [.] Unificando nombres al formato con guion...
+echo [.] Unificando nombres al formato escolar...
 set "BL_SEC_DIR=%BL_ROOT_DIR%\SECUNDARIA"
+set "BL_PRI_DIR=%BL_ROOT_DIR%\PRIMARIA"
 
 for %%a in (4to 5to 6to) do (
-    if exist "%BL_SEC_DIR%\%%a ECONOMIA" move "%BL_SEC_DIR%\%%a ECONOMIA" "%BL_SEC_DIR%\%%a-Economia" >nul 2>&1
-    if exist "%BL_SEC_DIR%\%%a SOCIALES" move "%BL_SEC_DIR%\%%a SOCIALES" "%BL_SEC_DIR%\%%a-Sociales" >nul 2>&1
+    if exist "%BL_SEC_DIR%\%%a-Economia" if not exist "%BL_SEC_DIR%\%%a Economia" move "%BL_SEC_DIR%\%%a-Economia" "%BL_SEC_DIR%\%%a Economia" >nul 2>&1
+    if exist "%BL_SEC_DIR%\%%a-Sociales" if not exist "%BL_SEC_DIR%\%%a Sociales" move "%BL_SEC_DIR%\%%a-Sociales" "%BL_SEC_DIR%\%%a Sociales" >nul 2>&1
+    if exist "%BL_SEC_DIR%\%%a ECONOMIA" move "%BL_SEC_DIR%\%%a ECONOMIA" "%BL_SEC_DIR%\%%a Economia" >nul 2>&1
+    if exist "%BL_SEC_DIR%\%%a SOCIALES" move "%BL_SEC_DIR%\%%a SOCIALES" "%BL_SEC_DIR%\%%a Sociales" >nul 2>&1
 )
 
 for /D %%d in ("%BL_ROOT_DIR%\PRIMARIA\*-Anio") do (
     set "folder=%%~nd"
-    move "%%d" "%BL_ROOT_DIR%\PRIMARIA\!folder:-Anio=!" >nul 2>&1
+    set "grade=!folder:-Anio=!"
+    if not exist "%BL_PRI_DIR%\!grade! A" if not exist "%BL_PRI_DIR%\!grade! B" (
+        move "%%d" "%BL_PRI_DIR%\!grade! A" >nul 2>&1
+    ) else (
+        move "%%d" "%BL_PRI_DIR%\!grade!" >nul 2>&1
+    )
+)
+
+for %%n in (1ro 2do 3ro 4to 5to 6to) do (
+    if exist "%BL_PRI_DIR%\%%n" if not exist "%BL_PRI_DIR%\%%n A" if not exist "%BL_PRI_DIR%\%%n B" move "%BL_PRI_DIR%\%%n" "%BL_PRI_DIR%\%%n A" >nul 2>&1
+)
+
+for %%n in (1ro 2do 3ro) do (
+    if exist "%BL_SEC_DIR%\%%n" if not exist "%BL_SEC_DIR%\%%n A" if not exist "%BL_SEC_DIR%\%%n B" move "%BL_SEC_DIR%\%%n" "%BL_SEC_DIR%\%%n A" >nul 2>&1
 )
 
 echo [OK] Carpetas normalizadas.
 echo [.] Verificando estructura final...
 
 if not exist "%BL_ROOT_DIR%" mkdir "%BL_ROOT_DIR%"
-if not exist "%BL_ROOT_DIR%\PRIMARIA" mkdir "%BL_ROOT_DIR%\PRIMARIA"
-for %%n in (1ro 2do 3ro 4to 5to 6to) do if not exist "%BL_ROOT_DIR%\PRIMARIA\%%n" mkdir "%BL_ROOT_DIR%\PRIMARIA\%%n"
+if not exist "%BL_PRI_DIR%" mkdir "%BL_PRI_DIR%"
+for %%n in (1ro 2do 3ro 4to 5to 6to) do (
+    if not exist "%BL_PRI_DIR%\%%n A" mkdir "%BL_PRI_DIR%\%%n A"
+    if not exist "%BL_PRI_DIR%\%%n B" mkdir "%BL_PRI_DIR%\%%n B"
+)
 
 if not exist "%BL_ROOT_DIR%\SECUNDARIA" mkdir "%BL_ROOT_DIR%\SECUNDARIA"
-for %%n in (1ro 2do 3ro) do if not exist "%BL_ROOT_DIR%\SECUNDARIA\%%n" mkdir "%BL_ROOT_DIR%\SECUNDARIA\%%n"
+for %%n in (1ro 2do 3ro) do (
+    if not exist "%BL_SEC_DIR%\%%n A" mkdir "%BL_SEC_DIR%\%%n A"
+    if not exist "%BL_SEC_DIR%\%%n B" mkdir "%BL_SEC_DIR%\%%n B"
+)
 
 for %%a in (4to 5to 6to) do (
-    if not exist "%BL_SEC_DIR%\%%a-Economia" mkdir "%BL_SEC_DIR%\%%a-Economia"
-    if not exist "%BL_SEC_DIR%\%%a-Sociales" mkdir "%BL_SEC_DIR%\%%a-Sociales"
+    if not exist "%BL_SEC_DIR%\%%a Economia" mkdir "%BL_SEC_DIR%\%%a Economia"
+    if not exist "%BL_SEC_DIR%\%%a Sociales" mkdir "%BL_SEC_DIR%\%%a Sociales"
 )
 
 if not exist "%BL_ROOT_DIR%\PERFIL" mkdir "%BL_ROOT_DIR%\PERFIL"
@@ -1362,7 +1384,7 @@ exit /b 0
 
 :BL_APPLY_LOGON_DRIVE_REMAP
 echo [.] Configurando re-mapeo automatico de %BL_DRIVE_LETTER% al iniciar sesion...
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" /t REG_SZ /d "cmd /c if not exist %BL_DRIVE_LETTER%\ subst %BL_DRIVE_LETTER% ""%BL_ROOT_DIR%""" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" /t REG_SZ /d "cmd /c if not exist %BL_DRIVE_LETTER%\ subst %BL_DRIVE_LETTER% \\\"%BL_ROOT_DIR%\\\"" /f >nul
 if errorlevel 1 exit /b 1
 echo [OK] Re-mapeo automatico configurado.
 exit /b 0
@@ -1606,6 +1628,8 @@ exit /b 0
 
 :BL_REMOVE_CREATED_FOLDERS
 echo [.] Eliminando carpetas creadas por el blindaje...
+set "BL_SEC_DIR=%BL_ROOT_DIR%\SECUNDARIA"
+set "BL_PRI_DIR=%BL_ROOT_DIR%\PRIMARIA"
 
 rd "%BL_ROOT_DIR%\BGInfo" >nul 2>&1
 if exist "%BL_ROOT_DIR%" icacls "%BL_ROOT_DIR%" /grant:r *S-1-5-32-544:(OI)(CI)F /T /C >nul 2>&1
@@ -1617,12 +1641,22 @@ rd "%BL_ROOT_DIR%\PERFIL" >nul 2>&1
 for %%a in (4to 5to 6to) do (
     rd "%BL_SEC_DIR%\%%a-Economia" >nul 2>&1
     rd "%BL_SEC_DIR%\%%a-Sociales" >nul 2>&1
+    rd "%BL_SEC_DIR%\%%a Economia" >nul 2>&1
+    rd "%BL_SEC_DIR%\%%a Sociales" >nul 2>&1
 )
 
-for %%n in (1ro 2do 3ro) do rd "%BL_ROOT_DIR%\SECUNDARIA\%%n" >nul 2>&1
+for %%n in (1ro 2do 3ro) do (
+    rd "%BL_SEC_DIR%\%%n A" >nul 2>&1
+    rd "%BL_SEC_DIR%\%%n B" >nul 2>&1
+    rd "%BL_SEC_DIR%\%%n" >nul 2>&1
+)
 rd "%BL_ROOT_DIR%\SECUNDARIA" >nul 2>&1
 
-for %%n in (1ro 2do 3ro 4to 5to 6to) do rd "%BL_ROOT_DIR%\PRIMARIA\%%n" >nul 2>&1
+for %%n in (1ro 2do 3ro 4to 5to 6to) do (
+    rd "%BL_PRI_DIR%\%%n A" >nul 2>&1
+    rd "%BL_PRI_DIR%\%%n B" >nul 2>&1
+    rd "%BL_PRI_DIR%\%%n" >nul 2>&1
+)
 rd "%BL_ROOT_DIR%\PRIMARIA" >nul 2>&1
 
 rd "%BL_ROOT_DIR%" >nul 2>&1
