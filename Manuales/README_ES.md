@@ -138,10 +138,25 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 ==============================================================================================================
    Perfil Activo: [DIAGNOSTICO] - Solo Lectura
 
-   [ DIAGNOSTICO DE HARDWARE ]      [ INFORMACION DE SISTEMA ]       [ MONITOREO ]
-   1. Estado SMART de Discos        4. Info BIOS y Placa Madre       7. Test de Velocidad de Red
-   2. Test de RAM (mdsched)         5. Auditoria de Puertos/DNS      8. Reporte de Bateria
-   3. Info de Recursos del Sistema  6. Estado de Windows Update
+   Este menu es solo de consulta. No realiza cambios en el sistema.
+   Ideal para auditar hardware, recursos, red y estado de Windows Update.
+   Nota: El reporte de bateria solo aplica en equipos portatiles.
+   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
+
+   [ DIAGNOSTICO BASE ]
+   1. [R] Test de RAM (mdsched)
+   2. [R] Info de Recursos del Sistema
+   3. [R] Info BIOS y Placa Madre
+   4. [R] Estado de Windows Update
+   5. [R] Auditoria de Puertos/DNS
+   6. [R] Test de Velocidad de Red
+   7. [R] Reporte de Bateria
+
+   [ ANALISIS AVANZADO - SOLO LECTURA ]
+   8. [R] Eventos Criticos (Sistema)
+   9. [R] Analisis BSOD (Minidump)
+   10. [R] Auditoria Forense de Procesos
+   11. [R] Estado RAID/Storage
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
@@ -158,11 +173,31 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 ==============================================================================================================
    Perfil Activo: [REPARACION] - Mantenimiento y Reparaciones
 
-   [ DIAGNOSTICO ]                  [ REPARACION DE SISTEMA ]        [ REDES Y ACTUALIZACIONES ]
-   1. Estado SMART de Discos        5. Mantenimiento (DISM/SFC)      9. Reset de Red e IP
-   2. Test de RAM (mdsched)         6. Reparar Windows Update       10. Test de Velocidad
-   3. Info BIOS y Placa Madre       7. Limpieza EMMC/Temporales     11. Actualizar Apps (Winget)
-   4. Reporte de Bateria            8. Auditoria de Puertos/DNS     12. Apagado Programado
+   Incluye diagnostico y tareas que modifican el sistema.
+   Recomendado para mantenimiento, limpieza y reparaciones guiadas.
+   Nota: El reporte de bateria solo aplica en equipos portatiles.
+   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
+
+   [ REPARACION Y MANTENIMIENTO ]
+   1. [R] Test de RAM (mdsched)
+   2. [R] Info de Recursos del Sistema
+   3. [R] Info BIOS y Placa Madre
+   4. [W] Mantenimiento (DISM/SFC)
+   5. [W] Reparar Windows Update
+   6. [W] Limpieza EMMC/Temporales
+   7. [W] Reset de Red e IP
+   8. [R] Test de Velocidad
+   9. [R] Auditoria de Puertos/DNS
+   10. [W] Apagado Programado
+   11. [W] Actualizar Apps (Winget)
+   12. [R] Reporte de Bateria
+   13. [W] Backup de Drivers (ESCRIBE EN DISCO)
+
+   [ ANALISIS AVANZADO - SOLO LECTURA ]
+   14. [R] Eventos Criticos
+   15. [R] Analisis BSOD
+   16. [R] Auditoria Forense de Procesos
+   17. [R] Estado RAID/Storage
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
@@ -179,14 +214,35 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 ==============================================================================================================
    Perfil Activo: [ADMINISTRACION] - Acceso Completo
 
-   [ DIAGNOSTICO DE HARDWARE ]      [ REPARACION DE SISTEMA ]        [ REDES Y CONECTIVIDAD ]
-   1. Estado SMART de Discos        4. Mantenimiento (DISM/SFC)      7. Reset de Red e IP
-   2. Info BIOS y Placa Madre       5. Reparar Windows Update        8. Test de Velocidad Real
-   3. Test de RAM (mdsched)         6. Limpieza EMMC/Temporales      9. Auditoria de Puertos/DNS
+   Acceso total. Incluye acciones irreversibles y cambios criticos.
+   Usa este perfil solo si comprendes el impacto de cada operacion.
+   Nota: El reporte de bateria solo aplica en equipos portatiles.
+   Leyenda: [R] Solo lectura  [W] Escribe/cambia sistema  [!] Critico/irreversible
 
-   [ GESTION DE ALMACENAMIENTO ]    [ SOFTWARE Y LICENCIAS ]         [ AUTOMATIZACION ]
-   10. Formateo Seguro (Auditado)   12. Actualizar Apps (Winget)     14. Apagado Programado
-   11. Conversion MBR a GPT         13. ACTIVACION MASTER (MAS)      15. Reporte de Bateria
+   [ ADMINISTRACION OPERATIVA ]
+   1. [R] Info BIOS y Placa Madre
+   2. [R] Test de RAM (mdsched)
+   3. [R] Info de Recursos del Sistema
+   4. [W] Mantenimiento (DISM/SFC)
+   5. [W] Reparar Windows Update
+   6. [W] Limpieza EMMC/Temporales
+   7. [W] Reset de Red e IP
+   8. [R] Test de Velocidad Real
+   9. [R] Auditoria de Puertos/DNS
+   10. [!] Formateo Seguro (Auditado)
+   11. [!] Conversion MBR a GPT
+   12. [W] Actualizar Apps (Winget)
+   13. [W] ACTIVACION MASTER (MAS)
+   14. [W] Apagado Programado
+   15. [R] Reporte de Bateria
+   16. [W] Backup de Drivers (ESCRIBE EN DISCO)
+
+   [ ANALISIS AVANZADO - SOLO LECTURA ]
+   17. [R] Eventos Criticos
+   18. [R] Analisis BSOD
+   19. [R] Auditoria Forense de Procesos
+   20. [R] Estado RAID/Storage
+   21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)
 
    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
    [99] CAMBIAR PERFIL
@@ -195,7 +251,9 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 => Selecciona una opcion:
 ```
 
-**Este perfil tiene acceso completo**, incluyendo operaciones críticas como formateo, conversión GPT y activación.
+**Este perfil tiene acceso completo**, incluyendo operaciones criticas como formateo/conversion y la opcion 21 de Blindaje V1.
+
+> Nota: en `toolbox_corporate.bat`, la opcion 13 aparece como `MODULO 13 REMOVIDO` por compliance.
 
 ### Limpieza de temporales en aulas (opción 21)
 
@@ -234,17 +292,17 @@ toolbox.bat /perfil:X /mod:Y
 Ejemplos rapidos (version completa `toolbox.bat`):
 
 - Perfil 1 (Diagnostico):
-   - `toolbox.bat /perfil:1 /mod:1` (Test RAM)
-   - `toolbox.bat /perfil:1 /mod:4` (Estado Windows Update)
-   - `toolbox.bat /perfil:1 /mod:11` (Estado RAID/Storage)
+  - `toolbox.bat /perfil:1 /mod:1` (Test RAM)
+  - `toolbox.bat /perfil:1 /mod:4` (Estado Windows Update)
+  - `toolbox.bat /perfil:1 /mod:11` (Estado RAID/Storage)
 - Perfil 2 (Reparacion):
-   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
-   - `toolbox.bat /perfil:2 /mod:5` (Reparar Windows Update)
-   - `toolbox.bat /perfil:2 /mod:10` (Apagado programado)
+  - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
+  - `toolbox.bat /perfil:2 /mod:5` (Reparar Windows Update)
+  - `toolbox.bat /perfil:2 /mod:10` (Apagado programado)
 - Perfil 3 (Administracion):
-   - `toolbox.bat /perfil:3 /mod:10` (Formateo seguro)
-   - `toolbox.bat /perfil:3 /mod:11` (Conversion MBR a GPT)
-   - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
+  - `toolbox.bat /perfil:3 /mod:10` (Formateo seguro)
+  - `toolbox.bat /perfil:3 /mod:11` (Conversion MBR a GPT)
+  - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
 
 Ejemplos rapidos (version `toolbox_corporate.bat`):
 

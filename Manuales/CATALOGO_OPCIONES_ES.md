@@ -19,9 +19,9 @@ Perfiles:
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
 | --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
-| 1 | Info BIOS/placa o SMART (segun menu) | D/R/A | [R] | Consulta firmware/modelo/estado de disco | Inventario o auditoria tecnica | Ninguno, solo lectura |
-| 2 | RAM o recursos (segun menu) | D/R/A | [R] | Muestra memoria/CPU o lanza diagnostico RAM | Lentitud, congelamientos, chequeo preventivo | Test RAM puede reiniciar o requerir ventana fuera de toolbox |
-| 3 | Recursos/RAM (segun menu) | D/R/A | [R] | Consulta hardware operativo del sistema | Ver capacidad real de equipo | Ninguno, solo lectura |
+| 1 | SMART, RAM o BIOS (segun perfil/edicion) | D/R/A | [R] | Segun menu: estado SMART, test RAM o info BIOS/placa | Inventario, diagnostico inicial y salud de hardware | Solo lectura. Test RAM puede requerir reinicio |
+| 2 | RAM, recursos o BIOS (segun perfil/edicion) | D/R/A | [R] | Segun menu: test RAM, recursos del sistema o info BIOS/placa | Validar capacidad real y sintomas de rendimiento | Solo lectura |
+| 3 | Recursos, BIOS o RAM (segun perfil/edicion) | D/R/A | [R] | Segun menu: recursos del sistema, info BIOS/placa o test RAM | Corroborar estado base antes de intervenir | Solo lectura |
 | 4 | Estado WU o DISM/SFC (segun perfil) | D/R/A | [R]/[W] | En D consulta; en R/A repara imagen y archivos | Windows da errores, integridad dudosa | No interrumpir DISM/SFC |
 | 5 | DNS/Auditoria o Reparar WU (segun perfil) | D/R/A | [R]/[W] | Consulta puertos/DNS o repara componentes WU | Problemas de update o red | En modo reparacion modifica servicios/caches |
 | 6 | Velocidad/limpieza/WU status (segun perfil) | D/R/A | [R]/[W] | Dependiendo de perfil: consulta o limpieza | Diagnostico o mantenimiento | Limpieza elimina temporales |

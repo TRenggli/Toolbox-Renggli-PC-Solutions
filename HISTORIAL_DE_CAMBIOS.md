@@ -1,5 +1,38 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-19 (Actualizacion 25)
+
+### Sincronizacion integral de manuales y catalogos con Toolbox V14 actual
+
+Se actualizaron documentos para reflejar el estado real de los scripts de Windows:
+
+- `Manuales/README_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+- `Manuales/CATALOGO_OPCIONES_ES.md`
+- `Manuales/CATALOGO_OPCIONES_EN.md`
+- `Manuales/CATALOGO_OPCIONES_CN.md`
+
+Cambios clave:
+
+- Menus Windows alineados a `Windows/toolbox.bat` por perfil:
+  - Perfil 1 (Diagnostico): 11 opciones.
+  - Perfil 2 (Reparacion): 17 opciones.
+  - Perfil 3 (Administracion): 21 opciones.
+- Se estandarizo la presentacion con leyenda de riesgo `[R]/[W]/[!]` en ES/EN/CN.
+- Se incorporo nota explicita de compliance para Corporate:
+  - en `Windows/toolbox_corporate.bat`, opcion 13 aparece como modulo removido.
+- Se ajustaron ejemplos CLI en ES/EN/CN y formato de listas para lint consistente.
+- En catalogos Windows (ES/EN/CN), se clarifico la variacion real de opciones 1-3 segun perfil/edicion.
+
+### PDFs regenerados
+
+Se regeneraron manuales PDF para dejar artefactos al dia con el contenido sincronizado:
+
+- `Manuales/PDFs/Manual_Toolbox_V14_ES.pdf`
+- `Manuales/PDFs/Manual_Toolbox_V14_EN.pdf`
+- `Manuales/PDFs/Manual_Toolbox_V14_CN.pdf`
+
 ## 2026-03-19 (Actualizacion 24)
 
 ### Cambio de motor PDF (preferido) y compatibilidad por fallback

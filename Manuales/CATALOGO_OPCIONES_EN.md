@@ -19,9 +19,9 @@ Profiles:
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
 | --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
-| 1 | BIOS/board or SMART info (menu-dependent) | D/R/A | [R] | Reads firmware/model/disk health | Inventory or technical audit | None, read-only |
-| 2 | RAM or resources (menu-dependent) | D/R/A | [R] | Shows memory/CPU or launches RAM test | Slowdowns, freezes, preventive checks | RAM test may require reboot/outside flow |
-| 3 | Resources/RAM (menu-dependent) | D/R/A | [R] | Reads operational hardware metrics | Validate machine capacity | None, read-only |
+| 1 | SMART, RAM, or BIOS (profile/edition-dependent) | D/R/A | [R] | Depending on menu: SMART health, RAM test, or BIOS/board info | Inventory, early diagnostics, hardware health checks | Read-only. RAM test may require reboot |
+| 2 | RAM, resources, or BIOS (profile/edition-dependent) | D/R/A | [R] | Depending on menu: RAM test, system resources, or BIOS/board info | Validate capacity and performance symptoms | Read-only |
+| 3 | Resources, BIOS, or RAM (profile/edition-dependent) | D/R/A | [R] | Depending on menu: system resources, BIOS/board info, or RAM test | Confirm baseline status before interventions | Read-only |
 | 4 | WU status or DISM/SFC (profile-dependent) | D/R/A | [R]/[W] | In D it queries; in R/A it repairs image/files | Windows integrity incidents | Do not interrupt DISM/SFC |
 | 5 | DNS audit or WU repair (profile-dependent) | D/R/A | [R]/[W] | Queries ports/DNS or repairs WU stack | Update/network incidents | Repair mode changes services/cache |
 | 6 | Speed/cleanup/WU status (profile-dependent) | D/R/A | [R]/[W] | Diagnostic query or cleanup depending on profile | Diagnostics or maintenance | Cleanup removes temp files |

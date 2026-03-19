@@ -138,10 +138,25 @@ After selecting the profile, you'll see the specific menu for that profile:
 ==============================================================================================================
    Active Profile: [DIAGNOSTICS] - Read Only
 
-   [ HARDWARE DIAGNOSTICS ]         [ SYSTEM INFORMATION ]           [ MONITORING ]
-   1. SMART Disk Status             4. BIOS and Motherboard Info     7. Network Speed Test
-   2. RAM Test (mdsched)            5. Ports/DNS Audit               8. Battery Report
-   3. System Resources Info         6. Windows Update Status
+   This menu is query-only. It does not make system changes.
+   Ideal for auditing hardware, resources, network, and Windows Update status.
+   Note: battery report only applies to laptops.
+   Legend: [R] Read-only  [W] Writes/changes system  [!] Critical/irreversible
+
+   [ DIAGNOSTICS BASE ]
+   1. [R] RAM Test (mdsched)
+   2. [R] System Resources Info
+   3. [R] BIOS and Motherboard Info
+   4. [R] Windows Update Status
+   5. [R] Ports/DNS Audit
+   6. [R] Network Speed Test
+   7. [R] Battery Report
+
+   [ ADVANCED ANALYSIS - READ ONLY ]
+   8. [R] Critical Events (System)
+   9. [R] BSOD Analysis (Minidump)
+   10. [R] Process Forensic Audit
+   11. [R] RAID/Storage Status
 
    [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
@@ -158,11 +173,31 @@ After selecting the profile, you'll see the specific menu for that profile:
 ==============================================================================================================
    Active Profile: [REPAIR] - Maintenance and Repairs
 
-   [ DIAGNOSTICS ]                  [ SYSTEM REPAIR ]                [ NETWORK AND UPDATES ]
-   1. SMART Disk Status             5. Maintenance (DISM/SFC)        9. Network & IP Reset
-   2. RAM Test (mdsched)            6. Repair Windows Update        10. Speed Test
-   3. BIOS & Motherboard Info       7. EMMC/Temp Cleanup            11. Update Apps (Winget)
-   4. Battery Report                8. Ports/DNS Audit              12. Scheduled Shutdown
+   Includes diagnostics and tasks that modify the system.
+   Recommended for maintenance, cleanup, and guided repairs.
+   Note: battery report only applies to laptops.
+   Legend: [R] Read-only  [W] Writes/changes system  [!] Critical/irreversible
+
+   [ REPAIR AND MAINTENANCE ]
+   1. [R] RAM Test (mdsched)
+   2. [R] System Resources Info
+   3. [R] BIOS and Motherboard Info
+   4. [W] Maintenance (DISM/SFC)
+   5. [W] Repair Windows Update
+   6. [W] EMMC/Temp Cleanup
+   7. [W] Network & IP Reset
+   8. [R] Speed Test
+   9. [R] Ports/DNS Audit
+   10. [W] Scheduled Shutdown
+   11. [W] Update Apps (Winget)
+   12. [R] Battery Report
+   13. [W] Driver Backup (WRITES TO DISK)
+
+   [ ADVANCED ANALYSIS - READ ONLY ]
+   14. [R] Critical Events
+   15. [R] BSOD Analysis
+   16. [R] Process Forensic Audit
+   17. [R] RAID/Storage Status
 
    [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
@@ -179,14 +214,35 @@ After selecting the profile, you'll see the specific menu for that profile:
 ==============================================================================================================
    Active Profile: [ADMINISTRATION] - Full Access
 
-   [ HARDWARE DIAGNOSTICS ]         [ SYSTEM REPAIR ]                [ NETWORK & CONNECTIVITY ]
-   1. SMART Disk Status             4. Maintenance (DISM/SFC)        7. Network & IP Reset
-   2. BIOS & Motherboard Info       5. Repair Windows Update         8. Real Speed Test
-   3. RAM Test (mdsched)            6. EMMC/Temp Cleanup             9. DNS/Ports Audit
+   Full access. Includes irreversible actions and critical changes.
+   Use this profile only if you understand each operation's impact.
+   Note: battery report only applies to laptops.
+   Legend: [R] Read-only  [W] Writes/changes system  [!] Critical/irreversible
 
-   [ STORAGE MANAGEMENT ]           [ SOFTWARE & LICENSES ]          [ AUTOMATION ]
-   10. Secure Format (Audited)      12. Update Apps (Winget)         14. Scheduled Shutdown
-   11. MBR to GPT Conversion        13. Activate Windows (MAS)       15. Battery Report
+   [ ADMINISTRATION OPERATIONS ]
+   1. [R] BIOS and Motherboard Info
+   2. [R] RAM Test (mdsched)
+   3. [R] System Resources Info
+   4. [W] Maintenance (DISM/SFC)
+   5. [W] Repair Windows Update
+   6. [W] EMMC/Temp Cleanup
+   7. [W] Network & IP Reset
+   8. [R] Real Speed Test
+   9. [R] DNS/Ports Audit
+   10. [!] Secure Format (Audited)
+   11. [!] MBR to GPT Conversion
+   12. [W] Update Apps (Winget)
+   13. [W] MASTER ACTIVATION (MAS)
+   14. [W] Scheduled Shutdown
+   15. [R] Battery Report
+   16. [W] Driver Backup (WRITES TO DISK)
+
+   [ ADVANCED ANALYSIS - READ ONLY ]
+   17. [R] Critical Events
+   18. [R] BSOD Analysis
+   19. [R] Process Forensic Audit
+   20. [R] RAID/Storage Status
+   21. [W] High Security Profile (Blindaje V1 integrated)
 
    [0] EXIT WITH REPORT             [00] EXIT WITHOUT REPORT AND WITHOUT LOG
    [99] CHANGE PROFILE
@@ -195,7 +251,9 @@ After selecting the profile, you'll see the specific menu for that profile:
 => Select an option:
 ```
 
-**This profile has full access**, including critical operations like formatting, GPT conversion, and activation.
+**This profile has full access**, including critical formatting/conversion tasks and option 21 for Blindaje V1.
+
+> Note: in `toolbox_corporate.bat`, option 13 appears as `[MODULE 13 REMOVED]` for compliance.
 
 **To use a function:**
 1. Type the **option number** you want to use
@@ -221,17 +279,17 @@ toolbox.bat /perfil:X /mod:Y
 Quick examples (full version `toolbox.bat`):
 
 - Profile 1 (Diagnostics):
-   - `toolbox.bat /perfil:1 /mod:1` (RAM test)
-   - `toolbox.bat /perfil:1 /mod:4` (Windows Update status)
-   - `toolbox.bat /perfil:1 /mod:11` (RAID/Storage status)
+  - `toolbox.bat /perfil:1 /mod:1` (RAM test)
+  - `toolbox.bat /perfil:1 /mod:4` (Windows Update status)
+  - `toolbox.bat /perfil:1 /mod:11` (RAID/Storage status)
 - Profile 2 (Repair):
-   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
-   - `toolbox.bat /perfil:2 /mod:5` (Repair Windows Update)
-   - `toolbox.bat /perfil:2 /mod:10` (Scheduled shutdown)
+  - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
+  - `toolbox.bat /perfil:2 /mod:5` (Repair Windows Update)
+  - `toolbox.bat /perfil:2 /mod:10` (Scheduled shutdown)
 - Profile 3 (Administration):
-   - `toolbox.bat /perfil:3 /mod:10` (Secure format)
-   - `toolbox.bat /perfil:3 /mod:11` (MBR to GPT conversion)
-   - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
+  - `toolbox.bat /perfil:3 /mod:10` (Secure format)
+  - `toolbox.bat /perfil:3 /mod:11` (MBR to GPT conversion)
+  - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
 
 Quick examples (`toolbox_corporate.bat`):
 
