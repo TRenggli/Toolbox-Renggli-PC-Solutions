@@ -207,6 +207,42 @@ After selecting the profile, you'll see the specific menu for that profile:
 - Type **99** and press Enter at any time
 - You can choose a different profile without restarting the tool
 
+### CLI Execution (optional)
+
+You can also start the tool with parameters to preselect profile and module:
+
+```cmd
+toolbox.bat /perfil:X /mod:Y
+```
+
+- `X` = profile (`1` Diagnostics, `2` Repair, `3` Administration)
+- `Y` = module number inside that profile
+
+Quick examples (full version `toolbox.bat`):
+
+- Profile 1 (Diagnostics):
+   - `toolbox.bat /perfil:1 /mod:1` (RAM test)
+   - `toolbox.bat /perfil:1 /mod:4` (Windows Update status)
+   - `toolbox.bat /perfil:1 /mod:11` (RAID/Storage status)
+- Profile 2 (Repair):
+   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
+   - `toolbox.bat /perfil:2 /mod:5` (Repair Windows Update)
+   - `toolbox.bat /perfil:2 /mod:10` (Scheduled shutdown)
+- Profile 3 (Administration):
+   - `toolbox.bat /perfil:3 /mod:10` (Secure format)
+   - `toolbox.bat /perfil:3 /mod:11` (MBR to GPT conversion)
+   - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
+
+Quick examples (`toolbox_corporate.bat`):
+
+- `toolbox_corporate.bat /perfil:1 /mod:1` (SMART)
+- `toolbox_corporate.bat /perfil:2 /mod:6` (Repair Windows Update)
+- `toolbox_corporate.bat /perfil:3 /mod:10` (Secure format)
+
+Notes:
+- If `profile/module` is invalid for that profile, execution is blocked and logged.
+- Modules keep their safety confirmations before running critical actions.
+
 ### Step 6: Exit and View Logs
 
 **To exit:**
@@ -893,6 +929,12 @@ Includes coverage for:
 - macOS (normal and corporate)
 - Profiles `DIAGNOSTICS`, `REPAIR`, `ADMINISTRATION`
 - Risk labels `[R]`, `[W]`, `[!]`
+
+### Robustness Note (Update 16)
+
+- Windows, Linux, and macOS now validate shutdown schedule input using `HH:MM` format.
+- HTML reports now escape special log characters (`&`, `<`, `>`) to prevent rendering issues.
+- SHA256 checksum is now saved to a sidecar `*.sha256` file to avoid self-invalidating the log hash.
 
 ---
 

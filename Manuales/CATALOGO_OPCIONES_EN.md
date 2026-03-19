@@ -32,7 +32,7 @@ Profiles:
 | 11 | RAID status or MBR->GPT (A) | D/R/A | [R]/[!] | In D/R reads storage status; in A converts partition scheme | Storage diagnostics / migration | Wrong conversion can break boot |
 | 12 | RAID status / Winget / maintenance tools | D/R/A | [R]/[W] | Storage query or app updates | Software maintenance | Updates may require restart |
 | 13 | Process forensics / Driver backup / MAS (normal) | R/A | [W] | In R driver backup; in A normal edition MAS; corporate blocked | Pre-repair backup or licensed activation | Backup consumes disk; MAS only where authorized |
-| 14 | Critical events / scheduled shutdown | R/A | [R]/[W] | Event query or shutdown scheduling | Incident review or automation | Risk of service interruption |
+| 14 | Critical events / scheduled shutdown | R/A | [R]/[W] | Event query or shutdown scheduling | Incident review or automation | Risk of service interruption. Use validated `HH:MM` time format |
 | 15 | BSOD / Battery | R/A | [R] | BSOD query or battery report | Post-failure or battery health | Read-only |
 | 16 | Forensics / Driver backup | R/A | [R]/[W] | Process audit or driver export | Security review / rollback prep | Requires free disk space |
 | 17 | RAID status / Events | R/A | [R] | Reads storage/event state by menu | Advanced diagnostics | Read-only |
@@ -45,6 +45,35 @@ Notes (Windows):
 
 - Exact number can map to different action depending on profile (D/R/A).
 - In `toolbox_corporate.bat`, option 13 (MAS) is removed by compliance design.
+
+### Mini CLI Guide (Windows)
+
+Quick parameter usage:
+
+```cmd
+toolbox.bat /perfil:X /mod:Y
+```
+
+- `X`: `1` Diagnostics, `2` Repair, `3` Administration
+- `Y`: module number inside that profile
+
+Examples (`toolbox.bat`):
+
+- `toolbox.bat /perfil:1 /mod:4`  (Windows Update status)
+- `toolbox.bat /perfil:2 /mod:5`  (repair Windows Update)
+- `toolbox.bat /perfil:3 /mod:10` (secure format)
+- `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
+
+Examples (`toolbox_corporate.bat`):
+
+- `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
+- `toolbox_corporate.bat /perfil:2 /mod:6`  (repair Windows Update)
+- `toolbox_corporate.bat /perfil:3 /mod:10` (secure format)
+
+Notes:
+
+- If `profile/module` is not valid for the selected profile, execution is blocked and logged.
+- Critical modules keep safety confirmations before execution.
 
 ## Linux (30 options)
 
@@ -76,7 +105,7 @@ Notes (Windows):
 | 24 | Users and permissions | A | [!] | Account/permission management | Advanced administration | Potential lockout risk |
 | 25 | Realtime monitor | D/R/A | [R] | Live resource watch | Load analysis | Read-only |
 | 26 | System update | R/A | [W] | Upgrades packages/system | Planned maintenance | May require reboot |
-| 27 | Scheduled shutdown | R/A | [W] | Schedules shutdown | Automation windows | Validate schedule |
+| 27 | Scheduled shutdown | R/A | [W] | Schedules shutdown | Automation windows | Validate `HH:MM` format and maintenance window |
 | 28 | Data backup | R/A | [W] | Creates compressed backup | Before risky changes | Validate destination space |
 | 29 | Battery report | D/R/A | [R] | Reads battery state | Laptop health checks | May not apply to desktops |
 | 30 | Integrity checks | D/R/A | [R] | Consistency/health checks | Preventive auditing | Read-only |
@@ -96,9 +125,9 @@ Notes (Windows):
 | 9 | Listening ports | D/R/A | [R] | Open listening services | Exposure audit | Read-only |
 | 10 | System update | R/A | [W] | `softwareupdate`/package actions | Patch maintenance | Restart may be required |
 | 11 | Package cleanup | R/A | [W] | Cleans package artifacts | Reduce software residue | Confirm package is unused |
-| 12 | System report | D/R/A | [R] | Generates operational report | Audit closure | Read-only |
+| 12 | System report | D/R/A | [R] | Generates operational report | Audit closure | Read-only. Log is HTML-escaped and SHA256 is written to `*.sha256` |
 | 13 | Process info | D/R/A | [R] | Active process overview | Performance checks | Read-only |
-| 14 | Scheduled shutdown | R/A | [W] | Schedules shutdown via launchd/shutdown | Automation | Confirm maintenance window |
+| 14 | Scheduled shutdown | R/A | [W] | Schedules shutdown via launchd/shutdown | Automation | Validate `HH:MM` format and confirm maintenance window |
 
 ## Quick Profile Guidance
 

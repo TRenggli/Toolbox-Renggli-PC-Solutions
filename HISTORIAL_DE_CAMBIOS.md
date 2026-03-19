@@ -1,5 +1,209 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-19 (Actualizacion 24)
+
+### Cambio de motor PDF (preferido) y compatibilidad por fallback
+
+Se actualizo la estrategia de motor de render para PDFs en:
+
+- `Scripts/generar_pdfs.bat`
+- `Scripts/generar_pdfs.sh`
+- `Scripts/README.md`
+- `Manuales/COMO_GENERAR_PDFS.md`
+
+Cambios:
+
+- Motor preferido: `weasyprint`.
+- Fallback automatico: `wkhtmltopdf` cuando `weasyprint` no esta disponible.
+- Deteccion mejorada en Windows para `wkhtmltopdf` instalado fuera de `PATH` (ruta local conocida).
+- Correccion de IDs/comandos de instalacion documentados para winget (`wkhtmltopdf.wkhtmltox`).
+- Ajuste final en resumen del `.bat` para evitar error de parseo y mantener salida consistente.
+
+Resultado: se mantiene compatibilidad con entornos actuales y se habilita migracion progresiva a un motor mas confiable para fondos/estilos en PDF.
+
+## 2026-03-19 (Actualizacion 23)
+
+### Robustez en generadores de PDF (Windows + Linux/macOS)
+
+Se reforzaron los scripts de generacion de PDFs:
+
+- `Scripts/generar_pdfs.bat`
+- `Scripts/generar_pdfs.sh`
+
+Mejoras aplicadas:
+
+- Verificacion explicita de `wkhtmltopdf` ademas de `pandoc`, con mensaje amigable de instalacion.
+- Captura explicita de codigo de salida por idioma (ES/EN/CN) para evitar ambiguedades en el reporte.
+- Resumen final con conteo de errores e idiomas fallidos.
+- En Windows, fecha de metadata en formato ISO estable (`yyyy-MM-dd`) en lugar de `%date%` regional.
+
+Resultado: comportamiento mas predecible fuera de condiciones ideales y mejor diagnostico de fallas en entornos de soporte tecnico.
+
+## 2026-03-19 (Actualizacion 22)
+
+### UX de progreso homogeneada en Linux/macOS (normal + corporate)
+
+Se incorporaron mensajes previos de espera en modulos con ejecucion potencialmente larga para reducir percepcion de bloqueo de terminal en:
+
+- `Linux/toolbox.sh`
+- `Linux/toolbox_corporate.sh`
+- `Mac/toolbox.sh`
+- `Mac/toolbox_corporate.sh`
+
+Linux:
+
+- `mod_hardware`
+- `mod_logs` (opcion `journalctl`)
+- `mod_update`
+- `mod_backup`
+
+macOS:
+
+- `mod_hardware_info`
+- `mod_update_system`
+- `mod_system_report`
+
+Resultado: experiencia de uso mas consistente con Windows en modulos pesados de inventario, logs, actualizacion y generacion de reporte/backup.
+
+## 2026-03-19 (Actualizacion 21)
+
+### UX de progreso en modulos pesados (Windows normal + corporate)
+
+Se estandarizaron mensajes previos de espera para mejorar percepcion de avance en consultas largas de PowerShell, en:
+
+- `Windows/toolbox.bat`
+- `Windows/toolbox_corporate.bat`
+
+Modulos ajustados:
+
+- `MOD_PROCESS_AUDIT`
+- `MOD_RAID_STATUS`
+- `MOD_EVENT_CRITICAL`
+- `MOD_BSOD_ANALYZER`
+- `MOD_RESOURCES`
+
+Objetivo: evitar sensacion de “ventana colgada” mientras se procesan consultas de inventario/eventos en equipos con alta carga o mucho historial.
+
+## 2026-03-19 (Actualizacion 20)
+
+### Ajustes menores finales de consistencia (Windows normal + corporate)
+
+Se aplicaron mejoras puntuales en:
+
+- `Windows/toolbox.bat`
+- `Windows/toolbox_corporate.bat`
+
+Cambios:
+
+- `EXIT_NO_LOG` ahora usa `timeout /t 2 /nobreak` para mantener consistencia con salida controlada.
+- `MOD_OFF` valida fecha para `schtasks /sc once /sd` antes de crear tarea (ademas de la validacion de hora ya existente).
+- `MOD_REPAIR` al bloquear por perfil `DIAGNOSTICO` usa `color 0C` (coherente con el resto de bloqueos).
+- `WAIT_SERVICE_STOP` aumenta umbral de espera de 10 a 20 segundos para equipos lentos.
+- `MOD_WU_STATUS` incorpora `try/catch` en consulta COM de Windows Update y deja advertencia visible/logueada si la politica la bloquea.
+- Se agrego comentario visible de configuracion sobre `BL_TARGET_USER_ALUMNO=Usuario` en modulo de seguridad aula.
+
+## 2026-03-19 (Actualizacion 19)
+
+### Mini guia CLI en catalogos ES/EN/CN
+
+Se agrego una seccion breve de ejecucion por parametros en:
+
+- `Manuales/CATALOGO_OPCIONES_ES.md`
+- `Manuales/CATALOGO_OPCIONES_EN.md`
+- `Manuales/CATALOGO_OPCIONES_CN.md`
+
+Incluye:
+
+- sintaxis `/perfil:X /mod:Y`
+- ejemplos rapidos para `toolbox.bat` y `toolbox_corporate.bat`
+- notas de validacion de perfil/modulo y confirmaciones de seguridad
+
+## 2026-03-19 (Actualizacion 18)
+
+### Mini guia CLI en manuales ES/EN/CN
+
+Se agrego una seccion de ejecucion por parametros en:
+
+- `Manuales/README_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+
+Incluye:
+
+- uso de `/perfil:X /mod:Y`
+- ejemplos por perfil (Diagnostico/Reparacion/Administracion)
+- ejemplos equivalentes para `toolbox_corporate.bat`
+- notas de validacion y confirmaciones de seguridad
+
+## 2026-03-19 (Actualizacion 17)
+
+### Cierre de pendientes finales en Windows (normal + corporate)
+
+Se completaron los pendientes restantes en:
+
+- `Windows/toolbox.bat`
+- `Windows/toolbox_corporate.bat`
+
+Cambios aplicados:
+
+- Validacion real de disco en `MOD_FORMAT` y `MOD_GPT`:
+  - ademas de validar que sea numerico, ahora se verifica que el numero exista en el equipo con `Get-Disk`.
+  - si el disco no existe, la operacion se bloquea y se registra en log.
+
+- Endurecimiento de `MOD_WU` antes de renombrar cache:
+  - se agrego espera/verificacion activa de estado `STOPPED` para `wuauserv`, `cryptSvc`, `bits` y `msiserver`.
+  - si algun servicio no se detiene dentro del tiempo de espera, se cancela la reparacion para evitar operaciones en estado inseguro.
+
+- Ejecucion asistida por CLI:
+  - soporte de parametros `/perfil:X` y `/mod:Y` para preseleccionar perfil y modulo.
+  - incluye validacion de perfil y de modulo permitido por perfil, con auditoria en `!LOG_FILE!`.
+
+## 2026-03-19 (Actualizacion 16)
+
+### Replicacion de fixes criticos en todas las ediciones
+
+Se aplicaron correcciones de robustez y consistencia en:
+
+- `Windows/toolbox.bat`
+- `Windows/toolbox_corporate.bat`
+- `Linux/toolbox.sh`
+- `Linux/toolbox_corporate.sh`
+- `Mac/toolbox.sh`
+- `Mac/toolbox_corporate.sh`
+
+Cambios principales:
+
+- Windows (normal + corporate):
+  - `MOD_WU_STATUS` reemplaza `Get-WindowsUpdateLog` por consulta directa de pendientes (`Microsoft.Update.Session`) + `Get-HotFix`.
+  - `MOD_REPAIR` detiene flujo si falla `DISM /RestoreHealth` antes de ejecutar `SFC`.
+  - `MOD_WU` reporta cuando no puede renombrar `SoftwareDistribution`/`catroot2`.
+  - `MOD_CLEAN` agrega fallback a `cleanmgr /verylowdisk` si no existe preset `sagerun:1`.
+  - Validaciones internas de perfil en `MOD_FORMAT` y `MOD_GPT`.
+  - `MOD_DRIVER_BACKUP` bloqueado en perfil `DIAGNOSTICO`.
+  - `MOD_OFF` valida formato de hora `HH:MM` antes de crear tareas.
+  - Reporte HTML ahora escapa caracteres (`&`, `<`, `>`) al inyectar log.
+  - Checksum SHA256 ahora se guarda en archivo sidecar `.sha256` en vez de escribirse en el mismo log.
+
+- Linux (normal + corporate):
+  - `mod_shutdown` valida horario `HH:MM` para apagado puntual/diario/semanal.
+  - Reporte HTML escapa caracteres especiales del log.
+  - SHA256 se guarda en archivo sidecar `.sha256`.
+
+- macOS (normal + corporate):
+  - `mod_shutdown` valida horario `HH:MM` para apagado puntual/diario/semanal.
+  - Reporte HTML escapa caracteres especiales del log.
+  - `exit_script` incorpora generacion de SHA256 en archivo sidecar `.sha256`.
+
+### Documentacion actualizada
+
+- `HISTORIAL_DE_CAMBIOS.md`
+- `Manuales/README_ES.md`
+- `Manuales/CATALOGO_OPCIONES_ES.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+- `Manuales/CATALOGO_OPCIONES_EN.md`
+- `Manuales/CATALOGO_OPCIONES_CN.md`
+
 ## 2026-03-18 (Actualizacion 15)
 
 ### Opcion 21: limpieza segura de temporales (manual + automatica + masiva)

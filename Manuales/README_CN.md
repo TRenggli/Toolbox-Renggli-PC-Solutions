@@ -207,6 +207,42 @@
 - 随时输入 **99** 并按 Enter
 - 您可以选择不同的配置文件而无需重新启动工具
 
+### CLI 参数运行（可选）
+
+也可以通过参数直接预选配置文件和模块：
+
+```cmd
+toolbox.bat /perfil:X /mod:Y
+```
+
+- `X` = 配置文件（`1` 诊断，`2` 修复，`3` 管理）
+- `Y` = 该配置文件下的模块编号
+
+快速示例（完整版 `toolbox.bat`）：
+
+- 配置文件 1（诊断）：
+   - `toolbox.bat /perfil:1 /mod:1`（RAM 测试）
+   - `toolbox.bat /perfil:1 /mod:4`（Windows Update 状态）
+   - `toolbox.bat /perfil:1 /mod:11`（RAID/存储状态）
+- 配置文件 2（修复）：
+   - `toolbox.bat /perfil:2 /mod:4`（DISM/SFC）
+   - `toolbox.bat /perfil:2 /mod:5`（修复 Windows Update）
+   - `toolbox.bat /perfil:2 /mod:10`（计划关机）
+- 配置文件 3（管理）：
+   - `toolbox.bat /perfil:3 /mod:10`（安全格式化）
+   - `toolbox.bat /perfil:3 /mod:11`（MBR 转 GPT）
+   - `toolbox.bat /perfil:3 /mod:21`（高安全配置）
+
+快速示例（`toolbox_corporate.bat`）：
+
+- `toolbox_corporate.bat /perfil:1 /mod:1`（SMART）
+- `toolbox_corporate.bat /perfil:2 /mod:6`（修复 Windows Update）
+- `toolbox_corporate.bat /perfil:3 /mod:10`（安全格式化）
+
+说明：
+- 若 `perfil/mod` 与当前配置文件不匹配，会被阻止执行并写入日志。
+- 关键模块仍会保留安全确认步骤。
+
 ### 步骤 6: 完成并查看日志
 
 **退出:**
@@ -893,6 +929,12 @@ xcode-select --install
 - macOS（普通版与企业版）
 - 配置档位 `DIAGNOSTICO`、`REPARACION`、`ADMINISTRACION`
 - 风险标签 `[R]`、`[W]`、`[!]`
+
+### 稳健性说明（更新 16）
+
+- Windows、Linux、macOS 的定时关机输入已统一校验为 `HH:MM` 格式。
+- HTML 报告在写入日志前会转义特殊字符（`&`、`<`、`>`），避免渲染异常。
+- SHA256 校验和改为写入独立 `*.sha256` 文件，避免修改日志后导致哈希失效。
 
 ---
 

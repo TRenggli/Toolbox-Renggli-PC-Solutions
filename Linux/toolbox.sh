@@ -283,6 +283,8 @@ mod_hardware() {
     echo "[INFO DE HARDWARE COMPLETO]"
     echo "==============================================================================${NC}"
     echo ""
+    echo "[i] Esto puede tardar unos segundos en equipos con mucho hardware detectado..."
+    echo ""
 
     echo -e "${YELLOW}[CPU]${NC}"
     lscpu | grep -E "Model name|Architecture|CPU\(s\)|Thread|Core|MHz"
@@ -1068,7 +1070,7 @@ mod_logs() {
     case $log_choice in
         1) dmesg | grep -i error | tail -50 || true ;;
         2) tail -100 /var/log/auth.log 2>/dev/null || tail -100 /var/log/secure ;;
-        3) journalctl -xe | tail -100 ;;
+        3) echo "[i] Esto puede tardar unos segundos segun el volumen del journal..."; journalctl -xe | tail -100 ;;
         4) tail -100 /var/log/apache2/error.log 2>/dev/null || tail -100 /var/log/nginx/error.log 2>/dev/null ;;
         0) return ;;
     esac
@@ -1138,6 +1140,8 @@ mod_update() {
     echo "[ACTUALIZACION DEL SISTEMA]"
     echo "==============================================================================${NC}"
     echo ""
+    echo "[i] Esto puede tardar varios minutos segun paquetes y velocidad de red..."
+    echo ""
 
     case $PKG_MANAGER in
         apt)
@@ -1200,6 +1204,11 @@ mod_shutdown() {
             ;;
         2)
             read -p "Hora de apagado (HH:MM): " at_time
+            if ! [[ "$at_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             shutdown -h $at_time
             echo "[i] Sistema se apagará a las $at_time"
             echo "[i] Para cancelar: shutdown -c"
@@ -1211,6 +1220,11 @@ mod_shutdown() {
                 return
             fi
             read -p "Hora diaria (HH:MM): " daily_time
+            if ! [[ "$daily_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             IFS=':' read -r daily_hour daily_min <<EOF
 $daily_time
 EOF
@@ -1226,6 +1240,11 @@ EOF
             fi
             read -p "Dia semanal (0=Dom,1=Lun,...6=Sab): " weekly_day
             read -p "Hora semanal (HH:MM): " weekly_time
+            if ! [[ "$weekly_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             IFS=':' read -r weekly_hour weekly_min <<EOF
 $weekly_time
 EOF
@@ -1322,6 +1341,7 @@ mod_backup() {
 
     echo ""
     echo "[i] Creando backup en: $BACKUP_FILE"
+    echo "[i] Esto puede tardar varios minutos segun tamano y cantidad de archivos..."
     tar -czf "$BACKUP_FILE" "$source_dir" 2>/dev/null
 
     if [ $? -eq 0 ]; then
@@ -1466,7 +1486,7 @@ h2{color:#ffd700;}
 <div class="section">
 <h2>Log de Operaciones</h2>
 <div class="log">
-$(cat "$LOG_FILE" 2>/dev/null)
+$(sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' "$LOG_FILE" 2>/dev/null)
 </div>
 </div>
 </body>
@@ -1505,8 +1525,10 @@ exit_script() {
 
     if command -v sha256sum &> /dev/null; then
         HASH=$(sha256sum "$LOG_FILE" | awk '{print $1}')
-        echo "[CHECKSUM SHA256] $HASH" >> "$LOG_FILE"
+        HASH_FILE="${LOG_FILE}.sha256"
+        echo "$HASH  $LOG_FILE" > "$HASH_FILE"
         echo "[i] Hash SHA256: $HASH"
+        echo "[i] Hash guardado en: $HASH_FILE"
     fi
 
     echo "[OK] Log guardado: $LOG_FILE"

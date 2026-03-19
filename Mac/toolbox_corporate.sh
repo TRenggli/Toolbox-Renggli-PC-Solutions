@@ -187,6 +187,8 @@ mod_hardware_info() {
     echo "[INFO DE HARDWARE]"
     echo "=============================================================================="
     echo ""
+    echo "[i] Esto puede tardar unos segundos en equipos con inventario amplio..."
+    echo ""
     echo "[i] Informacion de hardware:"
     system_profiler SPHardwareDataType 2>/dev/null | sed -n '1,12p'
     echo ""
@@ -336,6 +338,8 @@ mod_update_system() {
     echo "[ACTUALIZAR SISTEMA]"
     echo "=============================================================================="
     echo ""
+    echo "[i] Esto puede tardar varios minutos segun actualizaciones pendientes..."
+    echo ""
 
     if command -v softwareupdate &> /dev/null; then
         echo "[i] Actualizando macOS..."
@@ -383,6 +387,8 @@ mod_system_report() {
     echo "[REPORTE DEL SISTEMA CORPORATE]"
     echo "=============================================================================="
     echo ""
+    echo "[i] Generando reporte... esto puede tardar unos segundos si el log es grande."
+    echo ""
 
     REPORT_FILE="$LOG_DIR/Report_Corporate_$ISO_DATE.html"
 
@@ -408,7 +414,7 @@ h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
 <p class="meta">Hostname: $(hostname)</p>
 <h2>Log de Operaciones</h2>
 <div class="log">
-$(cat "$LOG_FILE" 2>/dev/null)
+$(sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' "$LOG_FILE" 2>/dev/null)
 </div>
 </body>
 </html>
@@ -474,6 +480,11 @@ mod_shutdown() {
             ;;
         2)
             read -p "Hora de apagado (HH:MM): " at_time
+            if ! [[ "$at_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             shutdown -h $at_time
             echo "[i] Sistema se apagara a las $at_time"
             echo "[i] Para cancelar: killall shutdown"
@@ -485,6 +496,11 @@ mod_shutdown() {
                 return
             fi
             read -p "Hora diaria (HH:MM): " daily_time
+            if ! [[ "$daily_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             IFS=':' read -r daily_hour daily_min <<EOF
 $daily_time
 EOF
@@ -524,6 +540,11 @@ PLIST
             echo "Dias: 1=Lunes, 2=Martes, 3=Miercoles, 4=Jueves, 5=Viernes, 6=Sabado, 7=Domingo"
             read -p "Dia semanal (1-7): " weekly_day
             read -p "Hora semanal (HH:MM): " weekly_time
+            if ! [[ "$weekly_time" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]]; then
+                echo "[!] Hora invalida. Usa formato HH:MM (24h), ej: 09:05 o 18:30"
+                read -p "Presiona Enter para continuar..."
+                return
+            fi
             IFS=':' read -r weekly_hour weekly_min <<EOF
 $weekly_time
 EOF
@@ -641,6 +662,15 @@ exit_script() {
     echo "[FINALIZANDO]"
     echo "=============================================================================="
     echo ""
+
+    if command -v shasum &> /dev/null; then
+        HASH=$(shasum -a 256 "$LOG_FILE" | awk '{print $1}')
+        HASH_FILE="${LOG_FILE}.sha256"
+        echo "$HASH  $LOG_FILE" > "$HASH_FILE"
+        echo "[i] Hash SHA256: $HASH"
+        echo "[i] Hash guardado en: $HASH_FILE"
+    fi
+
     echo "[VERSION CORPORATE] Aprobada para entornos de alto compliance"
     echo "[OK] Log guardado: $LOG_FILE"
     echo ""

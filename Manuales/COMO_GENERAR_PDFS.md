@@ -18,44 +18,59 @@ Este sistema convierte automáticamente los 3 manuales (Español, Inglés, Chino
 ## 📋 REQUISITOS PREVIOS
 
 ### Windows
-Necesitas instalar **Pandoc** y **wkhtmltopdf**:
+Necesitas instalar **Pandoc** y al menos un motor PDF (**weasyprint** recomendado, `wkhtmltopdf` como fallback):
 
 **Opción 1 - Winget (Recomendado):**
 ```cmd
 winget install --id JohnMacFarlane.Pandoc
-winget install --id wkhtmltopdf.wkhtmltopdf
+```
+
+Luego instala el motor recomendado:
+```cmd
+pip install weasyprint
+```
+
+Fallback opcional:
+```cmd
+winget install --id wkhtmltopdf.wkhtmltox
 ```
 
 **Opción 2 - Chocolatey:**
 ```cmd
-choco install pandoc wkhtmltopdf
+choco install pandoc
 ```
 
 **Opción 3 - Descarga Manual:**
 - Pandoc: https://pandoc.org/installing.html
-- wkhtmltopdf: https://wkhtmltopdf.org/downloads.html
+- weasyprint: https://weasyprint.org/
+- wkhtmltopdf (fallback): https://wkhtmltopdf.org/downloads.html
 
 ### Linux (Ubuntu/Debian)
 ```bash
 sudo apt update
-sudo apt install pandoc wkhtmltopdf
+sudo apt install pandoc python3-pip
+pip install weasyprint
 ```
 
 ### Linux (Fedora/RHEL)
 ```bash
-sudo dnf install pandoc wkhtmltopdf
+sudo dnf install pandoc python3-pip
+pip install weasyprint
 ```
 
 ### Linux (Arch)
 ```bash
-sudo pacman -S pandoc wkhtmltopdf
+sudo pacman -S pandoc python-pip
+pip install weasyprint
 ```
 
 ### macOS
 ```bash
 brew install pandoc
-brew install --cask wkhtmltopdf
+pip install weasyprint
 ```
+
+> Nota: los scripts usan `weasyprint` como motor preferido y cambian automaticamente a `wkhtmltopdf` si no esta disponible.
 
 ---
 
@@ -127,11 +142,10 @@ Manuales/estilo_pdf_corporativo.css
 ### Error: "pandoc: command not found"
 **Solución:** Pandoc no está instalado. Sigue las instrucciones de [Requisitos Previos](#requisitos-previos)
 
-### Error: "wkhtmltopdf: command not found"
-**Solución:** wkhtmltopdf no está instalado. Instalalo con:
-- Windows: `winget install --id wkhtmltopdf.wkhtmltopdf`
-- Linux: `sudo apt install wkhtmltopdf`
-- macOS: `brew install --cask wkhtmltopdf`
+### Error: "No se encontro motor PDF compatible"
+**Solución:** Instala un motor PDF:
+- Recomendado: `pip install weasyprint`
+- Fallback: `wkhtmltopdf` (ej. `winget install --id wkhtmltopdf.wkhtmltox`)
 
 ### Los PDFs no tienen el formato corporativo
 **Solución:** Verifica que el archivo `Manuales/estilo_pdf_corporativo.css` existe y está en la ubicación correcta.
@@ -160,7 +174,8 @@ El sistema de generación de PDFs consta de:
 
 ## 📊 ESPECIFICACIONES TÉCNICAS
 
-- **Motor PDF:** wkhtmltopdf (renderizado basado en WebKit)
+- **Motor PDF preferido:** weasyprint
+- **Fallback automático:** wkhtmltopdf
 - **Conversor:** Pandoc (conversor universal de documentos)
 - **Tamaño página:** A4
 - **Márgenes:** 2cm en todos los lados

@@ -16,6 +16,16 @@ set "LOG_FILE=!LOG_DIR!\Audit_!ISO_DATE!.log"
 echo [%time%] --- INICIO DE SESION: %username% --- >> "!LOG_FILE!"
 echo [%time%] VERSION: CORPORATE (SIN MODULO MAS) >> "!LOG_FILE!"
 
+:: Parametros opcionales para ejecucion asistida:
+::   toolbox_corporate.bat /perfil:2 /mod:6
+set "CLI_PROFILE="
+set "CLI_MOD="
+for %%A in (%*) do (
+    set "ARG_RAW=%%~A"
+    if /I "!ARG_RAW:~0,8!"=="/perfil:" set "CLI_PROFILE=!ARG_RAW:~8!"
+    if /I "!ARG_RAW:~0,5!"=="/mod:" set "CLI_MOD=!ARG_RAW:~5!"
+)
+
 :: ==============================================================================
 :: SEGURIDAD SENIOR: VALIDACION DE PRIVILEGIOS (PRIMERA BARRERA)
 :: ==============================================================================
@@ -36,7 +46,98 @@ if errorlevel 1 (
 :: SELECCION DE PERFIL DE EJECUCION (SEGUNDA BARRERA)
 :: ==============================================================================
 set "PROFILE_MODE="
+if defined CLI_PROFILE (
+    set "PROFILE_MODE=%CLI_PROFILE%"
+    if not "%PROFILE_MODE%"=="1" if not "%PROFILE_MODE%"=="2" if not "%PROFILE_MODE%"=="3" (
+        color 0C
+        echo.
+        echo  [!] Parametro invalido: /perfil:%CLI_PROFILE%
+        echo  [i] Usa /perfil:1, /perfil:2 o /perfil:3
+        echo [%time%] ERROR parametro /perfil invalido: %CLI_PROFILE% >> "!LOG_FILE!"
+        pause
+        exit /b 1
+    )
+    echo [%time%] Perfil preseleccionado por parametro: %PROFILE_MODE% >> "!LOG_FILE!"
+    if defined CLI_MOD goto :RUN_NONINTERACTIVE
+    goto :MAIN_MENU
+)
 goto :PROFILE_SELECT
+
+:RUN_NONINTERACTIVE
+set "choice=%CLI_MOD%"
+set "EXEC_OK=0"
+echo [%time%] Ejecucion por parametro: perfil=%PROFILE_MODE% mod=%choice% >> "!LOG_FILE!"
+if "%PROFILE_MODE%"=="1" goto :MENU_DIAGNOSTICO_EXEC
+if "%PROFILE_MODE%"=="2" goto :MENU_REPARACION_EXEC
+if "%PROFILE_MODE%"=="3" goto :MENU_ADMINISTRACION_EXEC
+goto :PROFILE_SELECT
+
+:MENU_DIAGNOSTICO_EXEC
+if "%choice%"=="1"  (call :MOD_SMART & set "EXEC_OK=1")
+if "%choice%"=="2"  (call :MOD_RAM & set "EXEC_OK=1")
+if "%choice%"=="3"  (call :MOD_RESOURCES & set "EXEC_OK=1")
+if "%choice%"=="4"  (call :MOD_BIOS & set "EXEC_OK=1")
+if "%choice%"=="5"  (call :MOD_DNS & set "EXEC_OK=1")
+if "%choice%"=="6"  (call :MOD_WU_STATUS & set "EXEC_OK=1")
+if "%choice%"=="7"  (call :MOD_SPEED & set "EXEC_OK=1")
+if "%choice%"=="8"  (call :MOD_BATTERY & set "EXEC_OK=1")
+if "%choice%"=="9"  (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
+if "%choice%"=="10" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
+if "%choice%"=="11" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
+if "%choice%"=="12" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
+goto :CHECK_NONINTERACTIVE_RESULT
+
+:MENU_REPARACION_EXEC
+if "%choice%"=="1"  (call :MOD_SMART & set "EXEC_OK=1")
+if "%choice%"=="2"  (call :MOD_RAM & set "EXEC_OK=1")
+if "%choice%"=="3"  (call :MOD_BIOS & set "EXEC_OK=1")
+if "%choice%"=="4"  (call :MOD_BATTERY & set "EXEC_OK=1")
+if "%choice%"=="5"  (call :MOD_REPAIR & set "EXEC_OK=1")
+if "%choice%"=="6"  (call :MOD_WU & set "EXEC_OK=1")
+if "%choice%"=="7"  (call :MOD_CLEAN & set "EXEC_OK=1")
+if "%choice%"=="8"  (call :MOD_DNS & set "EXEC_OK=1")
+if "%choice%"=="9"  (call :MOD_NET & set "EXEC_OK=1")
+if "%choice%"=="10" (call :MOD_SPEED & set "EXEC_OK=1")
+if "%choice%"=="11" (call :MOD_WINGET & set "EXEC_OK=1")
+if "%choice%"=="12" (call :MOD_OFF & set "EXEC_OK=1")
+if "%choice%"=="13" (call :MOD_DRIVER_BACKUP & set "EXEC_OK=1")
+if "%choice%"=="14" (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
+if "%choice%"=="15" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
+if "%choice%"=="16" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
+if "%choice%"=="17" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
+goto :CHECK_NONINTERACTIVE_RESULT
+
+:MENU_ADMINISTRACION_EXEC
+if "%choice%"=="1"  (call :MOD_SMART & set "EXEC_OK=1")
+if "%choice%"=="2"  (call :MOD_BIOS & set "EXEC_OK=1")
+if "%choice%"=="3"  (call :MOD_RAM & set "EXEC_OK=1")
+if "%choice%"=="4"  (call :MOD_REPAIR & set "EXEC_OK=1")
+if "%choice%"=="5"  (call :MOD_WU & set "EXEC_OK=1")
+if "%choice%"=="6"  (call :MOD_CLEAN & set "EXEC_OK=1")
+if "%choice%"=="7"  (call :MOD_NET & set "EXEC_OK=1")
+if "%choice%"=="8"  (call :MOD_SPEED & set "EXEC_OK=1")
+if "%choice%"=="9"  (call :MOD_DNS & set "EXEC_OK=1")
+if "%choice%"=="10" (call :MOD_FORMAT & set "EXEC_OK=1")
+if "%choice%"=="11" (call :MOD_GPT & set "EXEC_OK=1")
+if "%choice%"=="12" (call :MOD_WINGET & set "EXEC_OK=1")
+if "%choice%"=="14" (call :MOD_OFF & set "EXEC_OK=1")
+if "%choice%"=="15" (call :MOD_BATTERY & set "EXEC_OK=1")
+if "%choice%"=="16" (call :MOD_DRIVER_BACKUP & set "EXEC_OK=1")
+if "%choice%"=="17" (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
+if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
+if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
+if "%choice%"=="20" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
+if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & set "EXEC_OK=1")
+goto :CHECK_NONINTERACTIVE_RESULT
+
+:CHECK_NONINTERACTIVE_RESULT
+if "%EXEC_OK%"=="1" goto :EXIT_SCRIPT
+color 0C
+echo.
+echo  [!] Modulo invalido para el perfil %PROFILE_MODE%: /mod:%choice%
+echo [%time%] ERROR parametro /mod invalido para perfil %PROFILE_MODE%: %choice% >> "!LOG_FILE!"
+pause
+exit /b 1
 
 :PROFILE_SELECT
 cls
@@ -307,6 +408,17 @@ set /p "MC_GO=Iniciar? (S/N): "
 if /i not "%MC_GO%"=="S" exit /b 1
 exit /b 0
 
+:WAIT_SERVICE_STOP
+set "WS_SVC=%~1"
+set "WS_TRIES=0"
+:WAIT_SERVICE_STOP_LOOP
+sc query "%WS_SVC%" | findstr /I "STOPPED" >nul
+if not errorlevel 1 exit /b 0
+set /a WS_TRIES+=1
+if %WS_TRIES% geq 20 exit /b 1
+timeout /t 1 >nul
+goto :WAIT_SERVICE_STOP_LOOP
+
 :MOD_SMART
 cls
 color 0A
@@ -372,6 +484,7 @@ if errorlevel 1 (
     exit /b
 )
 echo  [i] Consultando recursos del sistema...
+echo  [i] Esto puede tardar unos segundos en equipos con inventario amplio.
 echo.
 echo  --- CPU ---
 powershell "Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, MaxClockSpeed | Format-List"
@@ -403,7 +516,9 @@ if errorlevel 1 (
 )
 echo  [i] Consultando estado de Windows Update...
 echo.
-powershell "Get-WindowsUpdateLog"
+echo  [i] Actualizaciones pendientes detectadas:
+powershell -NoProfile -Command "try { $s=(New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher(); $r=$s.Search('IsInstalled=0 and Type=''Software'''); Write-Output ('Pendientes: ' + $r.Updates.Count); exit 0 } catch { Write-Output '[!] No se pudo consultar WU via COM. Verifica politicas GPO.'; exit 2 }"
+if errorlevel 1 echo [%time%] ADVERTENCIA: Consulta WU via COM no disponible o bloqueada por politica >> "!LOG_FILE!"
 echo.
 echo  [i] Ultimas actualizaciones instaladas:
 powershell "Get-HotFix | Select-Object -First 10 HotFixID, Description, InstalledOn | Format-Table -AutoSize"
@@ -416,6 +531,17 @@ pause
 exit /b
 
 :MOD_FORMAT
+if not "%PROFILE_MODE%"=="3" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo solo se permite en perfil ADMINISTRACION.
+    echo [%time%] Formateo bloqueado: perfil insuficiente >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 cls
 color 0C
 echo  ==============================================================================
@@ -439,6 +565,14 @@ if not defined dnum (
     echo.
     echo [BLOQUEADO] Numero de disco invalido.
     echo ACCION BLOQUEADA: Numero de disco invalido. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+powershell -NoProfile -Command "$n=[int]'%dnum%'; if(Get-Disk -ErrorAction SilentlyContinue | Where-Object Number -eq $n){exit 0}else{exit 1}" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo [BLOQUEADO] El disco %dnum% no existe en este equipo.
+    echo ACCION BLOQUEADA: Disco inexistente (%dnum%). >> "!LOG_FILE!"
     pause
     exit /b
 )
@@ -541,7 +675,7 @@ exit /b
 :: Validacion de perfil
 if "%PROFILE_MODE%"=="1" (
     cls
-    color 0E
+    color 0C
     echo.
     echo  [!] ACCESO RESTRINGIDO
     echo.
@@ -571,6 +705,13 @@ DISM /Online /Cleanup-Image /CheckHealth
 echo.
 echo  [i] Paso 2/3: Reparando imagen del sistema...
 DISM /Online /Cleanup-Image /RestoreHealth
+if errorlevel 1 (
+    echo.
+    echo  [X] DISM /RestoreHealth fallo. Se cancela SFC para evitar reparacion sobre imagen inconsistente.
+    echo [%time%] ERROR: DISM /RestoreHealth fallo. SFC cancelado. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 echo.
 echo  [i] Paso 3/3: Verificando archivos de sistema...
 echo [%time%] Iniciando SFC >> "!LOG_FILE!"
@@ -614,15 +755,33 @@ net stop wuauserv
 net stop cryptSvc
 net stop bits
 net stop msiserver
+for %%s in (wuauserv cryptSvc bits msiserver) do (
+    call :WAIT_SERVICE_STOP %%s
+    if errorlevel 1 (
+        echo.
+        echo  [X] El servicio %%s no se detuvo a tiempo. Se cancela reparacion de Windows Update.
+        echo [%time%] ERROR: servicio %%s no se detuvo en MOD_WU >> "!LOG_FILE!"
+        pause
+        exit /b
+    )
+)
 echo.
 echo  [i] Limpiando cache de Windows Update...
 if exist C:\Windows\SoftwareDistribution (
     if exist C:\Windows\SoftwareDistribution.old rd /s /q C:\Windows\SoftwareDistribution.old
     ren C:\Windows\SoftwareDistribution SoftwareDistribution.old
+    if errorlevel 1 (
+        echo  [!] No se pudo renombrar SoftwareDistribution ^(probablemente en uso^).
+        echo [%time%] ADVERTENCIA: No se pudo renombrar SoftwareDistribution >> "!LOG_FILE!"
+    )
 )
 if exist C:\Windows\System32\catroot2 (
     if exist C:\Windows\System32\catroot2.old rd /s /q C:\Windows\System32\catroot2.old
     ren C:\Windows\System32\catroot2 catroot2.old
+    if errorlevel 1 (
+        echo  [!] No se pudo renombrar catroot2 ^(probablemente en uso^).
+        echo [%time%] ADVERTENCIA: No se pudo renombrar catroot2 >> "!LOG_FILE!"
+    )
 )
 echo.
 echo  [i] Reiniciando servicios...
@@ -669,7 +828,13 @@ del /q /f /s %TEMP%\* 2>nul
 del /q /f /s C:\Windows\Temp\* 2>nul
 echo.
 echo  [i] Ejecutando Disk Cleanup...
-cleanmgr /sagerun:1
+reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches" /s /f "StateFlags0001" >nul 2>&1
+if errorlevel 1 (
+    echo  [i] Preset de limpieza ^(/sagerun:1^) no configurado. Ejecutando limpieza rapida automatica...
+    cleanmgr /verylowdisk
+) else (
+    cleanmgr /sagerun:1
+)
 echo.
 echo  [OK] Limpieza completada.
 echo [%time%] Limpieza de temporales ejecutada >> "!LOG_FILE!"
@@ -745,6 +910,17 @@ pause
 exit /b
 
 :MOD_GPT
+if not "%PROFILE_MODE%"=="3" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo solo se permite en perfil ADMINISTRACION.
+    echo [%time%] Conversion GPT bloqueada: perfil insuficiente >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 cls
 color 0C
 echo  ==============================================================================
@@ -769,6 +945,14 @@ if not defined gdisk (
     echo.
     echo [BLOQUEADO] Numero de disco invalido.
     echo ACCION BLOQUEADA: Numero de disco invalido para GPT. >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+powershell -NoProfile -Command "$n=[int]'%gdisk%'; if(Get-Disk -ErrorAction SilentlyContinue | Where-Object Number -eq $n){exit 0}else{exit 1}" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo [BLOQUEADO] El disco %gdisk% no existe en este equipo.
+    echo ACCION BLOQUEADA: Disco inexistente para GPT (%gdisk%). >> "!LOG_FILE!"
     pause
     exit /b
 )
@@ -844,6 +1028,7 @@ if not "%PROFILE_MODE%"=="3" (
     exit /b
 )
 echo [%time%] Blindaje V1: ingreso al modulo de Seguridad Alta >> "!LOG_FILE!"
+:: *** CONFIGURAR: usuario del alumno en laboratorio ***
 set "BL_TARGET_USER_ALUMNO=Usuario"
 set "BL_DEFAULT_ROOT_DIR=C:\Trabajos Alumnos"
 set "BL_DEFAULT_DRIVE_LETTER=T:"
@@ -2063,8 +2248,23 @@ echo.
 set /p "task_mode=> Selecciona tipo [1-3]: "
 set /p "task_time=> Hora de ejecucion (HH:MM): "
 
+powershell -NoProfile -Command "if ('%task_time%' -match '^([01][0-9]|2[0-3]):[0-5][0-9]$') { exit 0 } else { exit 1 }" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo  [!] Hora invalida. Usa formato HH:MM de 24 horas. Ejemplo: 09:05 o 18:30
+    timeout /t 2 >nul
+    goto :OFF_TASK
+)
+
 if "%task_mode%"=="1" (
     set /p "task_date=> Fecha (formato local, ej: 11/02/2026): "
+    powershell -NoProfile -Command "$d='%task_date%'; $ok=$false; foreach($f in 'dd/MM/yyyy','d/M/yyyy','MM/dd/yyyy','M/d/yyyy','yyyy-MM-dd'){ try { [datetime]::ParseExact($d,$f,[System.Globalization.CultureInfo]::InvariantCulture) | Out-Null; $ok=$true; break } catch {} }; if($ok){exit 0}else{exit 1}" >nul 2>&1
+    if errorlevel 1 (
+        echo.
+        echo  [!] Fecha invalida. Usa formato local valido. Ejemplo: 11/02/2026
+        timeout /t 2 >nul
+        goto :OFF_TASK
+    )
     schtasks /delete /tn "%OFF_TASK_NAME%" /f >nul 2>&1
     schtasks /create /tn "%OFF_TASK_NAME%" /sc once /sd "%task_date%" /st "%task_time%" /tr "shutdown /s /t 0" /f
     echo [%time%] Apagado programado (una vez): %task_date% %task_time% >> "!LOG_FILE!"
@@ -2196,6 +2396,7 @@ if errorlevel 1 (
     exit /b
 )
 echo  [i] Consultando eventos criticos recientes...
+echo  [i] Esto puede tardar unos segundos segun la cantidad de eventos del sistema.
 echo.
 powershell -NoProfile -Command "$ids=7,11,41,51,55,157,6008; Get-WinEvent -FilterHashtable @{LogName='System'; Id=$ids; Level=1,2} -MaxEvents 25 | Select-Object TimeCreated, Id, ProviderName, LevelDisplayName, Message | Format-Table -Wrap -AutoSize"
 echo.
@@ -2230,6 +2431,7 @@ if "!DUMP_FOUND!"=="0" (
 )
 echo.
 echo  [i] Ultimos eventos de bugcheck (Event ID 1001):
+echo  [i] Esto puede tardar unos segundos segun el historial de eventos.
 powershell -NoProfile -Command "Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001} -MaxEvents 10 | Select-Object TimeCreated, ProviderName, Id, Message | Format-Table -Wrap -AutoSize"
 echo.
 if "!DUMP_FOUND!"=="1" (
@@ -2256,6 +2458,7 @@ if errorlevel 1 (
     exit /b
 )
 echo  [i] Analizando procesos sospechosos...
+echo  [i] Esto puede tardar unos segundos en equipos con muchos procesos.
 echo.
 powershell -NoProfile -Command "$rx='\\AppData\\Local\\Temp\\|\\Windows\\Temp\\|\\Temp\\|\\tmp\\'; $rows=Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and ($_.ExecutablePath -match $rx) } | ForEach-Object { $sig='N/A'; try { $sig=(Get-AuthenticodeSignature -FilePath $_.ExecutablePath -ErrorAction Stop).Status } catch { $sig='UNAVAILABLE' }; [pscustomobject]@{ Process=$_.Name; PID=$_.ProcessId; Signature=$sig; Path=$_.ExecutablePath } }; if ($rows) { $rows | Sort-Object Signature,Process | Format-Table -Wrap -AutoSize } else { Write-Host '[i] No se detectaron procesos en rutas temporales.' }"
 echo.
@@ -2279,6 +2482,7 @@ if errorlevel 1 (
     exit /b
 )
 echo  [i] Consultando estado de almacenamiento...
+echo  [i] Esto puede tardar unos segundos si hay muchos discos o arreglos.
 echo.
 powershell -NoProfile -Command "$hasStorage=(Get-Command Get-StorageSubSystem -ErrorAction SilentlyContinue); if ($hasStorage) { Write-Host '--- STORAGE SUBSYSTEM ---'; Get-StorageSubSystem | Select-Object FriendlyName,HealthStatus,OperationalStatus | Format-Table -AutoSize; Write-Host ''; Write-Host '--- VIRTUAL DISKS ---'; Get-VirtualDisk | Select-Object FriendlyName,ResiliencySettingName,OperationalStatus,HealthStatus,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize; Write-Host ''; Write-Host '--- PHYSICAL DISKS ---'; Get-PhysicalDisk | Select-Object FriendlyName,MediaType,OperationalStatus,HealthStatus,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize } else { Write-Host '[i] Cmdlets de Storage no disponibles en este sistema.' }; Write-Host ''; Write-Host '--- WMI FALLBACK ---'; Get-CimInstance Win32_DiskDrive | Select-Object Model,Status,InterfaceType,@{Name='SizeGB';Expression={[math]::round($_.Size/1GB,2)}} | Format-Table -AutoSize"
 echo.
@@ -2288,6 +2492,19 @@ pause
 exit /b
 
 :MOD_DRIVER_BACKUP
+if "%PROFILE_MODE%"=="1" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo escribe backups en disco.
+    echo  El perfil DIAGNOSTICO es solo lectura.
+    echo.
+    echo [%time%] Backup de drivers bloqueado: modo diagnostico >> "!LOG_FILE!"
+    pause
+    exit /b
+)
 cls
 color 0A
 echo  ==============================================================================
@@ -2347,7 +2564,7 @@ echo ^<p class="meta"^>Usuario: %username%^</p^> >> "!REPORT_FILE!"
 echo ^<p class="meta"^>Computadora: %computername%^</p^> >> "!REPORT_FILE!"
 echo ^<h2^>Log de Operaciones^</h2^> >> "!REPORT_FILE!"
 echo ^<div class="log"^> >> "!REPORT_FILE!"
-type "!LOG_FILE!" >> "!REPORT_FILE!" 2>nul
+powershell -NoProfile -Command "Get-Content -LiteralPath '!LOG_FILE!' -ErrorAction SilentlyContinue | ForEach-Object { $_.Replace('&','&amp;').Replace('<','&lt;').Replace('>','&gt;') }" >> "!REPORT_FILE!"
 echo ^</div^>^</body^>^</html^> >> "!REPORT_FILE!"
 
 echo  [OK] Reporte generado: !REPORT_FILE!
@@ -2366,12 +2583,14 @@ echo  ==========================================================================
 echo.
 echo  [i] Calculando hash SHA256 del log...
 for /f "tokens=*" %%a in ('powershell -Command "Get-FileHash '!LOG_FILE!' -Algorithm SHA256 | Select-Object -ExpandProperty Hash"') do set "LOG_HASH=%%a"
-echo [CHECKSUM SHA256] !LOG_HASH! >> "!LOG_FILE!"
+set "LOG_HASH_FILE=!LOG_FILE!.sha256"
+echo !LOG_HASH! *!LOG_FILE!> "!LOG_HASH_FILE!"
 echo  [OK] Hash: !LOG_HASH!
 echo  [OK] Log guardado: !LOG_FILE!
+echo  [OK] Hash guardado: !LOG_HASH_FILE!
 echo.
 echo [VERSION CORPORATE] Sin modulo MAS - Aprobada para entornos de alto compliance
-timeout /t 3
+timeout /t 3 /nobreak
 exit
 
 :EXIT_NO_LOG
@@ -2382,7 +2601,7 @@ echo  ======================================================================
 echo.
 if exist "!LOG_FILE!" del /q "!LOG_FILE!" >nul 2>&1
 echo  [OK] Log eliminado. Saliendo...
-timeout /t 2
+timeout /t 2 /nobreak
 exit
 
 :: ==============================================================================

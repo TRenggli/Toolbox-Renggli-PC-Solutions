@@ -41,11 +41,12 @@ Para instrucciones detalladas sobre requisitos, instalación de Pandoc/wkhtmltop
 ## 🎯 QUÉ HACE
 
 Estos scripts:
-1. Verifican que Pandoc y wkhtmltopdf estén instalados
-2. Convierten los 3 manuales (.md) a formato PDF
-3. Aplican el estilo corporativo definido en `estilo_pdf_corporativo.css`
-4. Generan tabla de contenidos automática
-5. Guardan los PDFs en `../Manuales/PDFs/`
+1. Verifican que Pandoc esté instalado
+2. Seleccionan motor PDF automaticamente (preferido: weasyprint, fallback: wkhtmltopdf)
+3. Convierten los 3 manuales (.md) a formato PDF
+4. Aplican el estilo corporativo definido en `estilo_pdf_corporativo.css`
+5. Generan tabla de contenidos automática
+6. Guardan los PDFs en `../Manuales/PDFs/`
 
 ---
 

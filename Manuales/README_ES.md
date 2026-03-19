@@ -220,6 +220,42 @@ Esto evita borrar archivos reales de los alumnos (por ejemplo `.psd`, `.prproj`,
 - Escribe **99** y presiona Enter en cualquier momento
 - Podrás elegir un perfil diferente sin reiniciar la herramienta
 
+### Ejecucion por CLI (opcional)
+
+Tambien puedes iniciar la herramienta con parametros para preseleccionar perfil y modulo:
+
+```cmd
+toolbox.bat /perfil:X /mod:Y
+```
+
+- `X` = perfil (`1` Diagnostico, `2` Reparacion, `3` Administracion)
+- `Y` = numero de modulo dentro de ese perfil
+
+Ejemplos rapidos (version completa `toolbox.bat`):
+
+- Perfil 1 (Diagnostico):
+   - `toolbox.bat /perfil:1 /mod:1` (Test RAM)
+   - `toolbox.bat /perfil:1 /mod:4` (Estado Windows Update)
+   - `toolbox.bat /perfil:1 /mod:11` (Estado RAID/Storage)
+- Perfil 2 (Reparacion):
+   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
+   - `toolbox.bat /perfil:2 /mod:5` (Reparar Windows Update)
+   - `toolbox.bat /perfil:2 /mod:10` (Apagado programado)
+- Perfil 3 (Administracion):
+   - `toolbox.bat /perfil:3 /mod:10` (Formateo seguro)
+   - `toolbox.bat /perfil:3 /mod:11` (Conversion MBR a GPT)
+   - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
+
+Ejemplos rapidos (version `toolbox_corporate.bat`):
+
+- `toolbox_corporate.bat /perfil:1 /mod:1` (SMART)
+- `toolbox_corporate.bat /perfil:2 /mod:6` (Reparar Windows Update)
+- `toolbox_corporate.bat /perfil:3 /mod:10` (Formateo seguro)
+
+Notas:
+- Si `perfil/modulo` no es valido para ese perfil, la ejecucion se bloquea y se registra en log.
+- Los modulos mantienen sus confirmaciones de seguridad antes de ejecutar acciones criticas.
+
 ### Paso 6: Finalizar y Ver Logs
 
 **Para salir:**
@@ -894,6 +930,12 @@ Incluye cobertura de:
 - macOS (normal y corporate)
 - Perfiles `DIAGNOSTICO`, `REPARACION`, `ADMINISTRACION`
 - Etiquetas de riesgo `[R]`, `[W]`, `[!]`
+
+### Nota de robustez (Actualizacion 16)
+
+- En Windows, Linux y macOS ahora se valida formato de hora `HH:MM` en apagados programados para evitar errores de entrada.
+- Los reportes HTML de todas las plataformas ahora escapan caracteres especiales del log (`&`, `<`, `>`), evitando roturas visuales.
+- El checksum SHA256 se guarda en archivo separado `*.sha256` para no invalidar el hash del log por auto-modificacion.
 
 ---
 

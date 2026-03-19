@@ -32,7 +32,7 @@ Perfiles:
 | 11 | RAID status o MBR->GPT (A) | D/R/A | [R]/[!] | En D/R consulta storage; en A convierte particionado | Diagnostico almacenamiento / migracion disco | Conversion de tabla puede dejar equipo inutil si se usa mal |
 | 12 | RAID status / Winget / WU tools | D/R/A | [R]/[W] | Consulta storage o actualiza apps | Mantenimiento de software | Actualizaciones pueden requerir reinicio |
 | 13 | Forense o Backup Drivers o MAS (normal) | R/A | [W] | En R backup drivers; en A normal activa MAS; corporate bloqueado | Pre-mantenimiento o licencia autorizada | Backup consume espacio; MAS solo en entornos autorizados |
-| 14 | Eventos criticos / Apagado programado | R/A | [R]/[W] | En R consulta eventos; en A programa apagado | Investigacion o automatizacion | Riesgo de apagar equipo en produccion |
+| 14 | Eventos criticos / Apagado programado | R/A | [R]/[W] | En R consulta eventos; en A programa apagado | Investigacion o automatizacion | Riesgo de apagar equipo en produccion. Validar hora en formato `HH:MM` |
 | 15 | BSOD / Bateria | R/A | [R] | Consulta bsod o genera reporte bateria | Post-fallo o salud de bateria | Solo lectura |
 | 16 | Forense / Backup Drivers | R/A | [R]/[W] | Auditoria procesos o exportacion drivers | Seguridad preventiva / respaldo de controladores | Requiere espacio en disco |
 | 17 | RAID status / Eventos | R/A | [R] | Consulta storage o eventos segun menu | Diagnostico avanzado | Solo lectura |
@@ -45,6 +45,35 @@ Notas Windows:
 
 - El numero exacto puede representar una accion distinta segun perfil (D/R/A).
 - En `toolbox_corporate.bat`, la opcion 13 de MAS esta removida por compliance.
+
+### Mini guia CLI (Windows)
+
+Uso rapido por parametros:
+
+```cmd
+toolbox.bat /perfil:X /mod:Y
+```
+
+- `X`: `1` Diagnostico, `2` Reparacion, `3` Administracion
+- `Y`: numero de opcion dentro de ese perfil
+
+Ejemplos (`toolbox.bat`):
+
+- `toolbox.bat /perfil:1 /mod:4`  (estado Windows Update)
+- `toolbox.bat /perfil:2 /mod:5`  (reparar Windows Update)
+- `toolbox.bat /perfil:3 /mod:10` (formateo seguro)
+- `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
+
+Ejemplos (`toolbox_corporate.bat`):
+
+- `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
+- `toolbox_corporate.bat /perfil:2 /mod:6`  (reparar Windows Update)
+- `toolbox_corporate.bat /perfil:3 /mod:10` (formateo seguro)
+
+Notas:
+
+- Si `perfil/modulo` no corresponde al perfil activo, se bloquea y queda auditado en log.
+- Los modulos criticos mantienen sus confirmaciones de seguridad.
 
 ## Linux (30 opciones)
 
@@ -76,7 +105,7 @@ Notas Windows:
 | 24 | Usuarios y permisos | A | [!] | Gestion de cuentas/permisos | Administración avanzada | Riesgo de bloqueo de acceso |
 | 25 | Monitoreo tiempo real | D/R/A | [R] | Vision en vivo de recursos | Diagnostico de carga | Solo lectura |
 | 26 | Actualizar sistema | R/A | [W] | update/upgrade paquetes | Mantenimiento programado | Puede requerir reboot |
-| 27 | Apagado programado | R/A | [W] | Agenda apagado con cron/systemctl | Automatizacion | Confirmar ventanas de servicio |
+| 27 | Apagado programado | R/A | [W] | Agenda apagado con cron/systemctl | Automatizacion | Confirmar ventanas de servicio y usar formato `HH:MM` |
 | 28 | Backup de datos | R/A | [W] | Genera respaldo comprimido | Antes de cambios | Verificar destino/espacio |
 | 29 | Reporte bateria | D/R/A | [R] | Lee estado de bateria | Portatiles | En desktop puede no aplicar |
 | 30 | Verificar integridad | D/R/A | [R] | Checks de estado/base | Auditoria preventiva | Solo lectura |
@@ -96,9 +125,9 @@ Notas Windows:
 | 9 | Puertos en escucha | D/R/A | [R] | Servicios activos por puerto | Auditoria de exposicion | Solo lectura |
 | 10 | Actualizar sistema | R/A | [W] | `softwareupdate` / `brew` segun modulo | Mantenimiento y parches | Puede requerir reinicio |
 | 11 | Limpiar paquetes | R/A | [W] | Limpieza de paquetes/herramientas | Reducir residuos de software | Confirmar que no se use paquete |
-| 12 | Reporte del sistema | D/R/A | [R] | Genera reporte operativo | Cierre de auditoria | Solo lectura |
+| 12 | Reporte del sistema | D/R/A | [R] | Genera reporte operativo | Cierre de auditoria | Solo lectura. El log se escapa en HTML y el hash se guarda en `*.sha256` |
 | 13 | Info de procesos | D/R/A | [R] | Procesos activos y consumo | Investigacion de rendimiento | Solo lectura |
-| 14 | Apagado programado | R/A | [W] | Programa apagado con launchd/shutdown | Automatizacion | Validar horario para no cortar tareas |
+| 14 | Apagado programado | R/A | [W] | Programa apagado con launchd/shutdown | Automatizacion | Validar horario `HH:MM` para no cortar tareas |
 
 ## Recomendacion de uso rapido por perfil
 
