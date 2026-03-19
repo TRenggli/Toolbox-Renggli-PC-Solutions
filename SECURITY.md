@@ -11,7 +11,7 @@ Security reports are accepted for:
 
 ## Reporting a Vulnerability
 Please report vulnerabilities privately to:
-- `soporte@renggli-solutions.com`
+- `tomasrenggli@gmail.com`
 
 Include:
 - Affected file and line reference

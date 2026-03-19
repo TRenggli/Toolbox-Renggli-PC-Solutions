@@ -188,7 +188,7 @@ El sistema de generación de PDFs consta de:
 ## 📞 SOPORTE
 
 Si tienes problemas con la generación de PDFs:
-- 📧 Email: soporte@renggli-solutions.com
+- 📧 Email: tomasrenggli@gmail.com
 - 📚 Verifica que Pandoc y wkhtmltopdf estén correctamente instalados
 - 🔍 Revisa los mensajes de error en la terminal
 

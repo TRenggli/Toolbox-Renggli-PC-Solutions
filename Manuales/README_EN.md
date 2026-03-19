@@ -12,13 +12,13 @@
 This manual covers installation and usage on **Windows, Linux and macOS**.
 
 **Jump directly to your section:**
-- 🪟 [Instructions for WINDOWS](#windows)
-- 🐧 [Instructions for LINUX](#linux)
-- 🍎 [Instructions for macOS](#macos)
+- 🪟 [Instructions for WINDOWS](#seccion-windows)
+- 🐧 [Instructions for LINUX](#seccion-linux)
+- 🍎 [Instructions for macOS](#seccion-macos)
 
 ---
 
-<h1 id="windows">🪟 WINDOWS</h1>
+## 🪟 WINDOWS {#seccion-windows}
 
 ## 📋 System Requirements (Windows)
 
@@ -370,7 +370,7 @@ Safe temp patterns are limited to `~$*`, `.tmp`, `.temp` to avoid deleting real 
 
 ---
 
-<h1 id="linux">🐧 LINUX</h1>
+## 🐧 LINUX {#seccion-linux}
 
 ## 📋 System Requirements (Linux)
 
@@ -591,7 +591,7 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 
 ---
 
-<h1 id="macos">🍎 macOS</h1>
+## 🍎 macOS {#seccion-macos}
 
 ## 📋 System Requirements (macOS)
 
@@ -999,7 +999,7 @@ Includes coverage for:
 ## 📞 SUPPORT
 
 Problems or questions?
-- 📧 Email: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
+- 📧 Email: [tomasrenggli@gmail.com](mailto:tomasrenggli@gmail.com)
 - 📚 Complete documentation in `Manuales/` folder
 
 ---

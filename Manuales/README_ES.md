@@ -12,13 +12,13 @@
 Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
 
 **Salta directamente a tu sección:**
-- 🪟 [Instrucciones para WINDOWS](#windows)
-- 🐧 [Instrucciones para LINUX](#linux)
-- 🍎 [Instrucciones para macOS](#macos)
+- 🪟 [Instrucciones para WINDOWS](#seccion-windows)
+- 🐧 [Instrucciones para LINUX](#seccion-linux)
+- 🍎 [Instrucciones para macOS](#seccion-macos)
 
 ---
 
-<h1 id="windows">🪟 WINDOWS</h1>
+## 🪟 WINDOWS {#seccion-windows}
 
 ## 📋 Requisitos del Sistema (Windows)
 
@@ -372,7 +372,7 @@ Windows/Logs/
 
 ---
 
-<h1 id="linux">🐧 LINUX</h1>
+## 🐧 LINUX {#seccion-linux}
 
 ## 📋 Requisitos del Sistema (Linux)
 
@@ -593,7 +593,7 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 
 ---
 
-<h1 id="macos">🍎 macOS</h1>
+## 🍎 macOS {#seccion-macos}
 
 ## 📋 Requisitos del Sistema (macOS)
 
@@ -1000,7 +1000,7 @@ Incluye cobertura de:
 ## 📞 SOPORTE
 
 ¿Problemas o preguntas?
-- 📧 Email: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
+- 📧 Email: [tomasrenggli@gmail.com](mailto:tomasrenggli@gmail.com)
 - 📚 Documentación completa en carpeta `Manuales/`
 
 ---

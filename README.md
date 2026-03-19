@@ -57,21 +57,21 @@ Right‑click toolbox.bat
 
 Select Run as administrator
 
-Documentation: Manuales/README_EN.md#windows
+Documentation: Manuales/README_EN.md#seccion-windows
 
 🐧 Linux
 bash
 cd Linux/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuales/README_EN.md#linux
+Documentation: Manuales/README_EN.md#seccion-linux
 
 🍎 macOS
 bash
 cd Mac/
 chmod +x toolbox.sh
 sudo ./toolbox.sh
-Documentation: Manuales/README_EN.md#macos
+Documentation: Manuales/README_EN.md#seccion-macos
 
 📚 Documentation
 Quick Documentation Index (Onboarding)
@@ -240,7 +240,7 @@ macOS 10.14+
 Intel & Apple Silicon (M1/M2)
 
 📞 Support
-Email: soporte@renggli-solutions.com
+Email: tomasrenggli@gmail.com
 Full documentation available in the Manuales/ directory.
 
 📜 License

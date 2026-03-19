@@ -12,13 +12,13 @@
 本手册涵盖 **Windows、Linux 和 macOS** 的安装和使用。
 
 **直接跳转到您的部分:**
-- 🪟 [Windows 说明](#windows)
-- 🐧 [Linux 说明](#linux)
-- 🍎 [macOS 说明](#macos)
+- 🪟 [Windows 说明](#seccion-windows)
+- 🐧 [Linux 说明](#seccion-linux)
+- 🍎 [macOS 说明](#seccion-macos)
 
 ---
 
-<h1 id="windows">🪟 WINDOWS</h1>
+## 🪟 WINDOWS {#seccion-windows}
 
 ## 📋 系统要求 (Windows)
 
@@ -370,7 +370,7 @@ Windows/Logs/
 
 ---
 
-<h1 id="linux">🐧 LINUX</h1>
+## 🐧 LINUX {#seccion-linux}
 
 ## 📋 系统要求 (Linux)
 
@@ -591,7 +591,7 @@ sudo pacman -S smartmontools lm_sensors speedtest-cli
 
 ---
 
-<h1 id="macos">🍎 macOS</h1>
+## 🍎 macOS {#seccion-macos}
 
 ## 📋 系统要求 (macOS)
 
@@ -999,7 +999,7 @@ xcode-select --install
 ## 📞 支持
 
 有问题或疑问？
-- 📧 电子邮件: [soporte@renggli-solutions.com](mailto:soporte@renggli-solutions.com)
+- 📧 电子邮件: [tomasrenggli@gmail.com](mailto:tomasrenggli@gmail.com)
 - 📚 `Manuales/` 文件夹中的完整文档
 
 ---
