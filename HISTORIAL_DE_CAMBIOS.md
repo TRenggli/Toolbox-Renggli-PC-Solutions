@@ -1,5 +1,35 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-03-18 (Actualizacion 15)
+
+### Opcion 21: limpieza segura de temporales (manual + automatica + masiva)
+
+- Se amplió la opcion 21 de Blindaje V1 en ambos scripts:
+  - `Windows/toolbox.bat`
+  - `Windows/toolbox_corporate.bat`
+- Nuevas capacidades dentro del menu de Seguridad Alta:
+  - revision manual de temporales (sin borrar)
+  - limpieza manual segura (solo patrones `~$*`, `.tmp`, `.temp`)
+  - programacion automatica local con Tarea Programada diaria
+  - desactivacion/eliminacion de la tarea automatica local
+  - guia integrada de despliegue masivo (dominio/GPO y sin dominio)
+- Alcance de busqueda de temporales acotado a:
+  - `Trabajos Alumnos\SECUNDARIA`
+  - `Trabajos Alumnos\PRIMARIA`
+- Se evita borrar archivos de proyectos de alumnos (`.psd`, `.prproj`, `.aep`, etc.)
+- Se mejoró la UX del modulo con flujo paso a paso "modo simple" y resumen de conteos por seccion.
+
+### Documentacion actualizada
+
+- `blindajev1_MANUAL.md`
+- `Manuales/CATALOGO_OPCIONES_ES.md`
+- `Manuales/README_ES.md`
+- `Manuales/CATALOGO_OPCIONES_EN.md`
+- `Manuales/CATALOGO_OPCIONES_CN.md`
+- `Manuales/README_EN.md`
+- `Manuales/README_CN.md`
+- `README.md`
+
 ## 2026-03-17 (Actualizacion 14)
 
 ### Integracion de Blindaje V1 en opcion 21 (Normal + Corporate)

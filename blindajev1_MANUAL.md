@@ -1,5 +1,10 @@
 # Manual Tecnico de Blindaje V1
 
+> Estado: **Anexo tecnico**. La guia operativa principal de la opcion 21 ya esta integrada en:
+> - `Manuales/README_ES.md`
+> - `Manuales/CATALOGO_OPCIONES_ES.md`
+> Este archivo se conserva como referencia tecnica ampliada.
+
 Este manual describe el motor de Blindaje V1 ahora integrado en la opcion 21 ^(Perfil Seguridad Alta^) de:
 
 - `Windows/toolbox.bat`
@@ -28,6 +33,10 @@ Opciones principales en pantalla:
 3. Verificar estado actual
 4. Configurar ruta/unidad
 5. Salir
+6. Revision/Limpieza temporales ^(manual^)
+7. Programar limpieza automatica ^(tarea local^)
+8. Guia despliegue masivo ^(dominio/sin dominio^)
+9. Desactivar limpieza automatica
 
 El script muestra siempre la configuracion activa ^(alumno, carpeta y unidad^) para evitar aplicar con datos equivocados.
 Para verificar o deshacer, prioriza el contexto guardado al aplicar ^(Student/RootDir/Drive^) para actuar sobre el blindaje realmente activo.
@@ -187,6 +196,69 @@ Despues de aplicar:
 ## Recomendacion de uso
 
 - Usar Blindaje estricto cuando la prioridad sea no perder archivos.
+
+## Limpieza de temporales en opcion 21 ^(modo simple^)
+
+### Opcion 6 - Revision/Limpieza manual
+
+La opcion 6 recorre unicamente:
+
+- `%BL_ROOT_DIR%\SECUNDARIA`
+- `%BL_ROOT_DIR%\PRIMARIA`
+
+Solo considera temporales por patron:
+
+- `~$*`
+- `*.tmp`
+- `*.temp`
+
+No toca archivos de proyecto reales como `.psd`, `.prproj`, `.aep`, etc.
+
+Flujo paso a paso en pantalla:
+
+1. Muestra rutas analizadas.
+2. Muestra patrones permitidos.
+3. Permite elegir modo:
+	- `1` Solo revisar ^(no borra^)
+	- `2` Revisar y limpiar ^(borra solo temporales permitidos^)
+4. Devuelve conteos:
+	- detectados total
+	- detectados en SECUNDARIA y en PRIMARIA
+	- eliminados
+	- bloqueados/en uso
+
+### Opcion 7 - Tarea programada local ^(automatico en ese equipo^)
+
+La opcion 7 crea/actualiza una tarea diaria local:
+
+- Nombre: `Renggli_Blindaje_TempClean`
+- Usuario de ejecucion: `SYSTEM`
+- Privilegios: altos
+- Script: `%ProgramData%\Renggli\BlindajeV1\TempClean_Task.cmd`
+
+El script diario limpia solo temporales permitidos en SECUNDARIA/PRIMARIA y registra resultado en:
+
+- `%ProgramData%\Renggli\BlindajeV1\Logs\TempClean.log`
+
+### Opcion 8 - Guia de despliegue masivo
+
+La opcion 8 muestra en pantalla y exporta una guia para:
+
+- despliegue por dominio/GPO
+- despliegue sin dominio por script remoto
+
+Tambien guarda archivo de referencia en:
+
+- `Windows/Logs/Guia_Despliegue_Masivo_Temporales.txt`
+
+### Opcion 9 - Desactivar limpieza automatica local
+
+Permite retirar en este equipo:
+
+- tarea `Renggli_Blindaje_TempClean`
+- script local `%ProgramData%\Renggli\BlindajeV1\TempClean_Task.cmd`
+
+No elimina datos escolares ni proyectos de alumnos.
 
 ## Referencia tecnica
 

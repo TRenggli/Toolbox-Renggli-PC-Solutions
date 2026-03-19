@@ -113,6 +113,13 @@ Network & connectivity utilities
 
 Advanced administration tools
 
+Blindaje V1 (Option 21 in Administration profile) is fully integrated in Toolbox.
+Current integrated workflow includes:
+- strict classroom hardening
+- safe temporary-file review/cleanup for `SECUNDARIA` and `PRIMARIA`
+- local scheduled auto-clean task creation/removal
+- mass deployment guidance (domain/GPO and non-domain remote rollout)
+
 ✔️ Linux (30 Modules)
 All Windows features + Linux‑specific modules
 

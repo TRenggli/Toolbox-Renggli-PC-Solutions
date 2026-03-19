@@ -250,6 +250,30 @@ Windows/Logs/
 ### Color menu doesn't appear
 **Solution:** Use Windows Terminal or CMD (not PowerShell ISE)
 
+### `bash -n` validation fails on Windows
+**Cause:** `bash.exe` depends on WSL plus an installed/active Linux distribution.
+
+**Meaning:** if WSL has no configured distro, `bash -n` fails even if the `.sh` script is valid.
+
+**Quick fix:**
+1. Install/enable WSL and a distro (e.g., Ubuntu).
+2. Re-run syntax checks from Linux/WSL:
+   - `bash -n Linux/toolbox.sh`
+   - `bash -n Linux/toolbox_corporate.sh`
+   - `bash -n Mac/toolbox.sh`
+   - `bash -n Mac/toolbox_corporate.sh`
+
+### Classroom temp-file workflow (Option 21)
+
+Inside **Profile 3 (Administration)**, **Option 21 (High Security Profile)** now includes:
+
+- safe manual temp review/cleanup in `Trabajos Alumnos\SECUNDARIA` and `Trabajos Alumnos\PRIMARIA`
+- local daily scheduled auto-clean task setup
+- local auto-clean task removal
+- mass deployment guide (domain/GPO and non-domain remote rollout)
+
+Safe temp patterns are limited to `~$*`, `.tmp`, `.temp` to avoid deleting real student project files.
+
 ---
 
 <h1 id="linux">🐧 LINUX</h1>

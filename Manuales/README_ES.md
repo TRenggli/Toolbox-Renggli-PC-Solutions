@@ -197,6 +197,19 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 **Este perfil tiene acceso completo**, incluyendo operaciones críticas como formateo, conversión GPT y activación.
 
+### Limpieza de temporales en aulas (opción 21)
+
+Dentro de **Perfil 3 (Administración)**, la **opción 21 (Perfil Seguridad Alta)** ahora incluye:
+
+- **Revisión/Limpieza manual segura**: busca solo temporales en `Trabajos Alumnos\SECUNDARIA` y `Trabajos Alumnos\PRIMARIA` con patrones `~$*`, `.tmp`, `.temp`.
+- **Programación automática local**: crea una tarea diaria en ese equipo para la misma limpieza segura.
+- **Desactivación automática local**: elimina la tarea programada cuando ya no se necesita.
+- **Guía de despliegue masivo**: pasos para aplicarlo por GPO (dominio) o script remoto (sin dominio).
+
+Esto evita borrar archivos reales de los alumnos (por ejemplo `.psd`, `.prproj`, `.aep`).
+
+> Nota de integración: la explicación operativa de Blindaje V1 ya está integrada en este manual y en `CATALOGO_OPCIONES_ES.md`.
+
 **Para usar una función:**
 1. Escribe el **número de la opción** que quieres usar
 2. Presiona **Enter**
@@ -249,6 +262,19 @@ Windows/Logs/
 
 ### No aparece el menú de colores
 **Solución:** Usa la nueva Terminal de Windows o CMD (no PowerShell ISE)
+
+### Error al validar scripts con `bash -n` en Windows
+**Causa:** `bash.exe` depende de WSL y de una distro Linux instalada/activa.
+
+**Qué significa:** si WSL no tiene distro configurada, el chequeo `bash -n` falla aunque el script `.sh` esté correcto.
+
+**Solución rápida:**
+1. Instalar/activar WSL y una distro (por ejemplo Ubuntu).
+2. Reintentar validación de sintaxis desde Linux/WSL:
+   - `bash -n Linux/toolbox.sh`
+   - `bash -n Linux/toolbox_corporate.sh`
+   - `bash -n Mac/toolbox.sh`
+   - `bash -n Mac/toolbox_corporate.sh`
 
 ---
 

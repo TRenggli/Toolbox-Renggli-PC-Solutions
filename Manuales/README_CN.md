@@ -250,6 +250,30 @@ Windows/Logs/
 ### 彩色菜单未显示
 **解决方案:** 使用 Windows 终端或 CMD (不是 PowerShell ISE)
 
+### Windows 下 `bash -n` 校验失败
+**原因:** `bash.exe` 依赖 WSL 以及已安装/已启用的 Linux 发行版。
+
+**含义:** 如果 WSL 没有可用发行版，即使 `.sh` 脚本本身正确，`bash -n` 也会失败。
+
+**快速处理:**
+1. 安装/启用 WSL，并安装发行版（如 Ubuntu）。
+2. 在 Linux/WSL 中重新执行语法校验：
+   - `bash -n Linux/toolbox.sh`
+   - `bash -n Linux/toolbox_corporate.sh`
+   - `bash -n Mac/toolbox.sh`
+   - `bash -n Mac/toolbox_corporate.sh`
+
+### 课堂临时文件流程（选项 21）
+
+在 **配置文件 3（管理）** 中，**选项 21（高安全配置）** 现已包含：
+
+- 在 `Trabajos Alumnos\SECUNDARIA` 与 `Trabajos Alumnos\PRIMARIA` 的安全手动复核/清理
+- 本地每日自动清理任务创建
+- 本地自动清理任务停用/删除
+- 批量部署指南（域/GPO 与非域远程下发）
+
+安全临时文件模式仅限 `~$*`、`.tmp`、`.temp`，避免误删学生真实项目文件。
+
 ---
 
 <h1 id="linux">🐧 LINUX</h1>

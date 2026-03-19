@@ -39,7 +39,7 @@ Perfiles:
 | 18 | BSOD (A) | A | [R] | Analiza minidumps y eventos bugcheck | Incidentes de estabilidad | Solo lectura |
 | 19 | Forense procesos (A) | A | [R] | Busca procesos en rutas temporales y firma | Hardening y auditoria | Solo lectura |
 | 20 | RAID/Storage (A) | A | [R] | Estado de virtual/physical disks y fallback WMI | Servidores o storage complejo | Solo lectura |
-| 21 | Perfil Seguridad Alta (A) | A | [W] | Ejecuta Blindaje V1 integrado: modo estricto, mapeo persistente T:, ACL reforzada, politicas Explorer offline y redireccion de carpetas diarias | Laboratorios/aulas con usuarios estandar donde la prioridad es no perder trabajos | Tras Deshacer, reiniciar y revisar manualmente C:\Trabajos Alumnos; puede persistir por archivos bloqueados |
+| 21 | Perfil Seguridad Alta (A) | A | [W] | Ejecuta Blindaje V1 integrado: modo estricto, mapeo persistente T:, ACL reforzada, politicas Explorer offline, redireccion diaria y modulo de temporales ^(manual + automatico local + desactivar tarea + guia masiva^) | Laboratorios/aulas con usuarios estandar donde la prioridad es no perder trabajos y mantener limpieza de temporales sin tocar proyectos | Tras Deshacer, reiniciar y revisar manualmente C:\Trabajos Alumnos; para temporales usar patrones seguros `~$*`, `.tmp`, `.temp` |
 
 Notas Windows:
 

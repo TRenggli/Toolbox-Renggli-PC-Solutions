@@ -501,7 +501,7 @@ if errorlevel 1 (
 )
 echo  [i] Midiendo latencia y descarga...
 echo.
-for /f "delims=" %%i in ('powershell -Command "$s = Get-Date; try { $p = Test-Connection 8.8.8.8 -Count 2 -Quiet; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('https://speedtest.tele2.net/10MB.zip', 'test.tmp'); $e = Get-Date; $sp = [Math]::Round((10/($e-$s).TotalSeconds)*8,2); Write-Output $sp; Remove-Item 'test.tmp' -ErrorAction SilentlyContinue } catch { Write-Output 'ERROR' }"') do set "speed=%%i"
+for /f "delims=" %%i in ('powershell -Command "$s = Get-Date; try { $p = Test-Connection 8.8.8.8 -Count 2 -Quiet; $tmp = Join-Path $env:TEMP 'toolbox_speed_test.tmp'; $cl = New-Object System.Net.WebClient; $cl.DownloadFile('https://speedtest.tele2.net/10MB.zip', $tmp); $e = Get-Date; $sp = [Math]::Round((10/($e-$s).TotalSeconds)*8,2); Write-Output $sp; Remove-Item $tmp -ErrorAction SilentlyContinue } catch { Write-Output 'ERROR' }"') do set "speed=%%i"
 if "%speed%"=="ERROR" (
     echo.
     echo  [!] Error al medir velocidad de red
@@ -878,11 +878,15 @@ echo    [2] DESHACER TODO ^(revertir cambios^)
 echo    [3] VERIFICAR ESTADO ACTUAL
 echo    [4] CONFIGURAR RUTA/UNIDAD
 echo    [5] VOLVER AL MENU PRINCIPAL
+echo    [6] REVISION/LIMPIEZA TEMPORALES ^(manual^)
+echo    [7] PROGRAMAR LIMPIEZA AUTOMATICA ^(tarea local^)
+echo    [8] GUIA DESPLIEGUE MASIVO ^(dominio/sin dominio^)
+echo    [9] DESACTIVAR LIMPIEZA AUTOMATICA
 echo.
-echo    Manual tecnico: blindajev1_MANUAL.md
+echo    Documentacion: Manuales\README_ES.md + CATALOGO_OPCIONES_ES.md
 echo.
 set "opt="
-set /p "opt=Seleccione una opcion [1-5]: "
+set /p "opt=Seleccione una opcion [1-9]: "
 
 if "%opt%"=="1" (
     call :BL_CONFIRMAR_Y_APLICAR
@@ -899,6 +903,26 @@ if "%opt%"=="4" (
 if "%opt%"=="5" (
     echo [%time%] Blindaje V1: salida del modulo Seguridad Alta >> "!LOG_FILE!"
     exit /b 0
+)
+if "%opt%"=="6" (
+    call :BL_CLEAN_TEMP_FILES_SAFE
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="7" (
+    call :BL_SETUP_AUTO_CLEAN_TASK
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="8" (
+    call :BL_SHOW_MASS_DEPLOY_GUIDE
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="9" (
+    call :BL_REMOVE_AUTO_CLEAN_TASK
+    pause
+    goto BL_MENU
 )
 goto BL_MENU
 
@@ -1766,6 +1790,226 @@ echo [i] IMPORTANTE: despues de deshacer y reiniciar, revisa C:\ y confirma si %
 echo [i] Si la carpeta sigue presente, puede haber archivos bloqueados; borra manualmente o repite Deshacer.
 pause
 goto BL_MENU
+
+:BL_CLEAN_TEMP_FILES_SAFE
+cls
+color 0B
+echo ========================================================
+echo   REVISION / LIMPIEZA SEGURA DE TEMPORALES
+echo ========================================================
+echo.
+echo  Paso 1/3 - Alcance del analisis
+echo    %BL_ROOT_DIR%\SECUNDARIA
+echo    %BL_ROOT_DIR%\PRIMARIA
+echo.
+echo  Paso 2/3 - Patrones temporales permitidos
+echo    - Nombre que empieza con ^"~$^"
+echo    - Extension .tmp
+echo    - Extension .temp
+echo.
+echo  No se tocan archivos de proyectos ^(.psd, .prproj, .aep, etc.^).
+echo.
+echo  Paso 3/3 - Elegi modo
+echo    1. SOLO REVISAR ^(no borra nada^)
+echo    2. REVISAR Y LIMPIAR ^(borra solo temporales permitidos^)
+echo.
+set "BL_TMP_MODE="
+set /p "BL_TMP_MODE=> Selecciona modo [1-2]: "
+if not "%BL_TMP_MODE%"=="1" if not "%BL_TMP_MODE%"=="2" (
+    echo [!] Opcion no valida.
+    exit /b 1
+)
+
+if "%BL_TMP_MODE%"=="2" (
+    call :MODULE_CONFIRM "Borrar solo temporales permitidos en SECUNDARIA/PRIMARIA." "No borra formatos de proyecto."
+    if errorlevel 1 (
+        echo [i] Operacion cancelada.
+        echo [%time%] Blindaje V1: limpieza segura de temporales cancelada >> "!LOG_FILE!"
+        exit /b 1
+    )
+)
+
+if not exist "%BL_ROOT_DIR%" (
+    echo [X] No existe la ruta objetivo: %BL_ROOT_DIR%
+    echo [%time%] Blindaje V1: limpieza segura fallida (ruta no existe) >> "!LOG_FILE!"
+    exit /b 1
+)
+
+set "BL_TMP_FOUND="
+set "BL_TMP_DELETED="
+set "BL_TMP_FAILED="
+set "BL_TMP_SEC_FOUND="
+set "BL_TMP_PRI_FOUND="
+set "BL_TMP_TARGETS="
+if "%BL_TMP_MODE%"=="1" (set "BL_TMP_ACTION=review") else (set "BL_TMP_ACTION=clean")
+for /f "tokens=1,2,3,4,5,6 delims=|" %%A in ('powershell -NoProfile -Command "$root='%BL_ROOT_DIR%'; $action='%BL_TMP_ACTION%'; $targets=@(); $sec=Join-Path $root 'SECUNDARIA'; $pri=Join-Path $root 'PRIMARIA'; if(Test-Path -LiteralPath $sec){$targets += $sec}; if(Test-Path -LiteralPath $pri){$targets += $pri}; $found=0; $deleted=0; $failed=0; $secFound=0; $priFound=0; foreach($t in $targets){ Get-ChildItem -LiteralPath $t -Recurse -Force -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '~$*' -or $_.Extension -ieq '.tmp' -or $_.Extension -ieq '.temp' } | ForEach-Object { $found++; if($_.FullName -like '*\\SECUNDARIA\\*'){ $secFound++ } elseif($_.FullName -like '*\\PRIMARIA\\*'){ $priFound++ }; if($action -eq 'clean'){ try { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction Stop; $deleted++ } catch { $failed++ } } } }; Write-Output ($found.ToString()+'|'+$deleted.ToString()+'|'+$failed.ToString()+'|'+$secFound.ToString()+'|'+$priFound.ToString()+'|'+$targets.Count.ToString())"') do (
+    set "BL_TMP_FOUND=%%A"
+    set "BL_TMP_DELETED=%%B"
+    set "BL_TMP_FAILED=%%C"
+    set "BL_TMP_SEC_FOUND=%%D"
+    set "BL_TMP_PRI_FOUND=%%E"
+    set "BL_TMP_TARGETS=%%F"
+)
+
+if not defined BL_TMP_FOUND set "BL_TMP_FOUND=0"
+if not defined BL_TMP_DELETED set "BL_TMP_DELETED=0"
+if not defined BL_TMP_FAILED set "BL_TMP_FAILED=0"
+if not defined BL_TMP_SEC_FOUND set "BL_TMP_SEC_FOUND=0"
+if not defined BL_TMP_PRI_FOUND set "BL_TMP_PRI_FOUND=0"
+if not defined BL_TMP_TARGETS set "BL_TMP_TARGETS=0"
+
+echo.
+if "%BL_TMP_TARGETS%"=="0" (
+    echo  [i] No existe SECUNDARIA ni PRIMARIA dentro de %BL_ROOT_DIR%.
+    echo [%time%] Blindaje V1: limpieza/revision temporales sin rutas objetivo >> "!LOG_FILE!"
+    exit /b 0
+)
+
+if "%BL_TMP_MODE%"=="1" (
+    echo  [OK] Revision completada.
+) else (
+    echo  [OK] Limpieza completada.
+)
+echo  [i] Temporales detectados: %BL_TMP_FOUND%
+echo  [i]  - En SECUNDARIA: %BL_TMP_SEC_FOUND%
+echo  [i]  - En PRIMARIA:   %BL_TMP_PRI_FOUND%
+echo  [i] Temporales eliminados: %BL_TMP_DELETED%
+echo  [i] No eliminados ^(en uso/bloqueados^): %BL_TMP_FAILED%
+echo [%time%] Blindaje V1: temporales modo=%BL_TMP_ACTION% (det=%BL_TMP_FOUND%, sec=%BL_TMP_SEC_FOUND%, pri=%BL_TMP_PRI_FOUND%, del=%BL_TMP_DELETED%, fail=%BL_TMP_FAILED%) >> "!LOG_FILE!"
+exit /b 0
+
+:BL_SETUP_AUTO_CLEAN_TASK
+cls
+color 0B
+echo ========================================================
+echo   PROGRAMAR LIMPIEZA AUTOMATICA ^(TAREA LOCAL^)
+echo ========================================================
+echo.
+echo  Esto crea una tarea en ESTE equipo para limpiar automaticamente
+echo  solo temporales permitidos en:
+echo    - %BL_ROOT_DIR%\SECUNDARIA
+echo    - %BL_ROOT_DIR%\PRIMARIA
+echo.
+echo  Paso 1/3 - Hora diaria
+set "BL_TASK_TIME=18:30"
+set /p "BL_TASK_TIME_INPUT=Hora diaria [18:30]: "
+if not "%BL_TASK_TIME_INPUT%"=="" set "BL_TASK_TIME=%BL_TASK_TIME_INPUT%"
+
+echo  Paso 2/3 - Confirmacion
+call :MODULE_CONFIRM "Crear/actualizar tarea programada local de limpieza de temporales." "Se ejecuta todos los dias a la hora indicada."
+if errorlevel 1 (
+    echo [i] Operacion cancelada.
+    exit /b 1
+)
+
+echo  Paso 3/3 - Creacion de tarea
+set "BL_TASK_NAME=Renggli_Blindaje_TempClean"
+set "BL_TASK_BASE=%ProgramData%\Renggli\BlindajeV1"
+set "BL_TASK_SCRIPT=%BL_TASK_BASE%\TempClean_Task.cmd"
+if not exist "%BL_TASK_BASE%" mkdir "%BL_TASK_BASE%" >nul 2>&1
+
+(
+    echo @echo off
+    echo powershell -NoProfile -ExecutionPolicy Bypass -Command "$roots=@('%BL_ROOT_DIR%\SECUNDARIA','%BL_ROOT_DIR%\PRIMARIA'); $found=0; $deleted=0; $failed=0; foreach($r in $roots){ if(Test-Path -LiteralPath $r){ Get-ChildItem -LiteralPath $r -Recurse -Force -File -ErrorAction SilentlyContinue ^| Where-Object { $_.Name -like '~$*' -or $_.Extension -ieq '.tmp' -or $_.Extension -ieq '.temp' } ^| ForEach-Object { $found++; try { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction Stop; $deleted++ } catch { $failed++ } } } }; $logDir='%ProgramData%\\Renggli\\BlindajeV1\\Logs'; if(-not (Test-Path -LiteralPath $logDir)){ New-Item -ItemType Directory -Path $logDir -Force ^| Out-Null }; $stamp=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; Add-Content -Path ($logDir+'\\TempClean.log') -Value ($stamp+' found='+$found+' deleted='+$deleted+' failed='+$failed)"
+) > "%BL_TASK_SCRIPT%"
+
+schtasks /create /tn "%BL_TASK_NAME%" /sc daily /st "%BL_TASK_TIME%" /ru "SYSTEM" /rl HIGHEST /tr "\"%BL_TASK_SCRIPT%\"" /f >nul 2>&1
+if errorlevel 1 (
+    echo [X] No se pudo crear la tarea programada.
+    echo [i] Verifica formato de hora ^(HH:MM^) y permisos de administrador.
+    echo [%time%] Blindaje V1: error creando tarea automatica de temporales >> "!LOG_FILE!"
+    exit /b 1
+)
+
+echo [OK] Tarea creada/actualizada: %BL_TASK_NAME%
+echo [i] Hora diaria: %BL_TASK_TIME%
+echo [i] Script local: %BL_TASK_SCRIPT%
+echo [%time%] Blindaje V1: tarea automatica temporales creada (%BL_TASK_NAME% %BL_TASK_TIME%) >> "!LOG_FILE!"
+exit /b 0
+
+:BL_SHOW_MASS_DEPLOY_GUIDE
+cls
+color 0B
+echo ========================================================
+echo   GUIA RAPIDA - DESPLIEGUE MASIVO
+echo ========================================================
+echo.
+echo  OPCION A ^(Dominio / GPO^) - Recomendado
+echo   1. Crear GPO nueva: LimpiezaTemporales_BV1
+echo   2. Ir a: Configuracion de Equipo ^> Preferencias ^> Tareas Programadas
+echo   3. Crear tarea diaria como SYSTEM con privilegios altos
+echo   4. Accion: ejecutar el script de limpieza segura
+echo   5. Alcance: solo %BL_ROOT_DIR%\SECUNDARIA y %BL_ROOT_DIR%\PRIMARIA
+echo.
+echo  OPCION B ^(Sin dominio^) - Script remoto desde PC admin
+echo   1. Preparar lista de PCs
+echo   2. Ejecutar script remoto que cree la tarea local en cada equipo
+echo   3. Verificar con: schtasks /query /tn Renggli_Blindaje_TempClean
+echo.
+echo  [TIP] En este equipo primero usa la opcion 7, valida resultados,
+echo        y luego replica el mismo modelo al resto.
+echo.
+set "BL_GUIDE_FILE=%~dp0Logs\Guia_Despliegue_Masivo_Temporales.txt"
+(
+    echo GUIA DESPLIEGUE MASIVO - LIMPIEZA SEGURA TEMPORALES
+    echo Fecha: %date% %time%
+    echo.
+    echo Objetivo:
+    echo - Limpiar solo temporales ^(~$*, .tmp, .temp^) en:
+    echo   %BL_ROOT_DIR%\SECUNDARIA y %BL_ROOT_DIR%\PRIMARIA
+    echo - No tocar archivos de proyecto ^(.psd, .prproj, .aep, etc.^)
+    echo.
+    echo OPCION A - Dominio/GPO:
+    echo 1. Crear GPO nueva
+    echo 2. Configuracion de Equipo ^> Preferencias ^> Tareas Programadas
+    echo 3. Ejecutar como SYSTEM, privilegios altos, diario
+    echo 4. Accion: script de limpieza segura
+    echo.
+    echo OPCION B - Sin dominio:
+    echo 1. Script remoto desde equipo administrador
+    echo 2. Crear tarea Renggli_Blindaje_TempClean en cada PC
+    echo 3. Verificar con schtasks /query
+) > "%BL_GUIDE_FILE%"
+echo [OK] Guia guardada en: %BL_GUIDE_FILE%
+exit /b 0
+
+:BL_REMOVE_AUTO_CLEAN_TASK
+cls
+color 0E
+echo ========================================================
+echo   DESACTIVAR LIMPIEZA AUTOMATICA
+echo ========================================================
+echo.
+echo  Esta opcion elimina la tarea programada local:
+echo    - Renggli_Blindaje_TempClean
+echo.
+set "BL_TASK_NAME=Renggli_Blindaje_TempClean"
+set "BL_TASK_BASE=%ProgramData%\Renggli\BlindajeV1"
+set "BL_TASK_SCRIPT=%BL_TASK_BASE%\TempClean_Task.cmd"
+
+call :MODULE_CONFIRM "Eliminar la tarea automatica de limpieza de temporales." "No borra datos escolares ni proyectos."
+if errorlevel 1 (
+    echo [i] Operacion cancelada.
+    exit /b 1
+)
+
+schtasks /query /tn "%BL_TASK_NAME%" >nul 2>&1
+if errorlevel 1 (
+    echo [i] La tarea %BL_TASK_NAME% no existe en este equipo.
+) else (
+    schtasks /delete /tn "%BL_TASK_NAME%" /f >nul 2>&1
+    if errorlevel 1 (
+        echo [X] No se pudo eliminar la tarea %BL_TASK_NAME%.
+        echo [%time%] Blindaje V1: error al eliminar tarea automatica de temporales >> "!LOG_FILE!"
+        exit /b 1
+    )
+    echo [OK] Tarea eliminada: %BL_TASK_NAME%
+)
+
+if exist "%BL_TASK_SCRIPT%" del /q "%BL_TASK_SCRIPT%" >nul 2>&1
+echo [OK] Limpieza automatica desactivada en este equipo.
+echo [%time%] Blindaje V1: tarea automatica de temporales desactivada >> "!LOG_FILE!"
+exit /b 0
 
 :MOD_OFF
 cls
