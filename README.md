@@ -76,26 +76,21 @@ Documentation: Manuales/README_EN.md#seccion-macos
 📚 Documentation
 Quick Documentation Index (Onboarding)
 
-- Start here (operational usage by OS):
-    - Spanish: [Manuales/README_ES.md](Manuales/README_ES.md)
-    - English: [Manuales/README_EN.md](Manuales/README_EN.md)
-    - Chinese: [Manuales/README_CN.md](Manuales/README_CN.md)
+- Start here (operational usage by OS).
+- Spanish: [Manuales/README_ES.md](Manuales/README_ES.md)
+- English: [Manuales/README_EN.md](Manuales/README_EN.md)
+- Chinese: [Manuales/README_CN.md](Manuales/README_CN.md)
 
-- Understand each option (what it does, when to use it, risks, precautions):
-    - ES: [Manuales/CATALOGO_OPCIONES_ES.md](Manuales/CATALOGO_OPCIONES_ES.md)
-    - EN: [Manuales/CATALOGO_OPCIONES_EN.md](Manuales/CATALOGO_OPCIONES_EN.md)
-    - CN: [Manuales/CATALOGO_OPCIONES_CN.md](Manuales/CATALOGO_OPCIONES_CN.md)
+- Understand each option (what it does, when to use it, risks, precautions).
+- ES: [Manuales/CATALOGO_OPCIONES_ES.md](Manuales/CATALOGO_OPCIONES_ES.md)
+- EN: [Manuales/CATALOGO_OPCIONES_EN.md](Manuales/CATALOGO_OPCIONES_EN.md)
+- CN: [Manuales/CATALOGO_OPCIONES_CN.md](Manuales/CATALOGO_OPCIONES_CN.md)
 
-- Modify or add modules safely (developer path):
-    - Programmer guide in manuals (ES/EN/CN):
-        - [Manuales/README_ES.md](Manuales/README_ES.md)
-        - [Manuales/README_EN.md](Manuales/README_EN.md)
-        - [Manuales/README_CN.md](Manuales/README_CN.md)
-    - Contribution workflow + new module checklist:
-        - [CONTRIBUTING.md](CONTRIBUTING.md)
+- Modify or add modules safely (developer path).
+- Programmer guide in manuals (ES/EN/CN): [Manuales/README_ES.md](Manuales/README_ES.md), [Manuales/README_EN.md](Manuales/README_EN.md), [Manuales/README_CN.md](Manuales/README_CN.md)
+- Contribution workflow + new module checklist: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-- Keep change history updated:
-    - [HISTORIAL_DE_CAMBIOS.md](HISTORIAL_DE_CAMBIOS.md)
+- Keep change history updated: [HISTORIAL_DE_CAMBIOS.md](HISTORIAL_DE_CAMBIOS.md)
 
 Manuals by Language
 🇪🇸 Spanish — Manuales/README_ES.md
@@ -138,10 +133,13 @@ Advanced administration tools
 
 Blindaje V1 (Option 21 in Administration profile) is fully integrated in Toolbox.
 Current integrated workflow includes:
-- strict classroom hardening
+
+- two Windows-only modes: strict hardening and soft folder-protection
 - safe temporary-file review/cleanup for `SECUNDARIA` and `PRIMARIA`
 - local scheduled auto-clean task creation/removal
 - mass deployment guidance (domain/GPO and non-domain remote rollout)
+
+Linux and macOS keep their own native modules and do not expose an equivalent Blindaje V1 option.
 
 ✔️ Linux (30 Modules)
 All Windows features + Linux‑specific modules

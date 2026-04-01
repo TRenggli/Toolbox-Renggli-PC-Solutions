@@ -361,6 +361,10 @@ Windows/Logs/
 
 Inside **Profile 3 (Administration)**, **Option 21 (High Security Profile)** now includes:
 
+- **Two apply paths** inside the same menu.
+- **Strict hardening**: maximum protection for academic files/folders, but Office/Adobe style atomic save workflows can fail in academic folders.
+- **Soft lock**: protects `SECUNDARIA`, `PRIMARIA`, and their subfolders from structural deletion while allowing normal save/delete of individual files.
+- **Robust daily-folder redirection**: Desktop/Documents/Downloads/Music/Pictures/Videos now point to the physical `%BL_ROOT_DIR%\PERFIL\Usuario` path so slow Windows 10 machines do not fail when `T:` is not ready yet at sign-in.
 - safe manual temp review/cleanup in `Trabajos Alumnos\SECUNDARIA` and `Trabajos Alumnos\PRIMARIA`
 - local daily scheduled auto-clean task setup
 - local auto-clean task removal

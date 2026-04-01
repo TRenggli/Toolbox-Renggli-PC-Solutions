@@ -39,7 +39,7 @@ Profiles:
 | 18 | BSOD (A) | A | [R] | Reads minidumps and bugcheck events | Stability incidents | Read-only |
 | 19 | Process forensics (A) | A | [R] | Finds temp-path processes and signature status | Hardening and audits | Read-only |
 | 20 | RAID/Storage (A) | A | [R] | Reads virtual/physical disk health + WMI fallback | Servers or complex storage | Read-only |
-| 21 | High Security Profile (Blindaje V1 integrated) (A) | A | [W] | Applies strict hardening + safe temp workflow: manual review/cleanup, local scheduled auto-clean, auto-clean disable, and mass deployment guide (GPO/remote), with patterns limited to `~$*`, `.tmp`, `.temp` in `SECUNDARIA/PRIMARIA` | School/lab endpoints with standard users where preserving student work is the priority while keeping temp files controlled | After Undo, reboot and manually verify whether `C:\Trabajos Alumnos` was fully removed; for temp cleanup keep safe patterns only and do not widen extensions |
+| 21 | High Security Profile (Blindaje V1 integrated) (A) | A | [W] | Applies Blindaje V1 with two modes: **strict** ^(maximum protection, lower save compatibility^) and **soft** ^(protects folder structure while allowing file deletion^), plus persistent `T:` mapping, offline Explorer policies, physical-path daily-folder redirection, and safe temp workflow limited to `~$*`, `.tmp`, `.temp` in `SECUNDARIA/PRIMARIA` | School/lab endpoints that need a choice between maximum protection and Office/Adobe-friendly save behavior without allowing full folder deletion | After Undo, reboot and manually verify whether `C:\Trabajos Alumnos` was fully removed; for temp cleanup keep safe patterns only and do not widen extensions |
 
 Notes (Windows):
 

@@ -10,6 +10,7 @@ Esta carpeta contiene los scripts automatizados para generar PDFs de los manuale
 Scripts/
 ├── generar_pdfs.bat    # Script para Windows
 └── generar_pdfs.sh     # Script para Linux/Mac
+├── verificar_blindaje_guardado.ps1  # Verifica ACL y guardado en SECUNDARIA/PRIMARIA
 ```
 
 ---
@@ -27,6 +28,17 @@ generar_pdfs.bat
 cd Scripts
 ./generar_pdfs.sh
 ```
+
+### Verificacion post-despliegue de Blindaje V1 (Windows):
+```powershell
+cd Scripts
+powershell -ExecutionPolicy Bypass -File .\verificar_blindaje_guardado.ps1 -CreateLog
+```
+
+Opciones utiles:
+- `-RootDir "C:\Trabajos Alumnos"` para cambiar la raiz objetivo.
+- `-StudentUser "Usuario"` para cambiar el usuario alumno evaluado.
+- Codigo de salida: `0` (OK), `1` (FAIL), `2` (WARN).
 
 ---
 

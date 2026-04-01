@@ -1396,52 +1396,58 @@ echo    Carpeta raiz:    %BL_ROOT_DIR%
 echo    Unidad virtual:  %BL_DRIVE_LETTER%
 echo.
 echo    [1] APLICAR BLINDAJE ESTRICTO
-echo    [2] DESHACER TODO ^(revertir cambios^)
-echo    [3] VERIFICAR ESTADO ACTUAL
-echo    [4] CONFIGURAR RUTA/UNIDAD
-echo    [5] VOLVER AL MENU PRINCIPAL
-echo    [6] REVISION/LIMPIEZA TEMPORALES ^(manual^)
-echo    [7] PROGRAMAR LIMPIEZA AUTOMATICA ^(tarea local^)
-echo    [8] GUIA DESPLIEGUE MASIVO ^(dominio/sin dominio^)
-echo    [9] DESACTIVAR LIMPIEZA AUTOMATICA
+echo    [2] APLICAR BLOQUEO SUAVE ^(protege carpetas, permite borrar archivos^)
+echo    [3] DESHACER TODO ^(revertir cambios^)
+echo    [4] VERIFICAR ESTADO ACTUAL
+echo    [5] CONFIGURAR RUTA/UNIDAD
+echo    [6] VOLVER AL MENU PRINCIPAL
+echo    [7] REVISION/LIMPIEZA TEMPORALES ^(manual^)
+echo    [8] PROGRAMAR LIMPIEZA AUTOMATICA ^(tarea local^)
+echo    [9] GUIA DESPLIEGUE MASIVO ^(dominio/sin dominio^)
+echo    [10] DESACTIVAR LIMPIEZA AUTOMATICA
 echo.
 echo    Documentacion: Manuales\README_ES.md + CATALOGO_OPCIONES_ES.md
 echo.
 set "opt="
-set /p "opt=Seleccione una opcion [1-9]: "
+set /p "opt=Seleccione una opcion [1-10]: "
 
 if "%opt%"=="1" (
-    call :BL_CONFIRMAR_Y_APLICAR
+    call :BL_CONFIRMAR_Y_APLICAR STRICT
     pause
     goto BL_MENU
 )
-if "%opt%"=="2" goto BL_DESHACER
-if "%opt%"=="3" goto BL_VERIFICAR
-if "%opt%"=="4" (
+if "%opt%"=="2" (
+    call :BL_CONFIRMAR_Y_APLICAR SOFT
+    pause
+    goto BL_MENU
+)
+if "%opt%"=="3" goto BL_DESHACER
+if "%opt%"=="4" goto BL_VERIFICAR
+if "%opt%"=="5" (
     call :BL_CONFIGURAR_PARAMETROS
     pause
     goto BL_MENU
 )
-if "%opt%"=="5" (
+if "%opt%"=="6" (
     echo [%time%] Blindaje V1: salida del modulo Seguridad Alta >> "!LOG_FILE!"
     exit /b 0
 )
-if "%opt%"=="6" (
+if "%opt%"=="7" (
     call :BL_CLEAN_TEMP_FILES_SAFE
     pause
     goto BL_MENU
 )
-if "%opt%"=="7" (
+if "%opt%"=="8" (
     call :BL_SETUP_AUTO_CLEAN_TASK
     pause
     goto BL_MENU
 )
-if "%opt%"=="8" (
+if "%opt%"=="9" (
     call :BL_SHOW_MASS_DEPLOY_GUIDE
     pause
     goto BL_MENU
 )
-if "%opt%"=="9" (
+if "%opt%"=="10" (
     call :BL_REMOVE_AUTO_CLEAN_TASK
     pause
     goto BL_MENU
@@ -1449,6 +1455,17 @@ if "%opt%"=="9" (
 goto BL_MENU
 
 :BL_CONFIRMAR_Y_APLICAR
+set "BL_REQUESTED_MODE=%~1"
+if /I "%BL_REQUESTED_MODE%"=="SOFT" (
+    set "BL_MODE_TITLE=BLINDAJE SUAVE"
+    set "BL_MODE_DESC=Protege carpetas academicas y permite borrar archivos dentro de ellas."
+    set "BL_MODE_WARN=Ventaja: Office/Adobe guardan normal. Desventaja: un archivo individual si puede borrarse."
+) else (
+    set "BL_REQUESTED_MODE=STRICT"
+    set "BL_MODE_TITLE=BLINDAJE ESTRICTO"
+    set "BL_MODE_DESC=Prioriza que no se borren archivos ni carpetas dentro de Trabajos Alumnos."
+    set "BL_MODE_WARN=Ventaja: maxima proteccion. Desventaja: algunas apps pueden fallar al guardar por temporales/reemplazos."
+)
 set "BL_USER_ALUMNO=%BL_TARGET_USER_ALUMNO%"
 call :BL_REFRESH_DERIVED_PATHS
 cls
@@ -1480,8 +1497,9 @@ call :BL_PRECHECK
 if errorlevel 1 exit /b 1
 
 echo.
-echo  Se aplicara BLINDAJE ESTRICTO.
-echo  Recomendado cuando queres priorizar que no se borre nada.
+echo  Se aplicara !BL_MODE_TITLE!.
+echo  !BL_MODE_DESC!
+echo  !BL_MODE_WARN!
 echo.
 echo  Este modo tambien mantiene acceso diario a:
 echo    - Escritorio
@@ -1504,7 +1522,11 @@ if /I not "%confirm_apply%"=="S" (
     exit /b 1
 )
 
-call :BL_APPLY_STRICT
+if /I "%BL_REQUESTED_MODE%"=="SOFT" (
+    call :BL_APPLY_SOFT
+) else (
+    call :BL_APPLY_STRICT
+)
 exit /b %errorlevel%
 
 :BL_PRECHECK
@@ -1867,32 +1889,65 @@ if errorlevel 1 exit /b 1
 echo [OK] Perfil diario con permisos normales para %BL_USER_ALUMNO%.
 exit /b 0
 
+:BL_APPLY_ACL_ACADEMIC_NORMAL
+echo [.] Habilitando permisos normales en carpetas academicas (SECUNDARIA/PRIMARIA)...
+for %%R in ("%BL_ROOT_DIR%\SECUNDARIA" "%BL_ROOT_DIR%\PRIMARIA") do (
+    if exist "%%~R" (
+        icacls "%%~R" /inheritance:d /T /C >nul
+        if errorlevel 1 exit /b 1
+        icacls "%%~R" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+        icacls "%%~R" /grant:r "%BL_USER_ALUMNO%":(OI)(CI)(M) /T /C >nul
+        if errorlevel 1 exit /b 1
+    ) else (
+        echo [i] %%~nxR no existe; se omite ajuste ACL.
+    )
+)
+echo [OK] Carpetas academicas con permisos normales para %BL_USER_ALUMNO%.
+exit /b 0
+
+:BL_PROTECT_ACADEMIC_ROOTS
+echo [.] Protegiendo SECUNDARIA/PRIMARIA contra borrado total...
+for %%R in ("%BL_ROOT_DIR%\SECUNDARIA" "%BL_ROOT_DIR%\PRIMARIA") do (
+    if exist "%%~R" (
+        icacls "%%~R" /remove:d "%BL_USER_ALUMNO%" >nul 2>&1
+        icacls "%%~R" /deny "%BL_USER_ALUMNO%":(DE,DC) >nul
+        if errorlevel 1 exit /b 1
+        for /d %%D in ("%%~R\*") do (
+            icacls "%%~D" /remove:d "%BL_USER_ALUMNO%" >nul 2>&1
+            icacls "%%~D" /deny "%BL_USER_ALUMNO%":(DE) >nul
+            if errorlevel 1 exit /b 1
+        )
+    )
+)
+echo [OK] Estructura academica protegida contra borrado de carpetas.
+exit /b 0
+
 :BL_APPLY_DAILY_FOLDERS_EXCEPTION
 echo [.] Aplicando excepcion para carpetas diarias del alumno...
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Desktop" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Desktop" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Desktop" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Personal" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Personal" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Documents" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Downloads" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Music" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Music" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Music" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Pictures" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Pictures" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Pictures" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Video" /t REG_EXPAND_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "My Video" /t REG_EXPAND_SZ /d "%BL_PROFILE_DIR%\Videos" /f >nul
 if errorlevel 1 exit /b 1
 
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Desktop" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Desktop" /t REG_SZ /d "%BL_PROFILE_DIR%\Desktop" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal" /t REG_SZ /d "%BL_PROFILE_DIR%\Documents" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "{374DE290-123F-4565-9164-39C4925E467B}" /t REG_SZ /d "%BL_PROFILE_DIR%\Downloads" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Music" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Music" /t REG_SZ /d "%BL_PROFILE_DIR%\Music" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Pictures" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Pictures" /t REG_SZ /d "%BL_PROFILE_DIR%\Pictures" /f >nul
 if errorlevel 1 exit /b 1
-reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Video" /t REG_SZ /d "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos" /f >nul
+reg add "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "My Video" /t REG_SZ /d "%BL_PROFILE_DIR%\Videos" /f >nul
 if errorlevel 1 exit /b 1
 
 echo [OK] Excepcion de carpetas diarias aplicada.
@@ -2015,11 +2070,12 @@ echo.
 echo ========================================================
 echo   BLINDAJE ESTRICTO ACTIVADO
 echo ========================================================
-echo   - Borrado NTFS bloqueado en archivos y carpetas.
+echo   - Borrado NTFS bloqueado en toda la estructura academica.
 echo   - Renombrado de carpetas bloqueado.
 echo   - C: oculto y bloqueado en Explorer.
-echo   - Excepcion diaria activa: Escritorio/Documentos/Descargas/Musica/Imagenes/Videos.
+echo   - Perfil diario redirigido a %BL_PROFILE_DIR% ^(no depende de T: al iniciar^).
 echo   - En carpetas diarias se permite borrado normal del alumno.
+echo   - Puede afectar guardado de Office/Adobe si usan temporales/reemplazos en carpetas academicas.
 echo   - Re-mapeo automatico al iniciar sesion: activo.
 echo   - Papelera endurecida desde Explorer.
 echo   - Copia inicial de Escritorio/Musica: sin borrar origen.
@@ -2027,6 +2083,101 @@ echo   - BGInfo: disponible dentro de %BL_DRIVE_LETTER%\BGInfo si existe C:\BGIn
 echo.
 echo   Reinicia o cierra sesion para validar el resultado final.
 echo [%time%] Blindaje V1: aplicado correctamente (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
+exit /b 0
+
+:BL_APPLY_SOFT
+cls
+color 0A
+echo [+] INICIANDO BLOQUEO SUAVE...
+echo.
+call :BL_PREPARE_STRUCTURE
+if errorlevel 1 exit /b 1
+call :BL_APPLY_DRIVE_MAP
+if errorlevel 1 exit /b 1
+call :BL_CLEAR_ACL_RULES
+call :BL_APPLY_ACL_STRICT
+if errorlevel 1 (
+    echo [X] Fallo aplicando ACL base.
+    echo [%time%] Blindaje V1: ERROR aplicando ACL base suave >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_PROFILE_NORMAL_ACL
+if errorlevel 1 (
+    echo [X] Fallo aplicando permisos normales al perfil diario.
+    echo [%time%] Blindaje V1: ERROR aplicando ACL de perfil diario >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_ACL_ACADEMIC_NORMAL
+if errorlevel 1 (
+    echo [X] Fallo aplicando permisos normales en carpetas academicas.
+    echo [%time%] Blindaje V1: ERROR aplicando ACL academica >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_PROTECT_ACADEMIC_ROOTS
+if errorlevel 1 (
+    echo [X] Fallo protegiendo estructura academica contra borrado de carpetas.
+    echo [%time%] Blindaje V1: ERROR protegiendo raiz academica >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_EXPOSE_BGINFO
+call :BL_LOAD_HIVE
+if errorlevel 1 exit /b 1
+call :BL_APPLY_USER_POLICIES
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo aplicando politicas del alumno.
+    echo [%time%] Blindaje V1: ERROR aplicando politicas offline >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_DAILY_FOLDERS_EXCEPTION
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo aplicando excepcion de carpetas diarias.
+    echo [%time%] Blindaje V1: ERROR aplicando redireccion de carpetas diarias >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_APPLY_LOGON_DRIVE_REMAP
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo configurando re-mapeo automatico de unidad.
+    echo [%time%] Blindaje V1: ERROR configurando remapeo de unidad >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_SYNC_VISIBLE_FOLDERS
+if errorlevel 1 (
+    call :BL_UNLOAD_HIVE
+    echo [X] Fallo copiando contenido de Escritorio/Musica.
+    echo [%time%] Blindaje V1: ERROR en copia inicial de carpetas visibles >> "!LOG_FILE!"
+    exit /b 1
+)
+
+call :BL_UNLOAD_HIVE
+call :BL_WRITE_MODE_MARKER SOFT
+if errorlevel 1 (
+    echo [X] Fallo guardando marcador de modo.
+    echo [%time%] Blindaje V1: ERROR guardando marcador de modo suave >> "!LOG_FILE!"
+    exit /b 1
+)
+call :BL_SAVE_CONFIG
+if errorlevel 1 (
+    echo [!] No se pudo guardar la configuracion para futuras ejecuciones.
+)
+echo.
+echo ========================================================
+echo   BLOQUEO SUAVE ACTIVADO
+echo ========================================================
+echo   - Estructura de carpetas academicas protegida.
+echo   - Archivos dentro de SECUNDARIA/PRIMARIA se pueden guardar y borrar normal.
+echo   - C: oculto y bloqueado en Explorer.
+echo   - Perfil diario redirigido a %BL_PROFILE_DIR% ^(no depende de T: al iniciar^).
+echo   - Office/Adobe y apps con temporales funcionan mejor en carpetas academicas.
+echo   - Re-mapeo automatico al iniciar sesion: activo.
+echo   - Papelera endurecida desde Explorer.
+echo   - Copia inicial de Escritorio/Musica: sin borrar origen.
+echo   - BGInfo: disponible dentro de %BL_DRIVE_LETTER%\BGInfo si existe C:\BGInfo.
+echo.
+echo   Reinicia o cierra sesion para validar el resultado final.
+echo [%time%] Blindaje V1: modo suave aplicado correctamente (Root=%BL_ROOT_DIR%, Drive=%BL_DRIVE_LETTER%) >> "!LOG_FILE!"
 exit /b 0
 
 :BL_VERIFICAR
@@ -2040,7 +2191,7 @@ echo.
 set "BL_DETECTED_MODE=NO REGISTRADO"
 for /f "tokens=3" %%A in ('reg query "%BL_MODE_KEY%" /v Mode 2^>nul ^| findstr /I "Mode"') do set "BL_DETECTED_MODE=%%A"
 
-if /I "!BL_DETECTED_MODE!"=="STRICT" call :BL_LOAD_MARKER_CONTEXT
+if /I not "!BL_DETECTED_MODE!"=="NO REGISTRADO" call :BL_LOAD_MARKER_CONTEXT
 
 echo [1/4] Verificando disco %BL_DRIVE_LETTER% ...
 reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices" /v "%BL_DRIVE_LETTER%" | findstr /I /C:"\??\%BL_ROOT_DIR%" >nul
@@ -2054,8 +2205,10 @@ echo.
 echo [2/4] Verificando modo registrado ...
 if /I "!BL_DETECTED_MODE!"=="STRICT" (
     echo [OK] MODO REGISTRADO: !BL_DETECTED_MODE!
+) else if /I "!BL_DETECTED_MODE!"=="SOFT" (
+    echo [OK] MODO REGISTRADO: !BL_DETECTED_MODE!
 ) else (
-    echo [!] MODO REGISTRADO: !BL_DETECTED_MODE! ^(esperado: STRICT^)
+    echo [!] MODO REGISTRADO: !BL_DETECTED_MODE! ^(esperado: STRICT o SOFT^)
 )
 echo.
 
@@ -2066,14 +2219,42 @@ icacls "%BL_ROOT_DIR%" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(OI)(CI)(DE)" /C:
 if not errorlevel 1 set "BL_ACL_DE_OK=1"
 icacls "%BL_ROOT_DIR%" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(CI)(IO)(DC)" /C:"%BL_USER_ALUMNO%:(CI)(IO)(DENY)(DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DE,DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DC)" >nul
 if not errorlevel 1 set "BL_ACL_DC_OK=1"
-if "%BL_ACL_DE_OK%"=="1" (
-    if "%BL_ACL_DC_OK%"=="1" (
-        echo [OK] ACL estricta detectada ^(bloqueo DE/DC^).
+if /I "!BL_DETECTED_MODE!"=="SOFT" (
+    if "%BL_ACL_DE_OK%"=="1" (
+        if "%BL_ACL_DC_OK%"=="1" (
+            echo [OK] ACL base detectada para modo suave.
+        ) else (
+            echo [X] No se detecto la ACL base esperada para modo suave.
+        )
+    ) else (
+        echo [X] No se detecto la ACL base esperada para modo suave.
+    )
+    if exist "%BL_ROOT_DIR%\SECUNDARIA" (
+        icacls "%BL_ROOT_DIR%\SECUNDARIA" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(DE,DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DE)" >nul
+        if errorlevel 1 (
+            echo [X] SECUNDARIA no muestra proteccion estructural esperada.
+        ) else (
+            echo [OK] SECUNDARIA protegida contra borrado de carpeta.
+        )
+    )
+    if exist "%BL_ROOT_DIR%\PRIMARIA" (
+        icacls "%BL_ROOT_DIR%\PRIMARIA" | findstr /I /C:"%BL_USER_ALUMNO%:(DENY)(DE,DC)" /C:"%BL_USER_ALUMNO%:(DENY)(DE)" >nul
+        if errorlevel 1 (
+            echo [X] PRIMARIA no muestra proteccion estructural esperada.
+        ) else (
+            echo [OK] PRIMARIA protegida contra borrado de carpeta.
+        )
+    )
+) else (
+    if "%BL_ACL_DE_OK%"=="1" (
+        if "%BL_ACL_DC_OK%"=="1" (
+            echo [OK] ACL estricta detectada ^(bloqueo DE/DC^).
+        ) else (
+            echo [X] No se detecto la ACL estricta esperada.
+        )
     ) else (
         echo [X] No se detecto la ACL estricta esperada.
     )
-) else (
-    echo [X] No se detecto la ACL estricta esperada.
 )
 echo.
 
@@ -2092,12 +2273,12 @@ if errorlevel 1 (
     ) else (
         echo [OK] Bloqueo visual de Papelera detectado.
     )
-    call :BL_CHECK_REDIRECT "Desktop" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Desktop"
-    call :BL_CHECK_REDIRECT "Personal" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Documents"
-    call :BL_CHECK_REDIRECT "{374DE290-123F-4565-9164-39C4925E467B}" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Downloads"
-    call :BL_CHECK_REDIRECT "My Music" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Music"
-    call :BL_CHECK_REDIRECT "My Pictures" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Pictures"
-    call :BL_CHECK_REDIRECT "My Video" "%BL_DRIVE_LETTER%\PERFIL\%BL_USER_ALUMNO%\Videos"
+    call :BL_CHECK_REDIRECT "Desktop" "%BL_PROFILE_DIR%\Desktop"
+    call :BL_CHECK_REDIRECT "Personal" "%BL_PROFILE_DIR%\Documents"
+    call :BL_CHECK_REDIRECT "{374DE290-123F-4565-9164-39C4925E467B}" "%BL_PROFILE_DIR%\Downloads"
+    call :BL_CHECK_REDIRECT "My Music" "%BL_PROFILE_DIR%\Music"
+    call :BL_CHECK_REDIRECT "My Pictures" "%BL_PROFILE_DIR%\Pictures"
+    call :BL_CHECK_REDIRECT "My Video" "%BL_PROFILE_DIR%\Videos"
     reg query "%BL_TEMP_HIVE%\Software\Microsoft\Windows\CurrentVersion\Run" /v "%BL_LOGON_MAP_VALUE%" >nul 2>&1
     if errorlevel 1 (
         echo [X] Re-mapeo automatico de %BL_DRIVE_LETTER% NO detectado.

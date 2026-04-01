@@ -237,6 +237,8 @@ Cambios principales:
 - `Manuales/CATALOGO_OPCIONES_EN.md`
 - `Manuales/CATALOGO_OPCIONES_CN.md`
 
+<!-- markdownlint-disable MD022 MD024 MD032 -->
+
 ## 2026-03-18 (Actualizacion 15)
 
 ### Opcion 21: limpieza segura de temporales (manual + automatica + masiva)
@@ -266,6 +268,19 @@ Cambios principales:
 - `Manuales/README_EN.md`
 - `Manuales/README_CN.md`
 - `README.md`
+
+## 2026-04-01 (Actualizacion 22)
+
+### Opcion 21: dos modos de proteccion + correccion de arranque lento
+
+- Se agregaron dos caminos dentro de la opcion 21 en ambos scripts Windows:
+  - `Blindaje estricto`: maxima proteccion, con posible impacto en apps que guardan usando temporales/reemplazo atomico.
+  - `Bloqueo suave`: protege `SECUNDARIA`, `PRIMARIA` y subcarpetas contra borrado estructural, pero permite guardar y borrar archivos individuales.
+- Se corrigio un problema operativo observado en equipos Windows 10 lentos donde Explorer mostraba `Ubicacion no disponible` para el Escritorio al iniciar.
+  - Causa: las carpetas diarias apuntaban a `T:\PERFIL\Usuario\...` y el remapeo por `Run` podia llegar tarde.
+  - Solucion: las carpetas diarias ahora redirigen a la ruta fisica `%BL_ROOT_DIR%\PERFIL\Usuario\...`; `T:` se mantiene como acceso adicional.
+- Se actualizo verificacion interna para reconocer ambos modos (`STRICT` y `SOFT`).
+- Se sincronizo documentacion operativa y catalogos multi-idioma con los nuevos tradeoffs de cada modo.
 
 ## 2026-03-17 (Actualizacion 14)
 
@@ -550,7 +565,6 @@ Detalles de implementacion:
 - Se actualizó `Manuales/README_CN.md` para reflejar el comportamiento real actual:
   - `[0]` = generar reporte y salir
   - `[00]` = salir sin reporte y sin log
-
 
 ## 2026-03-04 (Actualización 5)
 

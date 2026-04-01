@@ -259,6 +259,10 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 Dentro de **Perfil 3 (Administración)**, la **opción 21 (Perfil Seguridad Alta)** ahora incluye:
 
+- **Dos caminos de aplicación** dentro del mismo menú.
+- **Blindaje estricto**: maximiza la protección sobre archivos y carpetas académicas, pero algunas apps como Office/Adobe pueden fallar al guardar si usan temporales o reemplazo atómico.
+- **Bloqueo suave**: protege `SECUNDARIA`, `PRIMARIA` y sus subcarpetas contra borrado estructural, pero permite guardar y borrar archivos individuales con normalidad.
+- **Redirección diaria robusta**: Escritorio/Documentos/Descargas/Música/Imágenes/Vídeos apuntan a la ruta física `%BL_ROOT_DIR%\PERFIL\Usuario`, evitando el error de “Ubicación no disponible” si `T:` tarda en aparecer al iniciar en equipos lentos.
 - **Revisión/Limpieza manual segura**: busca solo temporales en `Trabajos Alumnos\SECUNDARIA` y `Trabajos Alumnos\PRIMARIA` con patrones `~$*`, `.tmp`, `.temp`.
 - **Programación automática local**: crea una tarea diaria en ese equipo para la misma limpieza segura.
 - **Desactivación automática local**: elimina la tarea programada cuando ya no se necesita.
@@ -855,13 +859,13 @@ Se agregaron los siguientes modulos en `Windows/toolbox.bat` y `Windows/toolbox_
 - Auditoria Forense de Procesos (rutas temporales + firma digital)
 - Estado RAID/Storage (Storage cmdlets + fallback WMI)
 - Backup de Drivers (DISM export-driver)
-- Perfil Seguridad Alta (Blindaje V1 integrado: mapeo persistente T:, ACL estricta, NoDrives/NoViewOnDrive, redireccion de carpetas diarias y deshacer/verificar)
+- Perfil Seguridad Alta (Blindaje V1 integrado: modo estricto + bloqueo suave, mapeo persistente T:, NoDrives/NoViewOnDrive, redireccion de carpetas diarias a ruta fisica y deshacer/verificar)
 
 Notas:
 
 - Los modulos de diagnostico son de solo lectura.
 - `Backup de Drivers` genera cambios en disco y requiere espacio disponible.
-- `Perfil Seguridad Alta` modifica registro, ACLs y hive del alumno. Confirmar siempre con usuario de prueba y, tras `Deshacer`, reiniciar y verificar manualmente en `C:\` si `Trabajos Alumnos` se elimino o si requiere limpieza manual.
+- `Perfil Seguridad Alta` modifica registro, ACLs y hive del alumno. Elegir `estricto` si la prioridad es no perder archivos; elegir `suave` si la prioridad es compatibilidad de guardado en Office/Adobe sin permitir borrar carpetas. Tras `Deshacer`, reiniciar y verificar manualmente en `C:\` si `Trabajos Alumnos` se elimino o si requiere limpieza manual.
 
 ---
 

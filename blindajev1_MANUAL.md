@@ -1,8 +1,7 @@
 # Manual Tecnico de Blindaje V1
 
-> Estado: **Anexo tecnico**. La guia operativa principal de la opcion 21 ya esta integrada en:
-> - `Manuales/README_ES.md`
-> - `Manuales/CATALOGO_OPCIONES_ES.md`
+> Estado: **Anexo tecnico**.
+> La guia operativa principal de la opcion 21 ya esta integrada en `Manuales/README_ES.md` y `Manuales/CATALOGO_OPCIONES_ES.md`.
 > Este archivo se conserva como referencia tecnica ampliada.
 
 Este manual describe el motor de Blindaje V1 ahora integrado en la opcion 21 ^(Perfil Seguridad Alta^) de:
@@ -20,7 +19,7 @@ El motor integrado prepara un entorno escolar para un usuario alumno con estas m
 - ocultar y bloquear C: desde Explorer
 - mantener acceso diario a Escritorio, Documentos, Descargas, Musica, Imagenes y Videos
 - endurecer el manejo de borrado y papelera
-- aplicar un unico modo de blindaje estricto
+- ofrecer dos modos de proteccion ^(estricto y suave^)
 - usar usuario objetivo fijo: Usuario
 - permitir configurar carpeta raiz y letra de unidad sin editar el script principal
 
@@ -29,14 +28,15 @@ El motor integrado prepara un entorno escolar para un usuario alumno con estas m
 Opciones principales en pantalla:
 
 1. Aplicar blindaje estricto
-2. Deshacer todo
-3. Verificar estado actual
-4. Configurar ruta/unidad
-5. Salir
-6. Revision/Limpieza temporales ^(manual^)
-7. Programar limpieza automatica ^(tarea local^)
-8. Guia despliegue masivo ^(dominio/sin dominio^)
-9. Desactivar limpieza automatica
+2. Aplicar bloqueo suave
+3. Deshacer todo
+4. Verificar estado actual
+5. Configurar ruta/unidad
+6. Salir
+7. Revision/Limpieza temporales ^(manual^)
+8. Programar limpieza automatica ^(tarea local^)
+9. Guia despliegue masivo ^(dominio/sin dominio^)
+10. Desactivar limpieza automatica
 
 El script muestra siempre la configuracion activa ^(alumno, carpeta y unidad^) para evitar aplicar con datos equivocados.
 Para verificar o deshacer, prioriza el contexto guardado al aplicar ^(Student/RootDir/Drive^) para actuar sobre el blindaje realmente activo.
@@ -46,7 +46,7 @@ Alcance de cambios:
 - Politicas de Explorer ^(NoDrives, NoViewOnDrive, etc.^): solo para el usuario objetivo fijo ^(Usuario^).
 - ACL sobre la carpeta raiz y mapeo de unidad virtual: impacto a nivel equipo.
 
-## Modo disponible
+## Modos disponibles
 
 ### Blindaje estricto
 
@@ -59,7 +59,7 @@ Aplica:
 - ACL NTFS con denegacion DE/DC en entradas separadas para reforzar bloqueo sobre archivos y carpetas
 - bloqueo de renombrado de carpetas
 - politicas de Explorer para ocultar C:, bloquear su apertura y endurecer borrado/papelera
-- excepcion diaria: redireccion de Escritorio, Documentos, Descargas, Musica, Imagenes y Videos a T:\PERFIL\{usuario}
+- excepcion diaria: redireccion de Escritorio, Documentos, Descargas, Musica, Imagenes y Videos a `%BL_ROOT_DIR%\PERFIL\{usuario}`
 - permisos ACL normales en carpetas diarias redirigidas ^(el alumno puede borrar ahi^)
 - copia inicial de Escritorio y Musica al nuevo destino ^(sin borrar origen^)
 - re-mapeo automatico de unidad al iniciar sesion del usuario objetivo
@@ -68,6 +68,22 @@ Aplica:
 Tradeoff:
 
 - puede volver mas rigido mover o renombrar archivos porque NTFS trata esas operaciones muy cerca de borrado
+- puede afectar guardado de Office/Adobe u otras apps que usan temporales + reemplazo atomico en carpetas academicas
+
+### Bloqueo suave
+
+Prioriza compatibilidad de guardado sin permitir que desaparezca la estructura escolar.
+
+Aplica:
+
+- misma base de T:, NoDrives/NoViewOnDrive, papelera endurecida y redireccion diaria a `%BL_ROOT_DIR%\PERFIL\{usuario}`
+- permisos normales sobre `SECUNDARIA` y `PRIMARIA` para que Office/Adobe y apps similares guarden normal
+- proteccion especifica de las carpetas madre y subcarpetas escolares para que no puedan borrarse completas
+- permiso de borrado normal sobre archivos individuales dentro de carpetas academicas
+
+Tradeoff:
+
+- protege la estructura de carpetas, pero un archivo individual si puede borrarse por el alumno
 
 ## Hallazgos tecnicos importantes
 
@@ -82,7 +98,7 @@ Por eso el script combina:
 
 Con eso C: queda oculto y tambien bloqueado desde Explorer.
 
-Para evitar que ese bloqueo rompa el uso diario, el script redirige las carpetas conocidas a T: y realiza una copia inicial de Escritorio/Musica para evitar que aparezcan vacias.
+Para evitar que ese bloqueo rompa el uso diario, el script redirige las carpetas conocidas a la ruta fisica `%BL_ROOT_DIR%\PERFIL\{usuario}` y mantiene T: como acceso adicional. Asi se evita el error de "Ubicacion no disponible" en equipos lentos donde Explorer puede iniciar antes de que T: se remapee.
 
 ### Politicas Explorer vs ACL NTFS
 
@@ -115,7 +131,7 @@ Consecuencia practica:
 - si bloqueas DELETE con mucha dureza, tambien podes romper mover o renombrar archivos
 - si permitis mover o renombrar archivos con menos friccion, el borrado individual no queda bloqueado de forma perfecta solo con NTFS
 
-Por eso el motor integrado adopta el modo estricto y prioriza la proteccion de datos.
+Por eso el motor integrado ahora ofrece dos caminos: `estricto` si la prioridad absoluta es no perder archivos, y `suave` si la prioridad es que las aplicaciones guarden bien sin permitir borrar carpetas completas.
 
 ## Politicas aplicadas al alumno
 
@@ -126,12 +142,12 @@ El script escribe en el hive offline del alumno:
 - NoEmptyRecycleBin=1
 - ConfirmFileDelete=1
 - bloqueo visual del CLSID de Papelera en Shell Extensions
-- redireccion Desktop -> T:\PERFIL\{usuario}\Desktop
-- redireccion Personal (Documents) -> T:\PERFIL\{usuario}\Documents
-- redireccion {374DE290-123F-4565-9164-39C4925E467B} (Downloads) -> T:\PERFIL\{usuario}\Downloads
-- redireccion My Music -> T:\PERFIL\{usuario}\Music
-- redireccion My Pictures -> T:\PERFIL\{usuario}\Pictures
-- redireccion My Video -> T:\PERFIL\{usuario}\Videos
+- redireccion Desktop -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Desktop`
+- redireccion Personal (Documents) -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Documents`
+- redireccion {374DE290-123F-4565-9164-39C4925E467B} (Downloads) -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Downloads`
+- redireccion My Music -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Music`
+- redireccion My Pictures -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Pictures`
+- redireccion My Video -> `%BL_ROOT_DIR%\PERFIL\{usuario}\Videos`
 - entrada en Run para re-mapeo automatico de la unidad virtual al logon
 
 ## Asistente de configuracion
@@ -188,14 +204,17 @@ Despues de aplicar:
 4. validar que Escritorio, Musica, Documentos, Descargas, Imagenes y Videos abren con normalidad
 5. validar que T:\BGInfo abre si existe C:\BGInfo
 6. probar renombrado de carpetas escolares
-7. crear un archivo de prueba en una carpeta escolar y validar que no pueda eliminarse como alumno
+7. crear un archivo de prueba en una carpeta escolar y validar el comportamiento segun modo:
+   - estricto: no deberia poder eliminarse
+   - suave: deberia poder eliminarse
 8. crear un archivo en Escritorio/Documentos/Descargas/Imagenes/Videos y validar que si pueda eliminarse como alumno
 9. probar mover un archivo entre carpetas dentro de T:
 10. probar borrado normal y vaciado de papelera desde Explorer
 
 ## Recomendacion de uso
 
-- Usar Blindaje estricto cuando la prioridad sea no perder archivos.
+- Usar Blindaje estricto cuando la prioridad sea no perder archivos aunque pueda bajar la compatibilidad de guardado.
+- Usar Bloqueo suave cuando la prioridad sea que Office/Adobe guarden bien pero sin permitir borrar carpetas escolares.
 
 ## Limpieza de temporales en opcion 21 ^(modo simple^)
 
@@ -219,13 +238,13 @@ Flujo paso a paso en pantalla:
 1. Muestra rutas analizadas.
 2. Muestra patrones permitidos.
 3. Permite elegir modo:
-	- `1` Solo revisar ^(no borra^)
-	- `2` Revisar y limpiar ^(borra solo temporales permitidos^)
+   - `1` Solo revisar ^(no borra^)
+   - `2` Revisar y limpiar ^(borra solo temporales permitidos^)
 4. Devuelve conteos:
-	- detectados total
-	- detectados en SECUNDARIA y en PRIMARIA
-	- eliminados
-	- bloqueados/en uso
+   - detectados total
+   - detectados en SECUNDARIA y en PRIMARIA
+   - eliminados
+   - bloqueados/en uso
 
 ### Opcion 7 - Tarea programada local ^(automatico en ese equipo^)
 
