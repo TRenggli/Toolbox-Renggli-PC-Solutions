@@ -6,10 +6,10 @@ Esta carpeta contiene los scripts automatizados para generar PDFs de los manuale
 
 ## 📁 CONTENIDO
 
-```
+```text
 Scripts/
 ├── generar_pdfs.bat    # Script para Windows
-└── generar_pdfs.sh     # Script para Linux/Mac
+├── generar_pdfs.sh     # Script para Linux/Mac
 ├── verificar_blindaje_guardado.ps1  # Verifica ACL y guardado en SECUNDARIA/PRIMARIA
 ```
 
@@ -17,25 +17,29 @@ Scripts/
 
 ## 🚀 USO RÁPIDO
 
-### Windows:
+### Windows
+
 ```cmd
 cd Scripts
 generar_pdfs.bat
 ```
 
-### Linux/Mac:
+### Linux/Mac
+
 ```bash
 cd Scripts
 ./generar_pdfs.sh
 ```
 
-### Verificacion post-despliegue de Blindaje V1 (Windows):
+### Verificacion post-despliegue de Blindaje V1 (Windows)
+
 ```powershell
 cd Scripts
 powershell -ExecutionPolicy Bypass -File .\verificar_blindaje_guardado.ps1 -CreateLog
 ```
 
 Opciones utiles:
+
 - `-RootDir "C:\Trabajos Alumnos"` para cambiar la raiz objetivo.
 - `-StudentUser "Usuario"` para cambiar el usuario alumno evaluado.
 - Codigo de salida: `0` (OK), `1` (FAIL), `2` (WARN).
@@ -53,6 +57,7 @@ Para instrucciones detalladas sobre requisitos, instalación de Pandoc/wkhtmltop
 ## 🎯 QUÉ HACE
 
 Estos scripts:
+
 1. Verifican que Pandoc esté instalado
 2. Seleccionan motor PDF automaticamente (preferido: weasyprint, fallback: wkhtmltopdf)
 3. Convierten los 3 manuales (.md) a formato PDF
@@ -65,6 +70,7 @@ Estos scripts:
 ## ✨ RESULTADO
 
 Los PDFs generados mantienen:
+
 - Fondo corporativo oscuro (#0a0e27)
 - Colores profesionales (Cyan, Verde, Amarillo)
 - Tipografía monoespaciada
@@ -73,4 +79,4 @@ Los PDFs generados mantienen:
 
 ---
 
-**© 2024 RENGGLI PC SOLUTIONS**
+## © 2024 RENGGLI PC SOLUTIONS

@@ -82,14 +82,14 @@ function Test-AcademicAcl {
     $normalized = $aclText.ToUpperInvariant()
     $u = $UserName.ToUpperInvariant()
 
-    if ($normalized -match [regex]::Escape("$u:(DENY")) {
+    if ($normalized -match [regex]::Escape($u + ":(DENY")) {
         Add-Result -Area $Area -Check "No DENY for student" -Status "FAIL" -Detail "Found explicit DENY for $UserName"
     }
     else {
         Add-Result -Area $Area -Check "No DENY for student" -Status "OK" -Detail "No explicit DENY detected for $UserName"
     }
 
-    if ($normalized -match [regex]::Escape("$u:(OI)(CI)(M)")) {
+    if ($normalized -match [regex]::Escape($u + ":(OI)(CI)(M)")) {
         Add-Result -Area $Area -Check "Student has Modify" -Status "OK" -Detail "Modify ACE found"
     }
     else {
@@ -151,7 +151,7 @@ if ($rootOk) {
         $rootAcl = Get-AclText -Path $RootDir
         $rootNorm = $rootAcl.ToUpperInvariant()
         $u = $StudentUser.ToUpperInvariant()
-        if ($rootNorm -match [regex]::Escape("$u:(DENY")) {
+        if ($rootNorm -match [regex]::Escape($u + ":(DENY")) {
             Add-Result -Area "ROOT" -Check "Root keeps strict deny" -Status "OK" -Detail "Strict deny still present on root"
         }
         else {
