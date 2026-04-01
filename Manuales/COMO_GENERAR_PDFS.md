@@ -194,4 +194,5 @@ Si tienes problemas con la generación de PDFs:
 
 ---
 
-**© 2024 RENGGLI PC SOLUTIONS**
+**© 2024 Renggli PC Solution**
+

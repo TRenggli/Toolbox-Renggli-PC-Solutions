@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD022 MD026 MD031 MD032 MD033 MD036 MD040 MD060 -->
 
-# 🛠️ RENGGLI PC SOLUTIONS - 企业工具箱 V14
+# 🛠️ Renggli PC Solution - 企业工具箱 V14
 ## 多平台套件 (Windows | Linux | macOS)
 
 **为IT技术人员提供的专业诊断、修复和管理解决方案**
@@ -108,7 +108,7 @@
 
 ```
 ==============================================================================================================
-                        RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
+                        Renggli PC Solution - SUITE ENTERPRISE V14
 ==============================================================================================================
 当前日志: C:\...\Logs\Audit_2024-02-10.log
 
@@ -362,8 +362,8 @@ Windows/Logs/
 在 **配置文件 3（管理）** 中，**选项 21（高安全配置）** 现已包含：
 
 - **同一菜单内提供两种应用模式**。
-- **严格模式**：最大化保护教学文件/文件夹，但 Office/Adobe 这类依赖临时文件或原子替换保存的应用，在教学目录中可能保存失败。
-- **柔性模式**：保护 `SECUNDARIA`、`PRIMARIA` 及其子文件夹不被整体删除，同时允许单个文件正常保存与删除。
+- **严格模式**：最大化保护教学文件/文件夹，但 Office/Adobe 这类依赖临时文件或原子替换保存的应用，在教学目录中可能保存失败；编辑已有文件并覆盖保存也可能失败。
+- **柔性模式**：保护 `%BL_ROOT_DIR%` 下自动识别的教学目录结构（排除 `PERFIL` 与 `BGInfo`）不被整体删除，同时允许单个文件正常保存与删除。
 - **更稳健的日常目录重定向**：桌面/文档/下载/音乐/图片/视频改为指向物理路径 `%BL_ROOT_DIR%\PERFIL\Usuario`，避免慢速 Windows 10 机器在登录时 `T:` 尚未就绪而出现“位置不可用”。
 - 在 `Trabajos Alumnos\SECUNDARIA` 与 `Trabajos Alumnos\PRIMARIA` 的安全手动复核/清理
 - 本地每日自动清理任务创建
@@ -468,7 +468,7 @@ sudo ./toolbox_corporate.sh
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (LINUX)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (LINUX)
 ==============================================================================================================
 当前日志: /路径/Logs/Audit_2024-02-10.log
 发行版: ubuntu 22.04 | 包管理器: apt
@@ -707,7 +707,7 @@ sudo ./toolbox_corporate.sh
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (macOS)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (macOS)
 ==============================================================================================================
 当前日志: /路径/Logs/Audit_2024-02-10.log
 
@@ -1015,4 +1015,4 @@ xcode-select --install
 - Linux: 30 个模块
 - macOS: 14 个模块
 
-**© 2024 RENGGLI PC SOLUTIONS**
+**© 2024 Renggli PC Solution**

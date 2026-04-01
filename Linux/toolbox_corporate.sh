@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# RENGGLI PC SOLUTIONS - Enterprise Toolbox V14 CORPORATE - Linux Edition
+# Renggli PC Solution - Enterprise Toolbox V14 CORPORATE - Linux Edition
 # VERSION CORPORATIVA - Aprobada para entornos corporativos de alto compliance
 # ==============================================================================
 
@@ -87,7 +87,7 @@ detect_distro() {
 profile_select() {
     clear
     echo -e "${CYAN}=============================================================================================================="
-    echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
+    echo "                     Renggli PC Solution - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
     echo "=============================================================================================================="
     echo "Log Actual: $LOG_FILE"
     echo "Distribución: $DISTRO $DISTRO_VERSION | Gestor de paquetes: $PKG_MANAGER"
@@ -115,7 +115,7 @@ main_menu() {
     while true; do
         clear
         echo -e "${CYAN}=============================================================================================================="
-        echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
+        echo "                     Renggli PC Solution - SUITE ENTERPRISE V14 CORPORATE (LINUX)"
         echo "=============================================================================================================="
         echo "Log: $LOG_FILE"
         case $PROFILE_MODE in
@@ -1459,7 +1459,7 @@ generate_report() {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Reporte Renggli PC Solutions CORPORATE - Linux</title>
+<title>Reporte Renggli PC Solution CORPORATE - Linux</title>
 <style>
 body{font-family:Consolas,monospace;background:#0a0e27;color:#00ff41;padding:20px;}
 h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
@@ -1471,7 +1471,7 @@ h2{color:#ffd700;}
 </style>
 </head>
 <body>
-<h1>RENGGLI PC SOLUTIONS - Reporte de Auditoria CORPORATE Linux</h1>
+<h1>Renggli PC Solution - Reporte de Auditoria CORPORATE Linux</h1>
 <div class="corporate">[CORPORATE EDITION] Version Linux - Aprobada para Banca / Big Tech / Enterprise</div>
 <p class="meta">Fecha: $ISO_DATE</p>
 <p class="meta">Usuario: $USER</p>
@@ -1537,7 +1537,7 @@ exit_script() {
     echo "[OK] Log guardado: $LOG_FILE"
     echo ""
     echo -e "${CYAN}[VERSION CORPORATE] Aprobada para entornos de alto compliance${NC}"
-    echo -e "${CYAN}Gracias por usar RENGGLI PC SOLUTIONS${NC}"
+    echo -e "${CYAN}Gracias por usar Renggli PC Solution${NC}"
     echo ""
     exit 0
 }
@@ -1561,3 +1561,4 @@ detect_distro
 check_root
 profile_select
 main_menu
+

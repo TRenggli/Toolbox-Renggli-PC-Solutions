@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD034 MD041 -->
 
-🛠️ RENGGLI PC SOLUTIONS
+🛠️ Renggli PC Solution
 Enterprise Toolbox V14
 Unified Cross‑Platform IT Diagnostics & Repair Suite
 https://img.shields.io/badge/License-Enterprise-blue  
@@ -242,7 +242,7 @@ Email: tomasrenggli@gmail.com
 Full documentation available in the Manuales/ directory.
 
 📜 License
-© 2024 RENGGLI PC SOLUTIONS
+© 2024 Renggli PC Solution
 Enterprise‑grade IT toolbox. All rights reserved.
 
 🔄 Current Version

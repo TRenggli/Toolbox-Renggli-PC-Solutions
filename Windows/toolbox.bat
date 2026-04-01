@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
+title Renggli PC Solution - Enterprise Toolbox V14
 mode con: cols=130 lines=50
 
 :: ==============================================================================
@@ -126,7 +126,7 @@ if "%choice%"=="17" (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
 if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="20" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
-if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & set "EXEC_OK=1")
+if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :CHECK_NONINTERACTIVE_RESULT
@@ -142,7 +142,7 @@ exit /b 1
 cls
 color 0B
 echo  ==============================================================================================================
-echo                                   RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
+echo                                   Renggli PC Solution - SUITE ENTERPRISE V14
 echo  ==============================================================================================================
 echo   Log Actual: !LOG_FILE!
 echo.
@@ -172,7 +172,7 @@ goto :PROFILE_SELECT
 color 0B
 cls
 echo  ==============================================================================================================
-echo                                   RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
+echo                                   Renggli PC Solution - SUITE ENTERPRISE V14
 echo  ==============================================================================================================
 echo   Log Actual: !LOG_FILE!
 
@@ -1395,6 +1395,10 @@ echo    Alumno objetivo: %BL_USER_ALUMNO%
 echo    Carpeta raiz:    %BL_ROOT_DIR%
 echo    Unidad virtual:  %BL_DRIVE_LETTER%
 echo.
+echo    Diferencias rapidas:
+echo    - ESTRICTO: evita borrado de archivos y carpetas academicas ^(maxima proteccion^).
+echo    - SUAVE: protege estructura de carpetas y permite guardado/borrado normal de archivos.
+echo.
 echo    [1] APLICAR BLINDAJE ESTRICTO
 echo    [2] APLICAR BLOQUEO SUAVE ^(protege carpetas, permite borrar archivos^)
 echo    [3] DESHACER TODO ^(revertir cambios^)
@@ -1413,11 +1417,25 @@ set /p "opt=Seleccione una opcion [1-10]: "
 
 if "%opt%"=="1" (
     call :BL_CONFIRMAR_Y_APLICAR STRICT
+    set "BL_LAST_RC=!errorlevel!"
+    if "!BL_LAST_RC!"=="0" (
+        echo [OK] BLINDAJE ESTRICTO aplicado correctamente.
+    ) else (
+        echo [X] No se aplico BLINDAJE ESTRICTO ^(cancelado o con error !BL_LAST_RC!^).
+        echo [i] Revisa el log: !LOG_FILE!
+    )
     pause
     goto BL_MENU
 )
 if "%opt%"=="2" (
     call :BL_CONFIRMAR_Y_APLICAR SOFT
+    set "BL_LAST_RC=!errorlevel!"
+    if "!BL_LAST_RC!"=="0" (
+        echo [OK] BLOQUEO SUAVE aplicado correctamente.
+    ) else (
+        echo [X] No se aplico BLOQUEO SUAVE ^(cancelado o con error !BL_LAST_RC!^).
+        echo [i] Revisa el log: !LOG_FILE!
+    )
     pause
     goto BL_MENU
 )
@@ -1890,36 +1908,46 @@ echo [OK] Perfil diario con permisos normales para %BL_USER_ALUMNO%.
 exit /b 0
 
 :BL_APPLY_ACL_ACADEMIC_NORMAL
-echo [.] Habilitando permisos normales en carpetas academicas (SECUNDARIA/PRIMARIA)...
-for %%R in ("%BL_ROOT_DIR%\SECUNDARIA" "%BL_ROOT_DIR%\PRIMARIA") do (
-    if exist "%%~R" (
-        icacls "%%~R" /inheritance:d /T /C >nul
+echo [.] Habilitando permisos normales en carpetas academicas detectadas...
+set "BL_ACL_TARGET_COUNT=0"
+for /d %%R in ("%BL_ROOT_DIR%\*") do (
+    if /I not "%%~nxR"=="PERFIL" if /I not "%%~nxR"=="BGInfo" (
+        set /a BL_ACL_TARGET_COUNT+=1
+        icacls "%%~fR" /inheritance:d /T /C >nul
         if errorlevel 1 exit /b 1
-        icacls "%%~R" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
-        icacls "%%~R" /grant:r "%BL_USER_ALUMNO%":(OI)(CI)(M) /T /C >nul
+        icacls "%%~fR" /remove:d "%BL_USER_ALUMNO%" /T /C >nul 2>&1
+        icacls "%%~fR" /grant:r "%BL_USER_ALUMNO%":(OI)(CI)(M) /T /C >nul
         if errorlevel 1 exit /b 1
-    ) else (
-        echo [i] %%~nxR no existe; se omite ajuste ACL.
     )
 )
-echo [OK] Carpetas academicas con permisos normales para %BL_USER_ALUMNO%.
+if "%BL_ACL_TARGET_COUNT%"=="0" (
+    echo [i] No se detectaron carpetas academicas para ajustar ACL.
+) else (
+    echo [OK] ACL normal aplicada en !BL_ACL_TARGET_COUNT! carpetas academicas.
+)
 exit /b 0
 
 :BL_PROTECT_ACADEMIC_ROOTS
-echo [.] Protegiendo SECUNDARIA/PRIMARIA contra borrado total...
-for %%R in ("%BL_ROOT_DIR%\SECUNDARIA" "%BL_ROOT_DIR%\PRIMARIA") do (
-    if exist "%%~R" (
-        icacls "%%~R" /remove:d "%BL_USER_ALUMNO%" >nul 2>&1
-        icacls "%%~R" /deny "%BL_USER_ALUMNO%":(DE,DC) >nul
+echo [.] Protegiendo estructura academica contra borrado de carpetas...
+set "BL_PROTECT_TARGET_COUNT=0"
+for /d %%R in ("%BL_ROOT_DIR%\*") do (
+    if /I not "%%~nxR"=="PERFIL" if /I not "%%~nxR"=="BGInfo" (
+        set /a BL_PROTECT_TARGET_COUNT+=1
+        icacls "%%~fR" /remove:d "%BL_USER_ALUMNO%" >nul 2>&1
+        icacls "%%~fR" /deny "%BL_USER_ALUMNO%":(DE,DC) >nul
         if errorlevel 1 exit /b 1
-        for /d %%D in ("%%~R\*") do (
+        for /d %%D in ("%%~fR\*") do (
             icacls "%%~D" /remove:d "%BL_USER_ALUMNO%" >nul 2>&1
             icacls "%%~D" /deny "%BL_USER_ALUMNO%":(DE) >nul
             if errorlevel 1 exit /b 1
         )
     )
 )
-echo [OK] Estructura academica protegida contra borrado de carpetas.
+if "%BL_PROTECT_TARGET_COUNT%"=="0" (
+    echo [i] No se detectaron carpetas academicas para proteger.
+) else (
+    echo [OK] Estructura protegida en !BL_PROTECT_TARGET_COUNT! carpetas academicas.
+)
 exit /b 0
 
 :BL_APPLY_DAILY_FOLDERS_EXCEPTION
@@ -2509,12 +2537,12 @@ set "REPORT_FILE=!LOG_DIR!\Report_!ISO_DATE!_!time::=-!.html"
 set "REPORT_FILE=!REPORT_FILE: =!"
 
 echo ^<!DOCTYPE html^> > "!REPORT_FILE!"
-echo ^<html^>^<head^>^<meta charset="UTF-8"^>^<title^>Reporte Renggli PC Solutions^</title^> >> "!REPORT_FILE!"
+echo ^<html^>^<head^>^<meta charset="UTF-8"^>^<title^>Reporte Renggli PC Solution^</title^> >> "!REPORT_FILE!"
 echo ^<style^>body{font-family:Consolas,monospace;background:#0a0e27;color:#00ff41;padding:20px;} >> "!REPORT_FILE!"
 echo h1{color:#00d4ff;border-bottom:2px solid #00d4ff;} >> "!REPORT_FILE!"
 echo .log{background:#000;padding:15px;border-left:4px solid #00ff41;white-space:pre-wrap;} >> "!REPORT_FILE!"
 echo .meta{color:#ffd700;font-weight:bold;}^</style^>^</head^>^<body^> >> "!REPORT_FILE!"
-echo ^<h1^>RENGGLI PC SOLUTIONS - Reporte de Auditoria^</h1^> >> "!REPORT_FILE!"
+echo ^<h1^>Renggli PC Solution - Reporte de Auditoria^</h1^> >> "!REPORT_FILE!"
 echo ^<p class="meta"^>Fecha: !ISO_DATE!^</p^> >> "!REPORT_FILE!"
 echo ^<p class="meta"^>Usuario: %username%^</p^> >> "!REPORT_FILE!"
 echo ^<p class="meta"^>Computadora: %computername%^</p^> >> "!REPORT_FILE!"

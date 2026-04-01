@@ -69,6 +69,7 @@ Tradeoff:
 
 - puede volver mas rigido mover o renombrar archivos porque NTFS trata esas operaciones muy cerca de borrado
 - puede afectar guardado de Office/Adobe u otras apps que usan temporales + reemplazo atomico en carpetas academicas
+- incluso si un archivo ya existe en carpeta academica, al editarlo y guardar encima puede fallar por el flujo temporal+reemplazo
 
 ### Bloqueo suave
 
@@ -77,7 +78,7 @@ Prioriza compatibilidad de guardado sin permitir que desaparezca la estructura e
 Aplica:
 
 - misma base de T:, NoDrives/NoViewOnDrive, papelera endurecida y redireccion diaria a `%BL_ROOT_DIR%\PERFIL\{usuario}`
-- permisos normales sobre `SECUNDARIA` y `PRIMARIA` para que Office/Adobe y apps similares guarden normal
+- permisos normales sobre carpetas academicas detectadas bajo `%BL_ROOT_DIR%` ^(excepto `PERFIL` y `BGInfo`^) para que Office/Adobe y apps similares guarden normal
 - proteccion especifica de las carpetas madre y subcarpetas escolares para que no puedan borrarse completas
 - permiso de borrado normal sobre archivos individuales dentro de carpetas academicas
 

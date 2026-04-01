@@ -4,7 +4,7 @@ setlocal
 REM Moverse al directorio del script para rutas relativas consistentes
 pushd "%~dp0"
 REM ==============================================================================
-REM RENGGLI PC SOLUTIONS - Generador de PDFs Corporativos
+REM Renggli PC Solution - Generador de PDFs Corporativos
 REM Convierte los manuales .md a .pdf con formato profesional
 REM ==============================================================================
 
@@ -14,7 +14,7 @@ set "FAIL_LIST="
 color 0B
 echo.
 echo ==============================================================================
-echo          RENGGLI PC SOLUTIONS - Generador de PDFs de Manuales
+echo          Renggli PC Solution - Generador de PDFs de Manuales
 echo ==============================================================================
 echo.
 
@@ -100,9 +100,9 @@ echo ===========================================================================
 pandoc "..\Manuales\README_ES.md" -o "..\Manuales\PDFs\Manual_Toolbox_V14_ES.pdf" ^
     --pdf-engine=%PDF_ENGINE% ^
     --css="..\Manuales\estilo_pdf_corporativo.css" ^
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" ^
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" ^
     --metadata subtitle="Manual Completo en Espanol" ^
-    --metadata author="Renggli PC Solutions" ^
+    --metadata author="Renggli PC Solution" ^
     --metadata date="%BUILD_DATE%" ^
     --toc ^
     --toc-depth=2
@@ -124,9 +124,9 @@ echo ===========================================================================
 pandoc "..\Manuales\README_EN.md" -o "..\Manuales\PDFs\Manual_Toolbox_V14_EN.pdf" ^
     --pdf-engine=%PDF_ENGINE% ^
     --css="..\Manuales\estilo_pdf_corporativo.css" ^
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" ^
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" ^
     --metadata subtitle="Complete Manual in English" ^
-    --metadata author="Renggli PC Solutions" ^
+    --metadata author="Renggli PC Solution" ^
     --metadata date="%BUILD_DATE%" ^
     --toc ^
     --toc-depth=2
@@ -148,9 +148,9 @@ echo ===========================================================================
 pandoc "..\Manuales\README_CN.md" -o "..\Manuales\PDFs\Manual_Toolbox_V14_CN.pdf" ^
     --pdf-engine=%PDF_ENGINE% ^
     --css="..\Manuales\estilo_pdf_corporativo.css" ^
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" ^
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" ^
     --metadata subtitle="完整手册 (中文)" ^
-    --metadata author="Renggli PC Solutions" ^
+    --metadata author="Renggli PC Solution" ^
     --metadata date="%BUILD_DATE%" ^
     --toc ^
     --toc-depth=2
@@ -188,8 +188,9 @@ pause >nul
 explorer "..\Manuales\PDFs"
 echo.
 echo ==============================================================================
-echo Gracias por usar RENGGLI PC SOLUTIONS
+echo Gracias por usar Renggli PC Solution
 echo ==============================================================================
 echo.
 pause
 popd
+

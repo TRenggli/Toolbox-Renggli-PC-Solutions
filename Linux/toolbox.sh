@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# RENGGLI PC SOLUTIONS - Enterprise Toolbox V14 - Linux Edition
+# Renggli PC Solution - Enterprise Toolbox V14 - Linux Edition
 # Todas las funcionalidades de Windows + Características específicas de Linux
 # ==============================================================================
 
@@ -86,7 +86,7 @@ detect_distro() {
 profile_select() {
     clear
     echo -e "${CYAN}=============================================================================================================="
-    echo "                          RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (LINUX)"
+    echo "                          Renggli PC Solution - SUITE ENTERPRISE V14 (LINUX)"
     echo "=============================================================================================================="
     echo "Log Actual: $LOG_FILE"
     echo "Distribución: $DISTRO $DISTRO_VERSION | Gestor de paquetes: $PKG_MANAGER"
@@ -114,7 +114,7 @@ main_menu() {
     while true; do
         clear
         echo -e "${CYAN}=============================================================================================================="
-        echo "                          RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (LINUX)"
+        echo "                          Renggli PC Solution - SUITE ENTERPRISE V14 (LINUX)"
         echo "=============================================================================================================="
         echo "Log: $LOG_FILE"
         case $PROFILE_MODE in
@@ -1458,7 +1458,7 @@ generate_report() {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Reporte Renggli PC Solutions - Linux</title>
+<title>Reporte Renggli PC Solution - Linux</title>
 <style>
 body{font-family:Consolas,monospace;background:#0a0e27;color:#00ff41;padding:20px;}
 h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
@@ -1469,7 +1469,7 @@ h2{color:#ffd700;}
 </style>
 </head>
 <body>
-<h1>RENGGLI PC SOLUTIONS - Reporte de Auditoria Linux</h1>
+<h1>Renggli PC Solution - Reporte de Auditoria Linux</h1>
 <p class="meta">Fecha: $ISO_DATE</p>
 <p class="meta">Usuario: $USER</p>
 <p class="meta">Hostname: $(hostname)</p>
@@ -1533,7 +1533,7 @@ exit_script() {
 
     echo "[OK] Log guardado: $LOG_FILE"
     echo ""
-    echo -e "${CYAN}Gracias por usar RENGGLI PC SOLUTIONS${NC}"
+    echo -e "${CYAN}Gracias por usar Renggli PC Solution${NC}"
     echo ""
     exit 0
 }
@@ -1557,3 +1557,4 @@ detect_distro
 check_root
 profile_select
 main_menu
+

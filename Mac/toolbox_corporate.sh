@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# RENGGLI PC SOLUTIONS - Enterprise Toolbox V14 CORPORATE - macOS Edition
+# Renggli PC Solution - Enterprise Toolbox V14 CORPORATE - macOS Edition
 # ==============================================================================
 
 # Keep pipelines strict, but avoid aborting the whole suite on non-critical module errors.
@@ -45,7 +45,7 @@ check_root() {
 profile_select() {
     clear
     echo -e "${CYAN}=============================================================================================================="
-    echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (macOS)"
+    echo "                     Renggli PC Solution - SUITE ENTERPRISE V14 CORPORATE (macOS)"
     echo "=============================================================================================================="
     echo "Log Actual: $LOG_FILE"
     echo ""
@@ -72,7 +72,7 @@ main_menu() {
     while true; do
         clear
         echo -e "${CYAN}=============================================================================================================="
-        echo "                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 CORPORATE (macOS)"
+        echo "                     Renggli PC Solution - SUITE ENTERPRISE V14 CORPORATE (macOS)"
         echo "=============================================================================================================="
         echo "Log Actual: $LOG_FILE"
         case $PROFILE_MODE in
@@ -397,7 +397,7 @@ mod_system_report() {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Reporte Renggli PC Solutions Corporate - macOS</title>
+<title>Reporte Renggli PC Solution Corporate - macOS</title>
 <style>
 body{font-family:Consolas,monospace;background:#0a0e27;color:#00ff41;padding:20px;}
 h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
@@ -407,7 +407,7 @@ h1{color:#00d4ff;border-bottom:2px solid #00d4ff;}
 </style>
 </head>
 <body>
-<h1>RENGGLI PC SOLUTIONS - Reporte de Auditoria CORPORATE macOS</h1>
+<h1>Renggli PC Solution - Reporte de Auditoria CORPORATE macOS</h1>
 <div class="corporate">[CORPORATE EDITION] Version macOS - Aprobada para Banca / Big Tech / Enterprise</div>
 <p class="meta">Fecha: $ISO_DATE</p>
 <p class="meta">Usuario: $USER</p>
@@ -695,3 +695,4 @@ exit_no_log() {
 check_root
 profile_select
 main_menu
+

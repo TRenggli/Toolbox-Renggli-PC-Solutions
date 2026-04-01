@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD022 MD026 MD031 MD032 MD033 MD036 MD040 MD060 -->
 
-# 🛠️ RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
+# 🛠️ Renggli PC Solution - Enterprise Toolbox V14
 ## Multi-Platform Suite (Windows | Linux | macOS)
 
 **Professional diagnostic, repair and administration solution for IT technicians**
@@ -108,7 +108,7 @@ When you run it, you'll see this screen:
 
 ```
 ==============================================================================================================
-                        RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
+                        Renggli PC Solution - SUITE ENTERPRISE V14
 ==============================================================================================================
 Current Log: C:\...\Logs\Audit_2024-02-10.log
 
@@ -362,8 +362,8 @@ Windows/Logs/
 Inside **Profile 3 (Administration)**, **Option 21 (High Security Profile)** now includes:
 
 - **Two apply paths** inside the same menu.
-- **Strict hardening**: maximum protection for academic files/folders, but Office/Adobe style atomic save workflows can fail in academic folders.
-- **Soft lock**: protects `SECUNDARIA`, `PRIMARIA`, and their subfolders from structural deletion while allowing normal save/delete of individual files.
+- **Strict hardening**: maximum protection for academic files/folders, but Office/Adobe style atomic save workflows can fail in academic folders; editing an existing file and saving over it can also fail.
+- **Soft lock**: protects the academic folder structure detected under `%BL_ROOT_DIR%` (excluding `PERFIL` and `BGInfo`) while allowing normal save/delete of individual files.
 - **Robust daily-folder redirection**: Desktop/Documents/Downloads/Music/Pictures/Videos now point to the physical `%BL_ROOT_DIR%\PERFIL\Usuario` path so slow Windows 10 machines do not fail when `T:` is not ready yet at sign-in.
 - safe manual temp review/cleanup in `Trabajos Alumnos\SECUNDARIA` and `Trabajos Alumnos\PRIMARIA`
 - local daily scheduled auto-clean task setup
@@ -468,7 +468,7 @@ You'll see this screen:
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (LINUX)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (LINUX)
 ==============================================================================================================
 Current Log: /path/Logs/Audit_2024-02-10.log
 Distribution: ubuntu 22.04 | Package manager: apt
@@ -707,7 +707,7 @@ You'll see this screen:
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (macOS)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (macOS)
 ==============================================================================================================
 Current Log: /path/Logs/Audit_2024-02-10.log
 
@@ -1015,4 +1015,4 @@ Problems or questions?
 - Linux: 30 modules
 - macOS: 14 modules
 
-**© 2024 RENGGLI PC SOLUTIONS**
+**© 2024 Renggli PC Solution**

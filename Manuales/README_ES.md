@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD022 MD026 MD031 MD032 MD033 MD036 MD040 MD060 -->
 
-# 🛠️ RENGGLI PC SOLUTIONS - Enterprise Toolbox V14
+# 🛠️ Renggli PC Solution - Enterprise Toolbox V14
 ## Suite Multiplataforma (Windows | Linux | macOS)
 
 **Solución profesional de diagnóstico, reparación y administración para técnicos IT**
@@ -108,7 +108,7 @@ Al ejecutar, verás esta pantalla:
 
 ```
 ==============================================================================================================
-                        RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14
+                        Renggli PC Solution - SUITE ENTERPRISE V14
 ==============================================================================================================
 Log Actual: C:\...\Logs\Audit_2024-02-10.log
 
@@ -260,8 +260,8 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 Dentro de **Perfil 3 (Administración)**, la **opción 21 (Perfil Seguridad Alta)** ahora incluye:
 
 - **Dos caminos de aplicación** dentro del mismo menú.
-- **Blindaje estricto**: maximiza la protección sobre archivos y carpetas académicas, pero algunas apps como Office/Adobe pueden fallar al guardar si usan temporales o reemplazo atómico.
-- **Bloqueo suave**: protege `SECUNDARIA`, `PRIMARIA` y sus subcarpetas contra borrado estructural, pero permite guardar y borrar archivos individuales con normalidad.
+- **Blindaje estricto**: maximiza la protección sobre archivos y carpetas académicas, pero algunas apps como Office/Adobe pueden fallar al guardar si usan temporales o reemplazo atómico; incluso editar un archivo existente y guardar sobre el mismo puede fallar.
+- **Bloqueo suave**: protege la estructura de carpetas académicas detectadas bajo `%BL_ROOT_DIR%` (excepto `PERFIL` y `BGInfo`), pero permite guardar y borrar archivos individuales con normalidad.
 - **Redirección diaria robusta**: Escritorio/Documentos/Descargas/Música/Imágenes/Vídeos apuntan a la ruta física `%BL_ROOT_DIR%\PERFIL\Usuario`, evitando el error de “Ubicación no disponible” si `T:` tarda en aparecer al iniciar en equipos lentos.
 - **Revisión/Limpieza manual segura**: busca solo temporales en `Trabajos Alumnos\SECUNDARIA` y `Trabajos Alumnos\PRIMARIA` con patrones `~$*`, `.tmp`, `.temp`.
 - **Programación automática local**: crea una tarea diaria en ese equipo para la misma limpieza segura.
@@ -470,7 +470,7 @@ Verás esta pantalla:
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (LINUX)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (LINUX)
 ==============================================================================================================
 Log Actual: /ruta/Logs/Audit_2024-02-10.log
 Distribución: ubuntu 22.04 | Gestor de paquetes: apt
@@ -709,7 +709,7 @@ Verás esta pantalla:
 
 ```
 ==============================================================================================================
-                     RENGGLI PC SOLUTIONS - SUITE ENTERPRISE V14 (macOS)
+                     Renggli PC Solution - SUITE ENTERPRISE V14 (macOS)
 ==============================================================================================================
 Log Actual: /ruta/Logs/Audit_2024-02-10.log
 
@@ -1016,4 +1016,4 @@ Incluye cobertura de:
 - Linux: 30 módulos
 - macOS: 14 módulos
 
-**© 2024 RENGGLI PC SOLUTIONS**
+**© 2024 Renggli PC Solution**

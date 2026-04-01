@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# RENGGLI PC SOLUTIONS - Generador de PDFs Corporativos
+# Renggli PC Solution - Generador de PDFs Corporativos
 # Convierte los manuales .md a .pdf con formato profesional
 # ==============================================================================
 
@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 clear
 echo -e "${CYAN}=============================================================================="
-echo "         RENGGLI PC SOLUTIONS - Generador de PDFs de Manuales"
+echo "         Renggli PC Solution - Generador de PDFs de Manuales"
 echo "==============================================================================${NC}"
 echo ""
 
@@ -95,9 +95,9 @@ echo "==========================================================================
 pandoc "../Manuales/README_ES.md" -o "../Manuales/PDFs/Manual_Toolbox_V14_ES.pdf" \
     --pdf-engine="$PDF_ENGINE" \
     --css="../Manuales/estilo_pdf_corporativo.css" \
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" \
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" \
     --metadata subtitle="Manual Completo en Español" \
-    --metadata author="Renggli PC Solutions" \
+    --metadata author="Renggli PC Solution" \
     --metadata date="$(date +%Y-%m-%d)" \
     --toc \
     --toc-depth=2
@@ -119,9 +119,9 @@ echo "==========================================================================
 pandoc "../Manuales/README_EN.md" -o "../Manuales/PDFs/Manual_Toolbox_V14_EN.pdf" \
     --pdf-engine="$PDF_ENGINE" \
     --css="../Manuales/estilo_pdf_corporativo.css" \
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" \
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" \
     --metadata subtitle="Complete Manual in English" \
-    --metadata author="Renggli PC Solutions" \
+    --metadata author="Renggli PC Solution" \
     --metadata date="$(date +%Y-%m-%d)" \
     --toc \
     --toc-depth=2
@@ -143,9 +143,9 @@ echo "==========================================================================
 pandoc "../Manuales/README_CN.md" -o "../Manuales/PDFs/Manual_Toolbox_V14_CN.pdf" \
     --pdf-engine="$PDF_ENGINE" \
     --css="../Manuales/estilo_pdf_corporativo.css" \
-    --metadata title="RENGGLI PC SOLUTIONS - Enterprise Toolbox V14" \
+    --metadata title="Renggli PC Solution - Enterprise Toolbox V14" \
     --metadata subtitle="完整手册 (中文)" \
-    --metadata author="Renggli PC Solutions" \
+    --metadata author="Renggli PC Solution" \
     --metadata date="$(date +%Y-%m-%d)" \
     --toc \
     --toc-depth=2
@@ -176,6 +176,7 @@ else
 fi
 echo ""
 echo -e "${CYAN}=============================================================================="
-echo "Gracias por usar RENGGLI PC SOLUTIONS"
+echo "Gracias por usar Renggli PC Solution"
 echo "==============================================================================${NC}"
 echo ""
+
