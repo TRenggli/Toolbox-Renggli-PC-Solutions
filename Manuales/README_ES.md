@@ -42,8 +42,7 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
    ```
    Herramienta-toolbox/
    ├── Windows/
-   │   ├── toolbox.bat
-   │   └── toolbox_corporate.bat
+   │   └── toolbox.bat
    ├── Linux/
    ├── Mac/
    └── Manuales/
@@ -54,9 +53,8 @@ Este manual cubre la instalación y uso en **Windows, Linux y macOS**.
 1. Abre el **Explorador de Archivos** (Windows + E)
 2. Navega hasta donde extrajiste la herramienta
 3. Entra a la carpeta **`Windows`**
-4. Verás los archivos:
-   - `toolbox.bat` (versión completa)
-   - `toolbox_corporate.bat` (versión corporativa sin MAS)
+4. Verás el archivo:
+   - `toolbox.bat` (versión única de Windows)
 
 ### Paso 3: Ejecutar como Administrador
 
@@ -253,8 +251,6 @@ Después de seleccionar el perfil, verás el menú específico para ese perfil:
 
 **Este perfil tiene acceso completo**, incluyendo operaciones criticas como formateo/conversion y la opcion 21 de Blindaje V1.
 
-> Nota: en `toolbox_corporate.bat`, la opcion 13 aparece como `MODULO 13 REMOVIDO` por compliance.
-
 ### Limpieza de temporales en aulas (opción 21)
 
 Dentro de **Perfil 3 (Administración)**, la **opción 21 (Perfil Seguridad Alta)** ahora incluye:
@@ -299,6 +295,7 @@ Ejemplos rapidos (version completa `toolbox.bat`):
   - `toolbox.bat /perfil:1 /mod:1` (Test RAM)
   - `toolbox.bat /perfil:1 /mod:4` (Estado Windows Update)
   - `toolbox.bat /perfil:1 /mod:11` (Estado RAID/Storage)
+  - `toolbox.bat /perfil:1 /mod:12` (Estado SMART de discos)
 - Perfil 2 (Reparacion):
   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
   - `toolbox.bat /perfil:2 /mod:5` (Reparar Windows Update)
@@ -307,12 +304,7 @@ Ejemplos rapidos (version completa `toolbox.bat`):
   - `toolbox.bat /perfil:3 /mod:10` (Formateo seguro)
   - `toolbox.bat /perfil:3 /mod:11` (Conversion MBR a GPT)
   - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
-
-Ejemplos rapidos (version `toolbox_corporate.bat`):
-
-- `toolbox_corporate.bat /perfil:1 /mod:1` (SMART)
-- `toolbox_corporate.bat /perfil:2 /mod:6` (Reparar Windows Update)
-- `toolbox_corporate.bat /perfil:3 /mod:10` (Formateo seguro)
+  - `toolbox.bat /perfil:3 /mod:22` (Gestor de Passwords PostgreSQL)
 
 Notas:
 - Si `perfil/modulo` no es valido para ese perfil, la ejecucion se bloquea y se registra en log.
@@ -370,9 +362,7 @@ Windows/Logs/
 1. Instalar/activar WSL y una distro (por ejemplo Ubuntu).
 2. Reintentar validación de sintaxis desde Linux/WSL:
    - `bash -n Linux/toolbox.sh`
-   - `bash -n Linux/toolbox_corporate.sh`
    - `bash -n Mac/toolbox.sh`
-   - `bash -n Mac/toolbox_corporate.sh`
 
 ---
 
@@ -427,15 +417,14 @@ Windows/Logs/
    Deberías ver:
    ```
    toolbox.sh
-   toolbox_corporate.sh
    ```
 
 ### Paso 3: Dar permisos de ejecución
 
-🔴 **IMPORTANTE**: Los scripts necesitan permisos de ejecución
+🔴 **IMPORTANTE**: El script necesita permisos de ejecución
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 **Explicación:**
@@ -446,14 +435,9 @@ chmod +x toolbox.sh toolbox_corporate.sh
 
 🔴 **IMPORTANTE**: Debes ejecutar con sudo (como root)
 
-**Para la versión completa:**
+**Ejecutar:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**Para la versión corporativa (sin módulos de activación):**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **¿Qué significa cada parte?**
@@ -655,13 +639,12 @@ ls -l
 Deberías ver:
 ```
 toolbox.sh
-toolbox_corporate.sh
 ```
 
 ### Paso 4: Dar permisos de ejecución
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 ### Paso 5: Permitir ejecución en Seguridad (Primera vez)
@@ -672,7 +655,7 @@ macOS bloquea scripts descargados de internet. Para permitirlos:
 
 **Opción A - Remover cuarentena:**
 ```bash
-xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
+xattr -d com.apple.quarantine toolbox.sh
 ```
 
 **Opción B - Si aparece mensaje de seguridad:**
@@ -690,14 +673,9 @@ xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 
 🔴 **IMPORTANTE**: Debes ejecutar con sudo
 
-**Para la versión completa:**
+**Ejecutar:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**Para la versión corporativa:**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **Te pedirá tu contraseña de macOS**: Escríbela y presiona Enter
@@ -852,7 +830,7 @@ xcode-select --install
 
 ## 🆕 MODULOS NUEVOS EN WINDOWS (V14)
 
-Se agregaron los siguientes modulos en `Windows/toolbox.bat` y `Windows/toolbox_corporate.bat`:
+Se agregaron los siguientes modulos en `Windows/toolbox.bat`:
 
 - Eventos Criticos del Sistema (disco/energia)
 - Analisis BSOD (Minidump + Event ID 1001)
@@ -885,14 +863,11 @@ Antes de agregar modulos, se recomienda:
 
 ### 2) Dónde se agregan las funciones por sistema
 
-Para mantener paridad entre ediciones normal/corporate:
+Una sola version por sistema operativo:
 
-- Windows normal: `Windows/toolbox.bat`
-- Windows corporate: `Windows/toolbox_corporate.bat`
-- Linux normal: `Linux/toolbox.sh`
-- Linux corporate: `Linux/toolbox_corporate.sh`
-- macOS normal: `Mac/toolbox.sh`
-- macOS corporate: `Mac/toolbox_corporate.sh`
+- Windows: `Windows/toolbox.bat`
+- Linux: `Linux/toolbox.sh`
+- macOS: `Mac/toolbox.sh`
 
 Regla general:
 
@@ -948,8 +923,7 @@ Si el modulo modifica sistema, disco o red, debes cumplir esto:
 ### 6) Checklist rapido antes de publicar
 
 1. El modulo aparece solo en el/los perfiles correctos.
-2. Funciona en version normal y corporate (o se bloquea con mensaje claro en corporate).
-3. Tiene validaciones, confirmaciones y log.
+2. Tiene validaciones, confirmaciones y log.
 4. No rompe opciones de salida (`0` y `00`) ni el retorno al menu.
 5. No introduce patrones inseguros en limpieza/apagado/disco.
 6. Pruebas manuales basicas completadas en el sistema objetivo.
@@ -970,9 +944,8 @@ Y sigue el flujo de contribucion definido en:
 ### 8) Ejemplo de flujo recomendado (resumen)
 
 1. Diseñar el modulo y su perfil objetivo.
-2. Implementarlo en script normal del sistema operativo.
-3. Replicar/adaptar en script corporate.
-4. Probar rutas exitosas y de error.
+2. Implementarlo en el script del sistema operativo.
+3. Probar rutas exitosas y de error.
 5. Verificar logs, salida y regreso al menu.
 6. Actualizar documentacion y registrar en historial.
 7. Crear PR con alcance, riesgos y validaciones realizadas.
@@ -987,9 +960,7 @@ Para entender **cada opcion** (que hace, para que sirve, cuando usarla y recaudo
 
 Incluye cobertura de:
 
-- Windows (normal y corporate)
-- Linux (normal y corporate)
-- macOS (normal y corporate)
+- Windows, Linux y macOS
 - Perfiles `DIAGNOSTICO`, `REPARACION`, `ADMINISTRACION`
 - Etiquetas de riesgo `[R]`, `[W]`, `[!]`
 

@@ -4,10 +4,7 @@
 > La guia operativa principal de la opcion 21 ya esta integrada en `Manuales/README_ES.md` y `Manuales/CATALOGO_OPCIONES_ES.md`.
 > Este archivo se conserva como referencia tecnica ampliada.
 
-Este manual describe el motor de Blindaje V1 ahora integrado en la opcion 21 ^(Perfil Seguridad Alta^) de:
-
-- `Windows/toolbox.bat`
-- `Windows/toolbox_corporate.bat`
+Este manual describe el motor de Blindaje V1 ahora integrado en la opcion 21 ^(Perfil Seguridad Alta^) de `Windows/toolbox.bat`.
 
 El motor se opera desde esa opcion integrada de Windows.
 

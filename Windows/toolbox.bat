@@ -83,6 +83,7 @@ if "%choice%"=="8"  (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
 if "%choice%"=="9"  (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
 if "%choice%"=="10" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="11" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
+if "%choice%"=="12" (call :MOD_SMART & set "EXEC_OK=1")
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :MENU_REPARACION_EXEC
@@ -208,6 +209,7 @@ echo    8. [R] Eventos Criticos (Sistema)
 echo    9. [R] Analisis BSOD (Minidump)
 echo    10. [R] Auditoria Forense de Procesos
 echo    11. [R] Estado RAID/Storage
+echo    12. [R] Estado SMART de Discos
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -230,6 +232,7 @@ if "%choice%"=="8"  (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
 if "%choice%"=="9"  (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
 if "%choice%"=="10" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="11" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
+if "%choice%"=="12" (call :MOD_SMART & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -1389,6 +1392,30 @@ if errorlevel 1 (
     exit /b
 )
 call :MAS_LOGIC
+exit /b
+
+:MOD_SMART
+cls
+color 0A
+echo  ==============================================================================
+echo   [AUDITORIA SMART] Analizando salud de las unidades...
+echo  ==============================================================================
+echo.
+call :MODULE_CONFIRM "Consulta SMART de discos (solo lectura)." "No modifica el sistema."
+if errorlevel 1 (
+    echo  [i] Operacion cancelada.
+    echo [%time%] Auditoria SMART cancelada por el usuario >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo  [i] Consultando discos del sistema...
+echo.
+powershell "Get-CimInstance -ClassName Win32_DiskDrive | Select-Object Model, Status, @{Name='Size(GB)';Expression={[math]::round($_.Size/1GB,2)}}"
+echo.
+echo  [OK] Auditoria completada. Informacion registrada en log.
+echo.
+echo [%time%] Ejecutada Auditoria SMART >> "!LOG_FILE!"
+pause
 exit /b
 
 :MOD_POSTGRES

@@ -1,6 +1,6 @@
 # Plantillas de Módulos - Toolbox (Windows)
 
-Guía para agregar tus propios módulos a `Windows/toolbox.bat` (o `toolbox_corporate.bat`).
+Guía para agregar tus propios módulos a `Windows/toolbox.bat`.
 
 Hay dos formas de agregar un módulo:
 
@@ -128,7 +128,7 @@ call "%~dp0modules\mi_modulo.bat"
 exit /b
 ```
 
-Ventaja: el motor principal no crece, el módulo se puede probar por separado y se reutiliza entre `toolbox.bat` y `toolbox_corporate.bat` sin duplicar código.
+Ventaja: el motor principal no crece y el módulo se puede probar por separado, sin inflar el archivo principal.
 
 ### Registro en los 3 puntos del menú de Administración
 

@@ -24,15 +24,13 @@ jobs:
         run: |
           set -euo pipefail
           bash -n Linux/toolbox.sh
-          bash -n Linux/toolbox_corporate.sh
           bash -n Mac/toolbox.sh
-          bash -n Mac/toolbox_corporate.sh
 
       - name: Ensure no global set -e
         shell: bash
         run: |
           set -euo pipefail
-          if grep -nE '^set -e$' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh; then
+          if grep -nE '^set -e$' Linux/toolbox.sh Mac/toolbox.sh; then
             echo "Detected forbidden global set -e"
             exit 1
           fi
@@ -41,9 +39,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -n 'set -o pipefail' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh
-          grep -n 'check_existing_cron_shutdown' Linux/toolbox.sh Linux/toolbox_corporate.sh
-          grep -n 'check_existing_launchd_shutdown' Mac/toolbox.sh Mac/toolbox_corporate.sh
+          grep -n 'set -o pipefail' Linux/toolbox.sh Mac/toolbox.sh
+          grep -n 'check_existing_cron_shutdown' Linux/toolbox.sh
+          grep -n 'check_existing_launchd_shutdown' Mac/toolbox.sh
           if grep -nE 'grep -rl "shutdown" /etc/cron.d|grep -rl "shutdown" /Library/LaunchDaemons|sed -i.*/shutdown/d' Linux/*.sh Mac/*.sh; then
             echo "Detected unsafe global shutdown cleanup pattern"
             exit 1
@@ -62,7 +60,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $winFiles = @('Windows/toolbox.bat', 'Windows/toolbox_corporate.bat')
+          $winFiles = @('Windows/toolbox.bat')
 
           foreach ($f in $winFiles) {
             $content = Get-Content -Path $f -Raw

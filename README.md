@@ -15,28 +15,25 @@ A professional multi‑platform toolbox designed for system administrators, IT t
 Supports Windows, Linux, and macOS, offering diagnostics, maintenance, repair, and advanced administration tools.
 
 Note:  
-This repository contains the Enterprise Edition.
-A separate Personal Edition exists, which includes Windows & Office activation utilities.
-These modules are not included in the corporate version.
+This is the single unified edition per OS (Windows / Linux / macOS). It includes all
+modules, all execution profiles, and the Windows activation utilities (MAS), intended
+for authorized/testing use.
 
 📁 Project Structure
 Código
 Toolbox/
 │
 ├── Windows/
-│   ├── toolbox.bat               # Full version
-│   ├── toolbox_corporate.bat     # Corporate version
-│   ├── MAS_AIO.cmd               # Activation module (Personal Edition)
+│   ├── toolbox.bat               # Unified Windows toolbox
+│   ├── MAS_AIO.cmd               # Activation module (MAS)
 │   └── modules/
-│       └── postgres_manager.bat  # PostgreSQL password manager (called by both engines)
+│       └── postgres_manager.bat  # PostgreSQL password manager
 │
 ├── Linux/
-│   ├── toolbox.sh                # Full version (30 modules)
-│   └── toolbox_corporate.sh      # Corporate version
+│   └── toolbox.sh                # Unified Linux toolbox (30 modules)
 │
 ├── Mac/
-│   ├── toolbox.sh                # Full version
-│   └── toolbox_corporate.sh      # Corporate version
+│   └── toolbox.sh                # Unified macOS toolbox
 │
 ├── Manuales/
 │   ├── README_ES.md              # Spanish manual
@@ -179,20 +176,10 @@ System cleanup & maintenance
 For PDF requirements, execution steps, troubleshooting, and technical details, use:
 `Manuales/COMO_GENERAR_PDFS.md`
 
-🆚 Editions
-Full Edition (toolbox)
-All modules enabled
-
-Includes Windows activation tools (Personal Edition only)
-
-All execution profiles available
-
-Corporate Edition (toolbox_corporate)
-Activation modules removed
-
-Designed for licensed enterprise environments
-
-Logs marked as VERSION: CORPORATE
+🆚 Edition
+A single unified edition per OS (Windows / Linux / macOS). All modules and all
+execution profiles are enabled, including the Windows activation utilities (MAS),
+intended for authorized/testing use.
 
 📊 Logs & Reports
 Each execution generates:

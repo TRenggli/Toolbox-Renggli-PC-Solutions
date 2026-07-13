@@ -19,9 +19,9 @@ Profiles:
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
 | --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
-| 1 | SMART, RAM, or BIOS (profile/edition-dependent) | D/R/A | [R] | Depending on menu: SMART health, RAM test, or BIOS/board info | Inventory, early diagnostics, hardware health checks | Read-only. RAM test may require reboot |
-| 2 | RAM, resources, or BIOS (profile/edition-dependent) | D/R/A | [R] | Depending on menu: RAM test, system resources, or BIOS/board info | Validate capacity and performance symptoms | Read-only |
-| 3 | Resources, BIOS, or RAM (profile/edition-dependent) | D/R/A | [R] | Depending on menu: system resources, BIOS/board info, or RAM test | Confirm baseline status before interventions | Read-only |
+| 1 | SMART, RAM, or BIOS (profile-dependent) | D/R/A | [R] | Depending on menu: SMART health, RAM test, or BIOS/board info | Inventory, early diagnostics, hardware health checks | Read-only. RAM test may require reboot |
+| 2 | RAM, resources, or BIOS (profile-dependent) | D/R/A | [R] | Depending on menu: RAM test, system resources, or BIOS/board info | Validate capacity and performance symptoms | Read-only |
+| 3 | Resources, BIOS, or RAM (profile-dependent) | D/R/A | [R] | Depending on menu: system resources, BIOS/board info, or RAM test | Confirm baseline status before interventions | Read-only |
 | 4 | WU status or DISM/SFC (profile-dependent) | D/R/A | [R]/[W] | In D it queries; in R/A it repairs image/files | Windows integrity incidents | Do not interrupt DISM/SFC |
 | 5 | DNS audit or WU repair (profile-dependent) | D/R/A | [R]/[W] | Queries ports/DNS or repairs WU stack | Update/network incidents | Repair mode changes services/cache |
 | 6 | Speed/cleanup/WU status (profile-dependent) | D/R/A | [R]/[W] | Diagnostic query or cleanup depending on profile | Diagnostics or maintenance | Cleanup removes temp files |
@@ -31,7 +31,7 @@ Profiles:
 | 10 | Process forensics or disk format (A) | D/R/A | [R]/[!] | In D/R audits processes; in A formats media: detects whether the disk is removable (USB/SD) and lets you pick exFAT/FAT32/NTFS | Malware suspicion / media prep | Blocks the system disk; if the disk is NOT removable it requires typing `FORMATEAR-FIJO`; confirm target disk |
 | 11 | RAID status or MBR->GPT (A) | D/R/A | [R]/[!] | In D/R reads storage status; in A converts partition scheme | Storage diagnostics / migration | Wrong conversion can break boot |
 | 12 | RAID status / Winget / maintenance tools | D/R/A | [R]/[W] | Storage query or app updates | Software maintenance | Updates may require restart |
-| 13 | Process forensics / Driver backup / MAS (normal) | R/A | [W] | In R driver backup; in A normal edition MAS; corporate blocked | Pre-repair backup or licensed activation | Backup consumes disk; MAS only where authorized |
+| 13 | Process forensics / Driver backup / MAS | R/A | [W] | In R driver backup; in A MAS | Pre-repair backup or licensed activation | Backup consumes disk; MAS only where authorized |
 | 14 | Critical events / scheduled shutdown | R/A | [R]/[W] | Event query or shutdown scheduling | Incident review or automation | Risk of service interruption. Use validated `HH:MM` time format |
 | 15 | BSOD / Battery | R/A | [R] | BSOD query or battery report | Post-failure or battery health | Read-only |
 | 16 | Forensics / Driver backup | R/A | [R]/[W] | Process audit or driver export | Security review / rollback prep | Requires free disk space |
@@ -46,8 +46,7 @@ Profiles:
 Notes (Windows):
 
 - Exact number can map to different action depending on profile (D/R/A).
-- In `toolbox_corporate.bat`, option 13 (MAS) is removed by compliance design.
-- Option 22 (PostgreSQL Manager) is available in both editions (it is not an activator).
+- Option 22 (PostgreSQL Manager) is not an activator; it is an administration module.
 
 ### Mini CLI Guide (Windows)
 
@@ -66,14 +65,8 @@ Examples (`toolbox.bat`):
 - `toolbox.bat /perfil:2 /mod:5`  (repair Windows Update)
 - `toolbox.bat /perfil:3 /mod:10` (secure format)
 - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
+- `toolbox.bat /perfil:1 /mod:12` (Disk SMART status)
 - `toolbox.bat /perfil:3 /mod:22` (PostgreSQL Password Manager)
-
-Examples (`toolbox_corporate.bat`):
-
-- `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
-- `toolbox_corporate.bat /perfil:2 /mod:6`  (repair Windows Update)
-- `toolbox_corporate.bat /perfil:3 /mod:10` (secure format)
-- `toolbox_corporate.bat /perfil:3 /mod:22` (PostgreSQL Password Manager)
 
 Notes:
 

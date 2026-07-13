@@ -42,8 +42,7 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
    ```
    Herramienta-toolbox/
    ├── Windows/
-   │   ├── toolbox.bat
-   │   └── toolbox_corporate.bat
+   │   └── toolbox.bat
    ├── Linux/
    ├── Mac/
    └── Manuales/
@@ -54,9 +53,8 @@ This manual covers installation and usage on **Windows, Linux and macOS**.
 1. Open **File Explorer** (Windows + E)
 2. Navigate to where you extracted the tool
 3. Enter the **`Windows`** folder
-4. You'll see the files:
-   - `toolbox.bat` (full version)
-   - `toolbox_corporate.bat` (corporate version without MAS)
+4. You'll see the file:
+   - `toolbox.bat` (single Windows edition)
 
 ### Step 3: Run as Administrator
 
@@ -253,8 +251,6 @@ After selecting the profile, you'll see the specific menu for that profile:
 
 **This profile has full access**, including critical formatting/conversion tasks and option 21 for Blindaje V1.
 
-> Note: in `toolbox_corporate.bat`, option 13 appears as `[MODULE 13 REMOVED]` for compliance.
-
 **To use a function:**
 1. Type the **option number** you want to use
 2. Press **Enter**
@@ -282,6 +278,7 @@ Quick examples (full version `toolbox.bat`):
   - `toolbox.bat /perfil:1 /mod:1` (RAM test)
   - `toolbox.bat /perfil:1 /mod:4` (Windows Update status)
   - `toolbox.bat /perfil:1 /mod:11` (RAID/Storage status)
+  - `toolbox.bat /perfil:1 /mod:12` (Disk SMART status)
 - Profile 2 (Repair):
   - `toolbox.bat /perfil:2 /mod:4` (DISM/SFC)
   - `toolbox.bat /perfil:2 /mod:5` (Repair Windows Update)
@@ -290,12 +287,7 @@ Quick examples (full version `toolbox.bat`):
   - `toolbox.bat /perfil:3 /mod:10` (Secure format)
   - `toolbox.bat /perfil:3 /mod:11` (MBR to GPT conversion)
   - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
-
-Quick examples (`toolbox_corporate.bat`):
-
-- `toolbox_corporate.bat /perfil:1 /mod:1` (SMART)
-- `toolbox_corporate.bat /perfil:2 /mod:6` (Repair Windows Update)
-- `toolbox_corporate.bat /perfil:3 /mod:10` (Secure format)
+  - `toolbox.bat /perfil:3 /mod:22` (PostgreSQL Password Manager)
 
 Notes:
 - If `profile/module` is invalid for that profile, execution is blocked and logged.
@@ -353,9 +345,7 @@ Windows/Logs/
 1. Install/enable WSL and a distro (e.g., Ubuntu).
 2. Re-run syntax checks from Linux/WSL:
    - `bash -n Linux/toolbox.sh`
-   - `bash -n Linux/toolbox_corporate.sh`
    - `bash -n Mac/toolbox.sh`
-   - `bash -n Mac/toolbox_corporate.sh`
 
 ### Classroom temp-file workflow (Option 21)
 
@@ -425,7 +415,6 @@ Safe temp patterns are limited to `~$*`, `.tmp`, `.temp` to avoid deleting real 
    You should see:
    ```
    toolbox.sh
-   toolbox_corporate.sh
    ```
 
 ### Step 3: Give execution permissions
@@ -433,7 +422,7 @@ Safe temp patterns are limited to `~$*`, `.tmp`, `.temp` to avoid deleting real 
 🔴 **IMPORTANT**: Scripts need execution permissions
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 **Explanation:**
@@ -444,14 +433,9 @@ chmod +x toolbox.sh toolbox_corporate.sh
 
 🔴 **IMPORTANT**: You must run with sudo (as root)
 
-**For full version:**
+**Run:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**For corporate version (without activation modules):**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **What does each part mean?**
@@ -653,13 +637,12 @@ ls -l
 You should see:
 ```
 toolbox.sh
-toolbox_corporate.sh
 ```
 
 ### Step 4: Give execution permissions
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 ### Step 5: Allow execution in Security (First time)
@@ -670,7 +653,7 @@ macOS blocks scripts downloaded from the internet. To allow them:
 
 **Option A - Remove quarantine:**
 ```bash
-xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
+xattr -d com.apple.quarantine toolbox.sh
 ```
 
 **Option B - If security message appears:**
@@ -688,14 +671,9 @@ xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 
 🔴 **IMPORTANT**: You must run with sudo
 
-**For full version:**
+**Run:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**For corporate version:**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **It will ask for your macOS password**: Type it and press Enter
@@ -850,7 +828,7 @@ xcode-select --install
 
 ## 🆕 NEW WINDOWS MODULES (V14)
 
-The following modules were added to `Windows/toolbox.bat` and `Windows/toolbox_corporate.bat`:
+The following modules were added to `Windows/toolbox.bat`:
 
 - Critical System Events (disk/power)
 - BSOD Analysis (Minidump + Event ID 1001)
@@ -884,14 +862,11 @@ Before adding modules, it is recommended to have:
 
 ### 2) Where to add functions per OS
 
-To keep parity across normal/corporate editions:
+One edition per operating system:
 
-- Windows normal: `Windows/toolbox.bat`
-- Windows corporate: `Windows/toolbox_corporate.bat`
-- Linux normal: `Linux/toolbox.sh`
-- Linux corporate: `Linux/toolbox_corporate.sh`
-- macOS normal: `Mac/toolbox.sh`
-- macOS corporate: `Mac/toolbox_corporate.sh`
+- Windows: `Windows/toolbox.bat`
+- Linux: `Linux/toolbox.sh`
+- macOS: `Mac/toolbox.sh`
 
 General rule:
 
@@ -947,8 +922,7 @@ If the module changes system, disk, or network state, you must:
 ### 6) Quick pre-release checklist
 
 1. Module appears only in the correct profile(s).
-2. Works in normal and corporate editions (or is explicitly blocked in corporate with clear message).
-3. Includes validation, confirmations, and logging.
+2. Includes validation, confirmations, and logging.
 4. Does not break exit options (`0` and `00`) or menu return.
 5. Introduces no unsafe cleanup/shutdown/disk patterns.
 6. Basic manual validation was completed on target OS.
@@ -969,9 +943,8 @@ Also follow the contribution workflow defined in:
 ### 8) Recommended implementation flow
 
 1. Define module goal and target profile.
-2. Implement in normal script for target OS.
-3. Replicate/adapt in corporate script.
-4. Test success and failure paths.
+2. Implement in the script for the target OS.
+3. Test success and failure paths.
 5. Verify logs, exit behavior, and menu return.
 6. Update docs and changelog.
 7. Open PR with scope, risks, and validation evidence.
@@ -986,9 +959,7 @@ To understand **each option** (what it does, why it exists, when to use it, and 
 
 Includes coverage for:
 
-- Windows (normal and corporate)
-- Linux (normal and corporate)
-- macOS (normal and corporate)
+- Windows, Linux and macOS
 - Profiles `DIAGNOSTICS`, `REPAIR`, `ADMINISTRATION`
 - Risk labels `[R]`, `[W]`, `[!]`
 

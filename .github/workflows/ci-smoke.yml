@@ -22,26 +22,24 @@ jobs:
         run: |
           set -euo pipefail
           bash -n Linux/toolbox.sh
-          bash -n Linux/toolbox_corporate.sh
           bash -n Mac/toolbox.sh
-          bash -n Mac/toolbox_corporate.sh
 
       - name: Enforce no-log exit routing
         shell: bash
         run: |
           set -euo pipefail
-          rg -n 'if "%choice%"=="00" goto :EXIT_NO_LOG' Windows/toolbox.bat Windows/toolbox_corporate.bat
-          rg -n '00\) exit_no_log ;;' Linux/toolbox.sh Linux/toolbox_corporate.sh Mac/toolbox.sh Mac/toolbox_corporate.sh
+          rg -n 'if "%choice%"=="00" goto :EXIT_NO_LOG' Windows/toolbox.bat
+          rg -n '00\) exit_no_log ;;' Linux/toolbox.sh Mac/toolbox.sh
 
       - name: Block known checksum regression (Windows)
         shell: bash
         run: |
           set -euo pipefail
-          if rg -n 'skip=3 tokens=\*" %%a in \(' Windows/toolbox.bat Windows/toolbox_corporate.bat; then
+          if rg -n 'skip=3 tokens=\*" %%a in \(' Windows/toolbox.bat; then
             echo "Found deprecated hash parsing pattern with skip=3"
             exit 1
           fi
-          rg -n 'Get-FileHash' Windows/toolbox.bat Windows/toolbox_corporate.bat
+          rg -n 'Get-FileHash' Windows/toolbox.bat
 
       - name: Ensure shutdown cleanup is scoped to Toolbox-owned tasks
         shell: bash

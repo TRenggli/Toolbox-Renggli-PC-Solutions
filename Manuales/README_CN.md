@@ -42,8 +42,7 @@
    ```
    Herramienta-toolbox/
    ├── Windows/
-   │   ├── toolbox.bat
-   │   └── toolbox_corporate.bat
+   │   └── toolbox.bat
    ├── Linux/
    ├── Mac/
    └── Manuales/
@@ -55,8 +54,7 @@
 2. 导航到您解压工具的位置
 3. 进入 **`Windows`** 文件夹
 4. 您将看到以下文件:
-   - `toolbox.bat` (完整版本)
-   - `toolbox_corporate.bat` (企业版本，不含 MAS)
+   - `toolbox.bat` (Windows 唯一版本)
 
 ### 步骤 3: 以管理员身份运行
 
@@ -253,8 +251,6 @@
 
 **此配置文件具有完全访问权限**，包括格式化/分区转换等关键操作，以及 21 号 Blindaje V1。
 
-> 说明：在 `toolbox_corporate.bat` 中，13 号选项显示为 `[模块 13 已移除]`（合规要求）。
-
 **使用功能:**
 1. 输入您想使用的 **选项编号**
 2. 按 **Enter**
@@ -282,6 +278,7 @@ toolbox.bat /perfil:X /mod:Y
   - `toolbox.bat /perfil:1 /mod:1`（RAM 测试）
   - `toolbox.bat /perfil:1 /mod:4`（Windows Update 状态）
   - `toolbox.bat /perfil:1 /mod:11`（RAID/存储状态）
+  - `toolbox.bat /perfil:1 /mod:12`（磁盘 SMART 状态）
 - 配置文件 2（修复）：
   - `toolbox.bat /perfil:2 /mod:4`（DISM/SFC）
   - `toolbox.bat /perfil:2 /mod:5`（修复 Windows Update）
@@ -290,12 +287,7 @@ toolbox.bat /perfil:X /mod:Y
   - `toolbox.bat /perfil:3 /mod:10`（安全格式化）
   - `toolbox.bat /perfil:3 /mod:11`（MBR 转 GPT）
   - `toolbox.bat /perfil:3 /mod:21`（高安全配置）
-
-快速示例（`toolbox_corporate.bat`）：
-
-- `toolbox_corporate.bat /perfil:1 /mod:1`（SMART）
-- `toolbox_corporate.bat /perfil:2 /mod:6`（修复 Windows Update）
-- `toolbox_corporate.bat /perfil:3 /mod:10`（安全格式化）
+  - `toolbox.bat /perfil:3 /mod:22`（PostgreSQL 密码管理器）
 
 说明：
 - 若 `perfil/mod` 与当前配置文件不匹配，会被阻止执行并写入日志。
@@ -353,9 +345,7 @@ Windows/Logs/
 1. 安装/启用 WSL，并安装发行版（如 Ubuntu）。
 2. 在 Linux/WSL 中重新执行语法校验：
    - `bash -n Linux/toolbox.sh`
-   - `bash -n Linux/toolbox_corporate.sh`
    - `bash -n Mac/toolbox.sh`
-   - `bash -n Mac/toolbox_corporate.sh`
 
 ### 课堂临时文件流程（选项 21）
 
@@ -425,7 +415,6 @@ Windows/Logs/
    您应该看到:
    ```
    toolbox.sh
-   toolbox_corporate.sh
    ```
 
 ### 步骤 3: 授予执行权限
@@ -433,7 +422,7 @@ Windows/Logs/
 🔴 **重要**: 脚本需要执行权限
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 **说明:**
@@ -444,14 +433,9 @@ chmod +x toolbox.sh toolbox_corporate.sh
 
 🔴 **重要**: 必须以 sudo (作为 root) 运行
 
-**完整版本:**
+**运行:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**企业版本 (无激活模块):**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **每部分的含义:**
@@ -653,13 +637,12 @@ ls -l
 您应该看到:
 ```
 toolbox.sh
-toolbox_corporate.sh
 ```
 
 ### 步骤 4: 授予执行权限
 
 ```bash
-chmod +x toolbox.sh toolbox_corporate.sh
+chmod +x toolbox.sh
 ```
 
 ### 步骤 5: 允许在安全性中执行 (首次)
@@ -670,7 +653,7 @@ macOS 会阻止从互联网下载的脚本。要允许它们:
 
 **选项 A - 删除隔离:**
 ```bash
-xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
+xattr -d com.apple.quarantine toolbox.sh
 ```
 
 **选项 B - 如果出现安全消息:**
@@ -688,14 +671,9 @@ xattr -d com.apple.quarantine toolbox.sh toolbox_corporate.sh
 
 🔴 **重要**: 必须以 sudo 运行
 
-**完整版本:**
+**运行:**
 ```bash
 sudo ./toolbox.sh
-```
-
-**企业版本:**
-```bash
-sudo ./toolbox_corporate.sh
 ```
 
 **会要求您输入 macOS 密码**: 输入并按 Enter
@@ -850,7 +828,7 @@ xcode-select --install
 
 ## 🆕 Windows 新增模块 (V14)
 
-以下模块已添加到 `Windows/toolbox.bat` 和 `Windows/toolbox_corporate.bat`：
+以下模块已添加到 `Windows/toolbox.bat`：
 
 - 系统关键事件分析（磁盘/电源）
 - BSOD 分析（Minidump + Event ID 1001）
@@ -884,14 +862,11 @@ xcode-select --install
 
 ### 2) 各系统应修改的位置
 
-为保证普通版/企业版一致性：
+每个操作系统只有一个版本：
 
-- Windows 普通版：`Windows/toolbox.bat`
-- Windows 企业版：`Windows/toolbox_corporate.bat`
-- Linux 普通版：`Linux/toolbox.sh`
-- Linux 企业版：`Linux/toolbox_corporate.sh`
-- macOS 普通版：`Mac/toolbox.sh`
-- macOS 企业版：`Mac/toolbox_corporate.sh`
+- Windows：`Windows/toolbox.bat`
+- Linux：`Linux/toolbox.sh`
+- macOS：`Mac/toolbox.sh`
 
 通用规则：
 
@@ -947,8 +922,7 @@ xcode-select --install
 ### 6) 发布前快速检查清单
 
 1. 模块只出现在正确的档位菜单中。
-2. 普通版与企业版行为正确（或企业版有明确禁用提示）。
-3. 包含校验、确认与日志。
+2. 包含校验、确认与日志。
 4. 不破坏退出选项（`0` 与 `00`）及菜单返回。
 5. 不引入不安全的清理/关机/磁盘模式。
 6. 已在目标系统完成基础手动验证。
@@ -969,9 +943,8 @@ xcode-select --install
 ### 8) 推荐实施流程（摘要）
 
 1. 定义模块目标与所属档位。
-2. 先在目标系统普通版脚本实现。
-3. 在企业版脚本中复制/适配。
-4. 覆盖成功与失败路径测试。
+2. 在目标系统的脚本中实现。
+3. 覆盖成功与失败路径测试。
 5. 验证日志、退出行为与菜单回跳。
 6. 更新文档与变更历史。
 7. 提交 PR，说明范围、风险与验证结果。
@@ -986,9 +959,7 @@ xcode-select --install
 
 覆盖范围包括：
 
-- Windows（普通版与企业版）
-- Linux（普通版与企业版）
-- macOS（普通版与企业版）
+- Windows、Linux 与 macOS
 - 配置档位 `DIAGNOSTICO`、`REPARACION`、`ADMINISTRACION`
 - 风险标签 `[R]`、`[W]`、`[!]`
 

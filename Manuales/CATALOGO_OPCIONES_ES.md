@@ -19,9 +19,9 @@ Perfiles:
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
 | --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
-| 1 | SMART, RAM o BIOS (segun perfil/edicion) | D/R/A | [R] | Segun menu: estado SMART, test RAM o info BIOS/placa | Inventario, diagnostico inicial y salud de hardware | Solo lectura. Test RAM puede requerir reinicio |
-| 2 | RAM, recursos o BIOS (segun perfil/edicion) | D/R/A | [R] | Segun menu: test RAM, recursos del sistema o info BIOS/placa | Validar capacidad real y sintomas de rendimiento | Solo lectura |
-| 3 | Recursos, BIOS o RAM (segun perfil/edicion) | D/R/A | [R] | Segun menu: recursos del sistema, info BIOS/placa o test RAM | Corroborar estado base antes de intervenir | Solo lectura |
+| 1 | SMART, RAM o BIOS (segun perfil) | D/R/A | [R] | Segun menu: estado SMART, test RAM o info BIOS/placa | Inventario, diagnostico inicial y salud de hardware | Solo lectura. Test RAM puede requerir reinicio |
+| 2 | RAM, recursos o BIOS (segun perfil) | D/R/A | [R] | Segun menu: test RAM, recursos del sistema o info BIOS/placa | Validar capacidad real y sintomas de rendimiento | Solo lectura |
+| 3 | Recursos, BIOS o RAM (segun perfil) | D/R/A | [R] | Segun menu: recursos del sistema, info BIOS/placa o test RAM | Corroborar estado base antes de intervenir | Solo lectura |
 | 4 | Estado WU o DISM/SFC (segun perfil) | D/R/A | [R]/[W] | En D consulta; en R/A repara imagen y archivos | Windows da errores, integridad dudosa | No interrumpir DISM/SFC |
 | 5 | DNS/Auditoria o Reparar WU (segun perfil) | D/R/A | [R]/[W] | Consulta puertos/DNS o repara componentes WU | Problemas de update o red | En modo reparacion modifica servicios/caches |
 | 6 | Velocidad/limpieza/WU status (segun perfil) | D/R/A | [R]/[W] | Dependiendo de perfil: consulta o limpieza | Diagnostico o mantenimiento | Limpieza elimina temporales |
@@ -31,7 +31,7 @@ Perfiles:
 | 10 | Forense procesos o formateo (A) | D/R/A | [R]/[!] | En D/R audita procesos; en A formatea medios: detecta si el disco es removible (USB/SD) y permite elegir exFAT/FAT32/NTFS | Sospecha de malware / preparacion de medios | Bloquea el disco de sistema; si el disco NO es removible exige escribir `FORMATEAR-FIJO`; validar disco objetivo (critico) |
 | 11 | RAID status o MBR->GPT (A) | D/R/A | [R]/[!] | En D/R consulta storage; en A convierte particionado | Diagnostico almacenamiento / migracion disco | Conversion de tabla puede dejar equipo inutil si se usa mal |
 | 12 | RAID status / Winget / WU tools | D/R/A | [R]/[W] | Consulta storage o actualiza apps | Mantenimiento de software | Actualizaciones pueden requerir reinicio |
-| 13 | Forense o Backup Drivers o MAS (normal) | R/A | [W] | En R backup drivers; en A normal activa MAS; corporate bloqueado | Pre-mantenimiento o licencia autorizada | Backup consume espacio; MAS solo en entornos autorizados |
+| 13 | Forense o Backup Drivers o MAS | R/A | [W] | En R backup drivers; en A activa MAS | Pre-mantenimiento o licencia autorizada | Backup consume espacio; MAS solo en entornos autorizados |
 | 14 | Eventos criticos / Apagado programado | R/A | [R]/[W] | En R consulta eventos; en A programa apagado | Investigacion o automatizacion | Riesgo de apagar equipo en produccion. Validar hora en formato `HH:MM` |
 | 15 | BSOD / Bateria | R/A | [R] | Consulta bsod o genera reporte bateria | Post-fallo o salud de bateria | Solo lectura |
 | 16 | Forense / Backup Drivers | R/A | [R]/[W] | Auditoria procesos o exportacion drivers | Seguridad preventiva / respaldo de controladores | Requiere espacio en disco |
@@ -45,8 +45,7 @@ Perfiles:
 Notas Windows:
 
 - El numero exacto puede representar una accion distinta segun perfil (D/R/A).
-- En `toolbox_corporate.bat`, la opcion 13 de MAS esta removida por compliance.
-- La opcion 22 (Gestor PostgreSQL) esta disponible en ambas ediciones (no es un activador).
+- La opcion 22 (Gestor PostgreSQL) no es un activador; es un modulo de administracion.
 
 ### Mini guia CLI (Windows)
 
@@ -65,14 +64,8 @@ Ejemplos (`toolbox.bat`):
 - `toolbox.bat /perfil:2 /mod:5`  (reparar Windows Update)
 - `toolbox.bat /perfil:3 /mod:10` (formateo seguro)
 - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
+- `toolbox.bat /perfil:1 /mod:12` (Estado SMART de discos)
 - `toolbox.bat /perfil:3 /mod:22` (Gestor de Passwords PostgreSQL)
-
-Ejemplos (`toolbox_corporate.bat`):
-
-- `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
-- `toolbox_corporate.bat /perfil:2 /mod:6`  (reparar Windows Update)
-- `toolbox_corporate.bat /perfil:3 /mod:10` (formateo seguro)
-- `toolbox_corporate.bat /perfil:3 /mod:22` (Gestor de Passwords PostgreSQL)
 
 Notas:
 

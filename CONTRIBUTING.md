@@ -48,9 +48,9 @@ When adding a new module/function, include this checklist in the PR description:
   - Profile: `DIAGNOSTICS` / `REPAIR` / `ADMINISTRATION`
 
 - Platform coverage:
-  - Windows: `toolbox.bat` / `toolbox_corporate.bat`
-  - Linux: `toolbox.sh` / `toolbox_corporate.sh`
-  - macOS: `toolbox.sh` / `toolbox_corporate.sh`
+  - Windows: `toolbox.bat`
+  - Linux: `toolbox.sh`
+  - macOS: `toolbox.sh`
   - If intentionally not supported on one platform, explain why.
 
 - Safety checks implemented:

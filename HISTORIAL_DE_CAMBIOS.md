@@ -1,5 +1,15 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-13 (Actualizacion 27)
+
+### Unificacion: una sola version por sistema operativo (se elimina Corporate)
+
+- Se eliminaron las variantes corporate: `Windows/toolbox_corporate.bat`, `Linux/toolbox_corporate.sh` y `Mac/toolbox_corporate.sh`. Ahora hay UNA sola version por SO (Windows / Linux / macOS).
+- Windows: se porto el modulo SMART (que solo existia en corporate) a `toolbox.bat` como opcion 12 del perfil Diagnostico. La version unica conserva MAS (opcion 13) para pruebas y entornos autorizados.
+- Mac y Linux corporate no tenian modulos propios (solo branding "CORPORATE"), por lo que su eliminacion no quita funcionalidad.
+- CI: se quitaron las referencias a los archivos corporate en `ci-smoke.yml` y `ci-matrix-regression.yml`.
+- Documentacion: se elimino el modelo de dos ediciones en README raiz, catalogos ES/EN/CN, READMEs ES/EN/CN, `CONTRIBUTING.md`, `PLANTILLAS_MODULOS.md` y el manual de Blindaje. PDFs regenerados.
+
 ## 2026-07-13 (Actualizacion 26)
 
 ### Nuevo modulo Gestor de PostgreSQL, formateo mas seguro y limpieza de repo

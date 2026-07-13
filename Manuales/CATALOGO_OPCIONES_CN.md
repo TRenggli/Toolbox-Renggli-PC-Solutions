@@ -19,9 +19,9 @@
 
 | # | 选项 | 档位 | 风险 | 功能说明 | 何时使用 | 注意事项 |
 | --- | ------ | ------ | ------ | ---------- | ---------- | ---------- |
-| 1 | SMART、RAM 或 BIOS（按档位/版本） | D/R/A | [R] | 按菜单可能是 SMART 健康、RAM 测试或 BIOS/主板信息 | 资产盘点、初步诊断、硬件健康检查 | 只读；RAM 测试可能需要重启 |
-| 2 | RAM、资源或 BIOS（按档位/版本） | D/R/A | [R] | 按菜单可能是 RAM 测试、系统资源或 BIOS/主板信息 | 核实容量与性能症状 | 只读 |
-| 3 | 资源、BIOS 或 RAM（按档位/版本） | D/R/A | [R] | 按菜单可能是系统资源、BIOS/主板信息或 RAM 测试 | 干预前确认基线状态 | 只读 |
+| 1 | SMART、RAM 或 BIOS（按档位） | D/R/A | [R] | 按菜单可能是 SMART 健康、RAM 测试或 BIOS/主板信息 | 资产盘点、初步诊断、硬件健康检查 | 只读；RAM 测试可能需要重启 |
+| 2 | RAM、资源或 BIOS（按档位） | D/R/A | [R] | 按菜单可能是 RAM 测试、系统资源或 BIOS/主板信息 | 核实容量与性能症状 | 只读 |
+| 3 | 资源、BIOS 或 RAM（按档位） | D/R/A | [R] | 按菜单可能是系统资源、BIOS/主板信息或 RAM 测试 | 干预前确认基线状态 | 只读 |
 | 4 | WU 状态或 DISM/SFC（按档位） | D/R/A | [R]/[W] | D 为查询；R/A 为修复镜像与系统文件 | Windows 完整性异常 | 不要中断 DISM/SFC |
 | 5 | DNS 审计或 WU 修复（按档位） | D/R/A | [R]/[W] | 查询端口/DNS 或修复更新组件 | 更新/网络故障 | 修复模式会改服务与缓存 |
 | 6 | 速度/清理/WU 状态（按档位） | D/R/A | [R]/[W] | 诊断查询或系统清理 | 诊断或维护 | 清理会删除临时文件 |
@@ -31,7 +31,7 @@
 | 10 | 进程取证或磁盘格式化（A） | D/R/A | [R]/[!] | D/R 为进程审计；A 格式化介质：检测磁盘是否为可移动介质（USB/SD），可选择 exFAT/FAT32/NTFS | 恶意行为排查/介质准备 | 屏蔽系统盘；若磁盘非可移动介质需输入 `FORMATEAR-FIJO`；格式化前确认目标磁盘 |
 | 11 | RAID 状态或 MBR->GPT（A） | D/R/A | [R]/[!] | D/R 查询存储状态；A 转换分区方案 | 存储诊断/迁移 | 错误转换可能导致无法启动 |
 | 12 | RAID 状态 / Winget / 维护 | D/R/A | [R]/[W] | 存储查询或应用更新 | 软件维护 | 可能需要重启 |
-| 13 | 取证 / 驱动备份 / MAS（普通版） | R/A | [W] | R 为驱动备份；A 普通版为 MAS；企业版屏蔽 | 维护前备份/授权激活 | 备份占空间；MAS 仅限授权场景 |
+| 13 | 取证 / 驱动备份 / MAS | R/A | [W] | R 为驱动备份；A 为 MAS | 维护前备份/授权激活 | 备份占空间；MAS 仅限授权场景 |
 | 14 | 关键事件 / 定时关机 | R/A | [R]/[W] | 查询事件或配置关机计划 | 复盘分析/自动化 | 可能中断业务；请使用 `HH:MM` 格式 |
 | 15 | BSOD / 电池 | R/A | [R] | 蓝屏查询或电池报告 | 故障后检查/电池健康 | 只读 |
 | 16 | 取证 / 驱动备份 | R/A | [R]/[W] | 进程审计或导出驱动 | 安全核查/回滚准备 | 需要可用磁盘空间 |
@@ -46,8 +46,7 @@
 Windows 说明：
 
 - 同一编号在不同档位（D/R/A）下可能对应不同动作。
-- `toolbox_corporate.bat` 中 13 号 MAS 按合规策略移除。
-- 22 号（PostgreSQL 管理器）在两个版本中均可用（并非激活工具）。
+- 22 号（PostgreSQL 管理器）不是激活工具，而是管理模块。
 
 ### CLI 迷你指南（Windows）
 
@@ -66,14 +65,8 @@ toolbox.bat /perfil:X /mod:Y
 - `toolbox.bat /perfil:2 /mod:5`  （修复 Windows Update）
 - `toolbox.bat /perfil:3 /mod:10` （安全格式化）
 - `toolbox.bat /perfil:3 /mod:21` （高安全配置）
+- `toolbox.bat /perfil:1 /mod:12` （磁盘 SMART 状态）
 - `toolbox.bat /perfil:3 /mod:22` （PostgreSQL 密码管理器）
-
-示例（`toolbox_corporate.bat`）：
-
-- `toolbox_corporate.bat /perfil:1 /mod:1`  （SMART）
-- `toolbox_corporate.bat /perfil:2 /mod:6`  （修复 Windows Update）
-- `toolbox_corporate.bat /perfil:3 /mod:10` （安全格式化）
-- `toolbox_corporate.bat /perfil:3 /mod:22` （PostgreSQL 密码管理器）
 
 说明：
 
