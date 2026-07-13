@@ -15,7 +15,7 @@ Profiles:
 - `R` = Repair
 - `A` = Administration
 
-## Windows (22 options)
+## Windows (23 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
 | --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
@@ -47,6 +47,7 @@ Notes (Windows):
 
 - Exact number can map to different action depending on profile (D/R/A).
 - Option 22 (PostgreSQL Manager) is not an activator; it is an administration module.
+- Disk SMART status (read-only) is available in all three profiles: Diagnostics 12, Repair 18, Administration 23.
 
 ### Mini CLI Guide (Windows)
 

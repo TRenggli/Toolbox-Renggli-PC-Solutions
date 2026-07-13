@@ -122,7 +122,7 @@ Manual_Toolbox_V14_EN.pdf
 Manual_Toolbox_V14_CN.pdf
 
 ⚙️ Features
-✔️ Windows (22 Modules)
+✔️ Windows (23 Modules)
 Hardware diagnostics (SMART, RAM, resource monitoring)
 
 System repair (DISM, SFC, registry tools)

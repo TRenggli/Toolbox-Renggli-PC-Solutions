@@ -982,7 +982,7 @@ Problems or questions?
 ## 🎯 VERSION
 
 **Toolbox V14 Multi-Platform**
-- Windows: 22 modules
+- Windows: 23 modules
 - Linux: 30 modules
 - macOS: 14 modules
 

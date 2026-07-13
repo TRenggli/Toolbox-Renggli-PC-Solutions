@@ -15,7 +15,7 @@ Perfiles:
 - `R` = Reparacion
 - `A` = Administracion
 
-## Windows (22 opciones)
+## Windows (23 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
 | --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
@@ -46,6 +46,7 @@ Notas Windows:
 
 - El numero exacto puede representar una accion distinta segun perfil (D/R/A).
 - La opcion 22 (Gestor PostgreSQL) no es un activador; es un modulo de administracion.
+- Estado SMART de Discos (solo lectura) esta disponible en los tres perfiles: Diagnostico 12, Reparacion 18, Administracion 23.
 
 ### Mini guia CLI (Windows)
 

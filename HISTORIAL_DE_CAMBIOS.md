@@ -1,5 +1,12 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-13 (Actualizacion 28)
+
+### SMART de discos disponible en los tres perfiles (Windows)
+
+- El modulo `Estado SMART de Discos` (solo lectura) ahora aparece en los tres perfiles de `Windows/toolbox.bat`: Diagnostico (opcion 12), Reparacion (opcion 18) y Administracion (opcion 23). Antes estaba solo en Diagnostico.
+- Windows pasa de 22 a 23 opciones (maximo del perfil Administracion). Actualizados catalogos ES/EN/CN, READMEs ES/EN/CN y README raiz. PDFs regenerados.
+
 ## 2026-07-13 (Actualizacion 27)
 
 ### Unificacion: una sola version por sistema operativo (se elimina Corporate)

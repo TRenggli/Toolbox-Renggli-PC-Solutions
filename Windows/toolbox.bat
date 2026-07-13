@@ -104,6 +104,7 @@ if "%choice%"=="14" (call :MOD_EVENT_CRITICAL & set "EXEC_OK=1")
 if "%choice%"=="15" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
 if "%choice%"=="16" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="17" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
+if "%choice%"=="18" (call :MOD_SMART & set "EXEC_OK=1")
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :MENU_ADMINISTRACION_EXEC
@@ -129,6 +130,7 @@ if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="20" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
 if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
+if "%choice%"=="23" (call :MOD_SMART & set "EXEC_OK=1")
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :CHECK_NONINTERACTIVE_RESULT
@@ -267,6 +269,7 @@ echo    14. [R] Eventos Criticos
 echo    15. [R] Analisis BSOD
 echo    16. [R] Auditoria Forense de Procesos
 echo    17. [R] Estado RAID/Storage
+echo    18. [R] Estado SMART de Discos
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -295,6 +298,7 @@ if "%choice%"=="14" (call :MOD_EVENT_CRITICAL & goto :MAIN_MENU)
 if "%choice%"=="15" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
 if "%choice%"=="16" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="17" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
+if "%choice%"=="18" (call :MOD_SMART & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -336,6 +340,7 @@ echo    21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)
 echo.
 echo    [ SERVIDORES / BASES DE DATOS ]
 echo    22. [W] Gestor de Passwords PostgreSQL
+echo    23. [R] Estado SMART de Discos
 echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
@@ -369,6 +374,7 @@ if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="20" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
 if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
+if "%choice%"=="23" (call :MOD_SMART & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 

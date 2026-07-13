@@ -983,7 +983,7 @@ Incluye cobertura de:
 ## 🎯 VERSION
 
 **Toolbox V14 Multiplataforma**
-- Windows: 22 módulos
+- Windows: 23 módulos
 - Linux: 30 módulos
 - macOS: 14 módulos
 
