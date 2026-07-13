@@ -3,6 +3,8 @@
 # (un \r de CRLF rompe `bash -n` y la ejecucion en Linux; era la causa del CI en rojo).
 *.sh text eol=lf
 
-# Los scripts de Windows usan CRLF.
+# Los scripts de Windows (propios del toolbox) usan CRLF.
 *.bat text eol=crlf
-*.cmd text eol=crlf
+
+# Los .cmd de terceros (MAS) se dejan sin normalizar (byte a byte).
+*.cmd -text
