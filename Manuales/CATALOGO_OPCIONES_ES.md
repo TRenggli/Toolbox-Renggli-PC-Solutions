@@ -15,7 +15,7 @@ Perfiles:
 - `R` = Reparacion
 - `A` = Administracion
 
-## Windows (21 opciones)
+## Windows (22 opciones)
 
 | # | Opcion | Perfiles | Riesgo | Que hace | Cuando usarla | Recaudos |
 | --- | -------- | ---------- | -------- | ---------- | --------------- | ---------- |
@@ -28,7 +28,7 @@ Perfiles:
 | 7 | Bateria o reset red (segun perfil) | D/R/A | [R]/[W] | Genera reporte bateria o resetea stack de red | Portatiles / fallas IP-DNS | Reset red puede cortar conectividad temporal |
 | 8 | Eventos criticos / velocidad | D/R/A | [R] | Consulta eventos de error o test de red | Analisis post-fallo | Ninguno, solo lectura |
 | 9 | BSOD analyzer / DNS audit | D/R/A | [R] | Lista minidumps + bugcheck o audita DNS/puertos | Pantallazos azules / diagnostico red | No modifica sistema |
-| 10 | Forense procesos o formateo (A) | D/R/A | [R]/[!] | En D/R audita procesos; en A puede formatear | Sospecha de malware / preparacion de medios | Formateo: validar disco objetivo (critico) |
+| 10 | Forense procesos o formateo (A) | D/R/A | [R]/[!] | En D/R audita procesos; en A formatea medios: detecta si el disco es removible (USB/SD) y permite elegir exFAT/FAT32/NTFS | Sospecha de malware / preparacion de medios | Bloquea el disco de sistema; si el disco NO es removible exige escribir `FORMATEAR-FIJO`; validar disco objetivo (critico) |
 | 11 | RAID status o MBR->GPT (A) | D/R/A | [R]/[!] | En D/R consulta storage; en A convierte particionado | Diagnostico almacenamiento / migracion disco | Conversion de tabla puede dejar equipo inutil si se usa mal |
 | 12 | RAID status / Winget / WU tools | D/R/A | [R]/[W] | Consulta storage o actualiza apps | Mantenimiento de software | Actualizaciones pueden requerir reinicio |
 | 13 | Forense o Backup Drivers o MAS (normal) | R/A | [W] | En R backup drivers; en A normal activa MAS; corporate bloqueado | Pre-mantenimiento o licencia autorizada | Backup consume espacio; MAS solo en entornos autorizados |
@@ -40,11 +40,13 @@ Perfiles:
 | 19 | Forense procesos (A) | A | [R] | Busca procesos en rutas temporales y firma | Hardening y auditoria | Solo lectura |
 | 20 | RAID/Storage (A) | A | [R] | Estado de virtual/physical disks y fallback WMI | Servidores o storage complejo | Solo lectura |
 | 21 | Perfil Seguridad Alta (A) | A | [W] | Ejecuta Blindaje V1 integrado con dos modos: **estricto** ^(maxima proteccion, menor compatibilidad de guardado^) y **suave** ^(protege carpetas, permite borrar archivos^), mapeo persistente T:, politicas Explorer offline, redireccion diaria a ruta fisica y modulo de temporales ^(manual + automatico local + desactivar tarea + guia masiva^) | Laboratorios/aulas con usuarios estandar donde se necesita elegir entre maxima proteccion o compatibilidad de guardado en Office/Adobe sin permitir borrar carpetas | Tras Deshacer, reiniciar y revisar manualmente C:\Trabajos Alumnos; para temporales usar patrones seguros `~$*`, `.tmp`, `.temp` |
+| 22 | Gestor de Passwords PostgreSQL (A) | A | [W] | Detecta instancias PostgreSQL del equipo (por servicio de Windows), lista roles con login y cambia sus passwords en lote. Modo **directo** ^(si conoces la clave del superusuario^) o **recuperacion** ^(trust temporal en pg_hba + recarga sin reiniciar el servicio, para resetear sin conocer la clave^) | Servidores o PCs con PostgreSQL: reset de credenciales o recuperar acceso perdido | Restaura pg_hba.conf siempre ^(incluso ante error^); no usar recuperacion en servidores con usuarios locales no confiables; anota la password nueva |
 
 Notas Windows:
 
 - El numero exacto puede representar una accion distinta segun perfil (D/R/A).
 - En `toolbox_corporate.bat`, la opcion 13 de MAS esta removida por compliance.
+- La opcion 22 (Gestor PostgreSQL) esta disponible en ambas ediciones (no es un activador).
 
 ### Mini guia CLI (Windows)
 
@@ -63,12 +65,14 @@ Ejemplos (`toolbox.bat`):
 - `toolbox.bat /perfil:2 /mod:5`  (reparar Windows Update)
 - `toolbox.bat /perfil:3 /mod:10` (formateo seguro)
 - `toolbox.bat /perfil:3 /mod:21` (Perfil Seguridad Alta)
+- `toolbox.bat /perfil:3 /mod:22` (Gestor de Passwords PostgreSQL)
 
 Ejemplos (`toolbox_corporate.bat`):
 
 - `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
 - `toolbox_corporate.bat /perfil:2 /mod:6`  (reparar Windows Update)
 - `toolbox_corporate.bat /perfil:3 /mod:10` (formateo seguro)
+- `toolbox_corporate.bat /perfil:3 /mod:22` (Gestor de Passwords PostgreSQL)
 
 Notas:
 

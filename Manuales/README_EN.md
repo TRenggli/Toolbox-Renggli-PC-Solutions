@@ -1011,7 +1011,7 @@ Problems or questions?
 ## 🎯 VERSION
 
 **Toolbox V14 Multi-Platform**
-- Windows: 21 modules
+- Windows: 22 modules
 - Linux: 30 modules
 - macOS: 14 modules
 

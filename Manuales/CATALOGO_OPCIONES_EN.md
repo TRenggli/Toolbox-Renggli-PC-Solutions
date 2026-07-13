@@ -15,7 +15,7 @@ Profiles:
 - `R` = Repair
 - `A` = Administration
 
-## Windows (21 options)
+## Windows (22 options)
 
 | # | Option | Profiles | Risk | What it does | When to use | Precautions |
 | --- | -------- | ---------- | ------ | -------------- | ------------- | ------------- |
@@ -28,7 +28,7 @@ Profiles:
 | 7 | Battery or network reset (profile-dependent) | D/R/A | [R]/[W] | Generates battery report or resets network stack | Laptops / IP-DNS failures | Network reset can disconnect temporarily |
 | 8 | Critical events / speed test | D/R/A | [R] | Reads critical events or network speed | Post-failure analysis | Read-only |
 | 9 | BSOD analyzer / DNS audit | D/R/A | [R] | Lists minidumps + bugcheck or audits DNS/ports | BSOD incidents / network diagnostics | Read-only |
-| 10 | Process forensics or disk format (A) | D/R/A | [R]/[!] | In D/R audits processes; in A formats disk | Malware suspicion / media prep | Formatting: confirm target disk |
+| 10 | Process forensics or disk format (A) | D/R/A | [R]/[!] | In D/R audits processes; in A formats media: detects whether the disk is removable (USB/SD) and lets you pick exFAT/FAT32/NTFS | Malware suspicion / media prep | Blocks the system disk; if the disk is NOT removable it requires typing `FORMATEAR-FIJO`; confirm target disk |
 | 11 | RAID status or MBR->GPT (A) | D/R/A | [R]/[!] | In D/R reads storage status; in A converts partition scheme | Storage diagnostics / migration | Wrong conversion can break boot |
 | 12 | RAID status / Winget / maintenance tools | D/R/A | [R]/[W] | Storage query or app updates | Software maintenance | Updates may require restart |
 | 13 | Process forensics / Driver backup / MAS (normal) | R/A | [W] | In R driver backup; in A normal edition MAS; corporate blocked | Pre-repair backup or licensed activation | Backup consumes disk; MAS only where authorized |
@@ -41,10 +41,13 @@ Profiles:
 | 20 | RAID/Storage (A) | A | [R] | Reads virtual/physical disk health + WMI fallback | Servers or complex storage | Read-only |
 | 21 | High Security Profile (Blindaje V1 integrated) (A) | A | [W] | Applies Blindaje V1 with two modes: **strict** ^(maximum protection, lower save compatibility^) and **soft** ^(protects folder structure while allowing file deletion^), plus persistent `T:` mapping, offline Explorer policies, physical-path daily-folder redirection, and safe temp workflow limited to `~$*`, `.tmp`, `.temp` in `SECUNDARIA/PRIMARIA` | School/lab endpoints that need a choice between maximum protection and Office/Adobe-friendly save behavior without allowing full folder deletion | After Undo, reboot and manually verify whether `C:\Trabajos Alumnos` was fully removed; for temp cleanup keep safe patterns only and do not widen extensions |
 
+| 22 | PostgreSQL Password Manager (A) | A | [W] | Auto-detects PostgreSQL instances on the machine (via Windows service), lists login roles and changes their passwords in batch. **Direct** mode (if you know the superuser password) or **recovery** mode (temporary trust in pg_hba + reload without restarting the service, to reset without knowing the password) | Servers or PCs running PostgreSQL: credential reset or lost-access recovery | Always restores pg_hba.conf (even on error); do not use recovery mode on servers with untrusted local users; write down the new password |
+
 Notes (Windows):
 
 - Exact number can map to different action depending on profile (D/R/A).
 - In `toolbox_corporate.bat`, option 13 (MAS) is removed by compliance design.
+- Option 22 (PostgreSQL Manager) is available in both editions (it is not an activator).
 
 ### Mini CLI Guide (Windows)
 
@@ -63,12 +66,14 @@ Examples (`toolbox.bat`):
 - `toolbox.bat /perfil:2 /mod:5`  (repair Windows Update)
 - `toolbox.bat /perfil:3 /mod:10` (secure format)
 - `toolbox.bat /perfil:3 /mod:21` (High Security Profile)
+- `toolbox.bat /perfil:3 /mod:22` (PostgreSQL Password Manager)
 
 Examples (`toolbox_corporate.bat`):
 
 - `toolbox_corporate.bat /perfil:1 /mod:1`  (SMART)
 - `toolbox_corporate.bat /perfil:2 /mod:6`  (repair Windows Update)
 - `toolbox_corporate.bat /perfil:3 /mod:10` (secure format)
+- `toolbox_corporate.bat /perfil:3 /mod:22` (PostgreSQL Password Manager)
 
 Notes:
 

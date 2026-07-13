@@ -128,6 +128,7 @@ if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="20" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
+if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :CHECK_NONINTERACTIVE_RESULT
@@ -333,6 +334,9 @@ echo    19. [R] Auditoria Forense de Procesos
 echo    20. [R] Estado RAID/Storage
 echo    21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)
 echo.
+echo    [ SERVIDORES / BASES DE DATOS ]
+echo    22. [W] Gestor de Passwords PostgreSQL
+echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
@@ -363,6 +367,7 @@ if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="20" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
+if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
 
 :: Opcion 13 bloqueada en version Corporate
 if "%choice%"=="13" (
@@ -592,6 +597,39 @@ if "%dnum%"=="0" (
     exit /b
 )
 
+:: Deteccion de medio removible (proteccion extra para discos fijos de datos)
+set "DISK_REMOVIBLE="
+for /f "tokens=*" %%a in ('powershell -NoProfile -Command "$n=[int]'%dnum%'; $d=Get-Disk -Number $n -ErrorAction SilentlyContinue; if($d -and ($d.BusType -eq 'USB' -or $d.BusType -eq 'SD' -or $d.BusType -eq 'MMC')){'SI'}else{'NO'}"') do set "DISK_REMOVIBLE=%%a"
+if /i not "!DISK_REMOVIBLE!"=="SI" (
+    color 0C
+    echo.
+    echo  [!] ATENCION: El disco %dnum% NO es un medio removible ^(USB/SD^).
+    echo  [!] Podria ser un disco de datos fijo. Formatearlo destruira su contenido.
+    echo.
+    set "confirm_fijo="
+    set /p "confirm_fijo=  Para formatear un disco FIJO escriba 'FORMATEAR-FIJO': "
+    if /i not "!confirm_fijo!"=="FORMATEAR-FIJO" (
+        echo  [i] Operacion cancelada ^(proteccion de disco fijo^).
+        echo [%time%] Formateo abortado: disco fijo %dnum% no confirmado >> "!LOG_FILE!"
+        pause
+        exit /b
+    )
+    echo [%time%] Formateo de disco FIJO %dnum% confirmado explicitamente >> "!LOG_FILE!"
+)
+
+:: Eleccion de sistema de archivos
+echo.
+echo  [i] Sistema de archivos:
+echo     1. exFAT  (recomendado USB: sin limite de 4GB, compatible Win/Mac)
+echo     2. FAT32  (maxima compatibilidad: arranque/BIOS, limite 4GB por archivo)
+echo     3. NTFS   (solo Windows: permisos, archivos grandes)
+echo.
+set "fs_opt="
+set /p "fs_opt=  Elegi [1-3] (Enter=1 exFAT): "
+set "FMT_FS=exfat"
+if "!fs_opt!"=="2" set "FMT_FS=fat32"
+if "!fs_opt!"=="3" set "FMT_FS=ntfs"
+
 :: Doble Confirmacion (Mejora Senior)
 cls
 echo  ==============================================================================
@@ -601,13 +639,14 @@ echo.
 (echo select disk %dnum% & echo detail disk) | diskpart
 echo.
 echo  [!] ADVERTENCIA: Los datos se perderan permanentemente.
+echo  [i] Sistema de archivos elegido: !FMT_FS!
 echo.
 set /p "confirm=  ¿ESTA SEGURO? Escriba 'CONFIRMO' para continuar: "
 if /i "%confirm%"=="CONFIRMO" (
     echo.
     echo  [i] Ejecutando formateo...
-    echo [%time%] INICIANDO FORMATEO DISCO %dnum% >> "!LOG_FILE!"
-    (echo select disk %dnum% & echo clean & echo create partition primary & echo format fs=fat32 quick & echo assign) | diskpart
+    echo [%time%] INICIANDO FORMATEO DISCO %dnum% ^(fs=!FMT_FS!^) >> "!LOG_FILE!"
+    (echo select disk %dnum% & echo clean & echo create partition primary & echo format fs=!FMT_FS! quick & echo assign) | diskpart
     echo.
     echo  [OK] Formateo completado exitosamente.
     echo [OK] Operacion exitosa. >> "!LOG_FILE!"
@@ -1013,6 +1052,30 @@ echo.
 echo  [OK] Actualizaciones completadas.
 echo [%time%] Winget upgrade ejecutado >> "!LOG_FILE!"
 pause
+exit /b
+
+:MOD_POSTGRES
+if not "%PROFILE_MODE%"=="3" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo solo se permite en perfil ADMINISTRACION.
+    echo [%time%] Gestor PostgreSQL bloqueado: perfil insuficiente >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo [%time%] Gestor PostgreSQL: ingreso al modulo >> "!LOG_FILE!"
+if not exist "%~dp0modules\postgres_manager.bat" (
+    cls
+    color 0C
+    echo  [X] No se encuentra modules\postgres_manager.bat junto a toolbox_corporate.bat
+    echo [%time%] Gestor PostgreSQL: modulo externo no encontrado >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+call "%~dp0modules\postgres_manager.bat"
 exit /b
 
 :MOD_CLASSROOM_SECURITY

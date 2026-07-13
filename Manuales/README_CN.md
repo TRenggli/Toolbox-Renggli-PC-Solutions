@@ -1011,7 +1011,7 @@ xcode-select --install
 ## 🎯 版本
 
 **工具箱 V14 多平台**
-- Windows: 21 个模块
+- Windows: 22 个模块
 - Linux: 30 个模块
 - macOS: 14 个模块
 

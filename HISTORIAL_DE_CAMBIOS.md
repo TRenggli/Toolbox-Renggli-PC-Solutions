@@ -1,5 +1,36 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-13 (Actualizacion 26)
+
+### Nuevo modulo Gestor de PostgreSQL, formateo mas seguro y limpieza de repo
+
+Objetivo: convertir la suite en una herramienta util desde PCs de casa hasta servidores.
+
+Nuevo modulo (opcion 22 - Administracion, disponible en full y corporate):
+
+- `Windows/modules/postgres_manager.bat`: gestor de passwords de PostgreSQL.
+  - Detecta automaticamente las instancias instaladas por servicio de Windows (binarios, data dir y puerto). No usa rutas fijas: sirve en cualquier servidor/PC.
+  - Lista roles con login y cambia sus passwords en lote.
+  - Modo DIRECTO (con clave del superusuario, sin reiniciar) o RECUPERACION (trust temporal en pg_hba + recarga sin reiniciar el servicio, para resetear sin conocer la clave).
+  - `pg_hba.conf` endurecido: prepende trust solo para localhost (mas robusto que reemplazar por regex) y lo restaura siempre, incluso ante error.
+  - Sin passwords hardcodeadas; escapa comillas simples en el `ALTER`; parametro `/detect` de solo lectura.
+  - Integrado como modulo externo llamado por ambos motores (sin duplicar codigo).
+
+Seguridad / correcciones:
+
+- Formateo (opcion 10): detecta si el disco es removible (USB/SD). Si NO lo es, exige escribir `FORMATEAR-FIJO` antes de continuar (protege discos de datos fijos). Permite elegir exFAT/FAT32/NTFS (antes siempre FAT32). Aplicado en `toolbox.bat` y `toolbox_corporate.bat`.
+
+Estructura y limpieza:
+
+- Se quitaron los modulos de ejemplo comentados del `.bat` de produccion; ahora estan en `Manuales/PLANTILLAS_MODULOS.md` (incluye el patron de modulo externo).
+- Se agrego `herramienta mas/NOTICE-MAS.md` con atribucion y licencia (GPL-3.0) de Microsoft Activation Scripts.
+- Se dejaron de versionar logs de runtime (`Windows/Logs/Audit_*.log`, `log/wollok.log`).
+
+Documentacion:
+
+- Catalogos ES/EN/CN: Windows pasa de 21 a 22 opciones; se agrego la opcion 22 y se actualizo la 10 (formateo).
+- READMEs ES/EN/CN y README raiz: conteo Windows y features actualizados.
+
 ## 2026-03-19 (Actualizacion 25)
 
 ### Sincronizacion integral de manuales y catalogos con Toolbox V14 actual

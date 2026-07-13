@@ -25,7 +25,10 @@ Toolbox/
 │
 ├── Windows/
 │   ├── toolbox.bat               # Full version
-│   └── toolbox_corporate.bat     # Corporate version
+│   ├── toolbox_corporate.bat     # Corporate version
+│   ├── MAS_AIO.cmd               # Activation module (Personal Edition)
+│   └── modules/
+│       └── postgres_manager.bat  # PostgreSQL password manager (called by both engines)
 │
 ├── Linux/
 │   ├── toolbox.sh                # Full version (30 modules)
@@ -122,7 +125,7 @@ Manual_Toolbox_V14_EN.pdf
 Manual_Toolbox_V14_CN.pdf
 
 ⚙️ Features
-✔️ Windows (21 Modules)
+✔️ Windows (22 Modules)
 Hardware diagnostics (SMART, RAM, resource monitoring)
 
 System repair (DISM, SFC, registry tools)
@@ -130,6 +133,10 @@ System repair (DISM, SFC, registry tools)
 Network & connectivity utilities
 
 Advanced administration tools
+
+Secure media format (removable-media detection + exFAT/FAT32/NTFS choice)
+
+PostgreSQL password manager (auto-detects instances; direct or recovery mode) — home PCs to servers
 
 Blindaje V1 (Option 21 in Administration profile) is fully integrated in Toolbox.
 Current integrated workflow includes:

@@ -127,6 +127,7 @@ if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & set "EXEC_OK=1")
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & set "EXEC_OK=1")
 if "%choice%"=="20" (call :MOD_RAID_STATUS & set "EXEC_OK=1")
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
+if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
 goto :CHECK_NONINTERACTIVE_RESULT
 
 :CHECK_NONINTERACTIVE_RESULT
@@ -330,6 +331,9 @@ echo    19. [R] Auditoria Forense de Procesos
 echo    20. [R] Estado RAID/Storage
 echo    21. [W] Perfil Seguridad Alta (Blindaje V1 integrado)
 echo.
+echo    [ SERVIDORES / BASES DE DATOS ]
+echo    22. [W] Gestor de Passwords PostgreSQL
+echo.
 echo    [0] SALIR CON REPORTE            [00] SALIR SIN REPORTE Y SIN LOG
 echo    [99] CAMBIAR PERFIL
 echo  ==============================================================================================================
@@ -361,6 +365,7 @@ if "%choice%"=="18" (call :MOD_BSOD_ANALYZER & goto :MAIN_MENU)
 if "%choice%"=="19" (call :MOD_PROCESS_AUDIT & goto :MAIN_MENU)
 if "%choice%"=="20" (call :MOD_RAID_STATUS & goto :MAIN_MENU)
 if "%choice%"=="21" (call :MOD_CLASSROOM_SECURITY & goto :MAIN_MENU)
+if "%choice%"=="22" (call :MOD_POSTGRES & goto :MAIN_MENU)
 
 goto :VALIDATE_CHOICE
 
@@ -486,6 +491,39 @@ if "%dnum%"=="0" (
     exit /b
 )
 
+:: Deteccion de medio removible (proteccion extra para discos fijos de datos)
+set "DISK_REMOVIBLE="
+for /f "tokens=*" %%a in ('powershell -NoProfile -Command "$n=[int]'%dnum%'; $d=Get-Disk -Number $n -ErrorAction SilentlyContinue; if($d -and ($d.BusType -eq 'USB' -or $d.BusType -eq 'SD' -or $d.BusType -eq 'MMC')){'SI'}else{'NO'}"') do set "DISK_REMOVIBLE=%%a"
+if /i not "!DISK_REMOVIBLE!"=="SI" (
+    color 0C
+    echo.
+    echo  [!] ATENCION: El disco %dnum% NO es un medio removible ^(USB/SD^).
+    echo  [!] Podria ser un disco de datos fijo. Formatearlo destruira su contenido.
+    echo.
+    set "confirm_fijo="
+    set /p "confirm_fijo=  Para formatear un disco FIJO escriba 'FORMATEAR-FIJO': "
+    if /i not "!confirm_fijo!"=="FORMATEAR-FIJO" (
+        echo  [i] Operacion cancelada ^(proteccion de disco fijo^).
+        echo [%time%] Formateo abortado: disco fijo %dnum% no confirmado >> "!LOG_FILE!"
+        pause
+        exit /b
+    )
+    echo [%time%] Formateo de disco FIJO %dnum% confirmado explicitamente >> "!LOG_FILE!"
+)
+
+:: Eleccion de sistema de archivos
+echo.
+echo  [i] Sistema de archivos:
+echo     1. exFAT  (recomendado USB: sin limite de 4GB, compatible Win/Mac)
+echo     2. FAT32  (maxima compatibilidad: arranque/BIOS, limite 4GB por archivo)
+echo     3. NTFS   (solo Windows: permisos, archivos grandes)
+echo.
+set "fs_opt="
+set /p "fs_opt=  Elegi [1-3] (Enter=1 exFAT): "
+set "FMT_FS=exfat"
+if "!fs_opt!"=="2" set "FMT_FS=fat32"
+if "!fs_opt!"=="3" set "FMT_FS=ntfs"
+
 :: Doble Confirmacion (Mejora Senior)
 cls
 echo  ==============================================================================
@@ -495,13 +533,14 @@ echo.
 (echo select disk %dnum% & echo detail disk) | diskpart
 echo.
 echo  [!] ADVERTENCIA: Los datos se perderan permanentemente.
+echo  [i] Sistema de archivos elegido: !FMT_FS!
 echo.
 set /p "confirm=  ¿ESTA SEGURO? Escriba 'CONFIRMO' para continuar: "
 if /i "%confirm%"=="CONFIRMO" (
     echo.
     echo  [i] Ejecutando formateo...
-    echo [%time%] INICIANDO FORMATEO DISCO %dnum% >> "!LOG_FILE!"
-    (echo select disk %dnum% & echo clean & echo create partition primary & echo format fs=fat32 quick & echo assign) | diskpart
+    echo [%time%] INICIANDO FORMATEO DISCO %dnum% ^(fs=!FMT_FS!^) >> "!LOG_FILE!"
+    (echo select disk %dnum% & echo clean & echo create partition primary & echo format fs=!FMT_FS! quick & echo assign) | diskpart
     echo.
     echo  [OK] Formateo completado exitosamente.
     echo [OK] Operacion exitosa. >> "!LOG_FILE!"
@@ -1350,6 +1389,30 @@ if errorlevel 1 (
     exit /b
 )
 call :MAS_LOGIC
+exit /b
+
+:MOD_POSTGRES
+if not "%PROFILE_MODE%"=="3" (
+    cls
+    color 0C
+    echo.
+    echo  [!] ACCESO RESTRINGIDO
+    echo.
+    echo  Este modulo solo se permite en perfil ADMINISTRACION.
+    echo [%time%] Gestor PostgreSQL bloqueado: perfil insuficiente >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+echo [%time%] Gestor PostgreSQL: ingreso al modulo >> "!LOG_FILE!"
+if not exist "%~dp0modules\postgres_manager.bat" (
+    cls
+    color 0C
+    echo  [X] No se encuentra modules\postgres_manager.bat junto a toolbox.bat
+    echo [%time%] Gestor PostgreSQL: modulo externo no encontrado >> "!LOG_FILE!"
+    pause
+    exit /b
+)
+call "%~dp0modules\postgres_manager.bat"
 exit /b
 
 :MOD_CLASSROOM_SECURITY
@@ -2641,36 +2704,12 @@ exit /b
 :: ==============================================================================
 :: ESPACIO PARA FUNCIONES PERSONALIZADAS
 :: ==============================================================================
-::
-:: INSTRUCCIONES PARA AGREGAR TUS PROPIAS FUNCIONES:
-::
-:: 1. Crea tu modulo usando el formato :MOD_NOMBRETUMODULO
-:: 2. Agrega validacion de perfil si es necesario (ver ejemplos abajo)
-:: 3. Agrega logging obligatorio: echo [%time%] Tu accion >> "!LOG_FILE!"
-:: 4. Registra tu modulo en el menu principal (linea ~87)
-:: 5. Registra tu modulo en la validacion (linea ~113)
-::
+:: Para agregar tus propios modulos, segui la guia y las plantillas en:
+::   Manuales/PLANTILLAS_MODULOS.md
+:: (patrones listos: modulo simple, con validacion de perfil y modulo critico).
+:: Modulos grandes: preferi crearlos como archivo aparte en modules\ y llamarlos
+:: con  call "%~dp0modules\tu_modulo.bat"  (como hace el Gestor PostgreSQL).
 :: ==============================================================================
-
-:: EJEMPLO 1: Funcion simple (solo lectura - cualquier perfil)
-:: ==============================================================================
-:MOD_EJEMPLO_SIMPLE
-::cls
-::color 0B
-::echo  ==============================================================================
-::echo   [MI FUNCION] Descripcion de mi funcion
-::echo  ==============================================================================
-::echo.
-::echo  [i] Ejecutando mi operacion personalizada...
-::echo.
-::
-:: REM Aqui va tu codigo
-:: REM Ejemplo: explorer "C:\Users\%username%\Downloads"
-::
-::echo  [OK] Operacion completada.
-::echo [%time%] Ejecutado: MI_FUNCION_PERSONALIZADA >> "!LOG_FILE!"
-::pause
-::exit /b
 
 :BL_CLEAN_TEMP_FILES_SAFE
 cls
@@ -2892,95 +2931,7 @@ echo [OK] Limpieza automatica desactivada en este equipo.
 echo [%time%] Blindaje V1: tarea automatica de temporales desactivada >> "!LOG_FILE!"
 exit /b 0
 
-:: EJEMPLO 2: Funcion con validacion de perfil (requiere REPARACION)
 :: ==============================================================================
-:MOD_EJEMPLO_AVANZADO
-:: Validacion de perfil
-::if "%PROFILE_MODE%"=="1" (
-::    cls
-::    color 0C
-::    echo.
-::    echo  [!] ACCESO RESTRINGIDO
-::    echo.
-::    echo  Esta operacion requiere perfil REPARACION o superior.
-::    echo  Perfil actual: !PROFILE_MODE!
-::    echo.
-::    echo [%time%] Funcion bloqueada: perfil insuficiente >> "!LOG_FILE!"
-::    pause
-::    exit /b
-::)
-::
-::cls
-::color 0A
-::echo  ==============================================================================
-::echo   [MI FUNCION AVANZADA] Descripcion
-::echo  ==============================================================================
-::echo.
-::echo  [i] Ejecutando operacion que modifica el sistema...
-::echo.
-::
-:: REM Aqui va tu codigo avanzado
-::
-::echo  [OK] Operacion completada.
-::echo [%time%] Ejecutado: MI_FUNCION_AVANZADA >> "!LOG_FILE!"
-::pause
-::exit /b
-
-:: EJEMPLO 3: Funcion CRITICA (requiere ADMINISTRACION)
+:: Plantillas de modulos (simple / con validacion de perfil / critico):
+::   Manuales/PLANTILLAS_MODULOS.md
 :: ==============================================================================
-:MOD_EJEMPLO_CRITICO
-:: Validacion de perfil
-::if not "%PROFILE_MODE%"=="3" (
-::    cls
-::    color 0C
-::    echo.
-::    echo  [!] ACCESO DENEGADO
-::    echo.
-::    echo  Esta operacion requiere perfil ADMINISTRACION.
-::    echo  Perfil actual: !PROFILE_MODE!
-::    echo.
-::    echo [%time%] Funcion critica bloqueada: perfil insuficiente >> "!LOG_FILE!"
-::    pause
-::    exit /b
-::)
-::
-::cls
-::color 0C
-::echo  ==============================================================================
-::echo   [!] MI FUNCION CRITICA - ADVERTENCIA
-::echo  ==============================================================================
-::echo.
-::echo  [!] ATENCION: Esta operacion es irreversible.
-::echo.
-::set /p "confirmacion=Escriba 'CONFIRMO' para continuar: "
-::if /i "%confirmacion%"=="CONFIRMO" (
-::    echo  [i] Ejecutando operacion critica...
-::    echo [%time%] INICIANDO OPERACION CRITICA >> "!LOG_FILE!"
-::
-::    REM Aqui va tu codigo critico
-::
-::    echo  [OK] Operacion critica completada.
-::    echo [OK] Operacion exitosa. >> "!LOG_FILE!"
-::) else (
-::    echo  [i] Operacion cancelada por el usuario.
-::    echo [%time%] Operacion critica cancelada >> "!LOG_FILE!"
-::)
-::pause
-::exit /b
-
-:: ==============================================================================
-:: TUS FUNCIONES PERSONALIZADAS DEBAJO DE ESTA LINEA
-:: ==============================================================================
-:: Descomenta los ejemplos de arriba o crea tus propias funciones aqui
-:: Recuerda siempre incluir logging y feedback visual al usuario
-:: ==============================================================================
-
-:: Tu funcion 1:
-:: :MOD_CUSTOM1
-:: ...
-:: exit /b
-
-:: Tu funcion 2:
-:: :MOD_CUSTOM2
-:: ...
-:: exit /b

@@ -15,7 +15,7 @@
 - `R` = 修复
 - `A` = 管理
 
-## Windows（21 个选项）
+## Windows（22 个选项）
 
 | # | 选项 | 档位 | 风险 | 功能说明 | 何时使用 | 注意事项 |
 | --- | ------ | ------ | ------ | ---------- | ---------- | ---------- |
@@ -28,7 +28,7 @@
 | 7 | 电池或网络重置（按档位） | D/R/A | [R]/[W] | 生成电池报告或重置网络栈 | 笔记本健康/网络异常 | 可能短时断网 |
 | 8 | 关键事件 / 速度测试 | D/R/A | [R] | 查询关键事件或测速 | 故障后分析 | 只读 |
 | 9 | BSOD 分析 / DNS 审计 | D/R/A | [R] | 列出转储与 bugcheck 或审计 DNS/端口 | 蓝屏排查/网络诊断 | 只读 |
-| 10 | 进程取证或磁盘格式化（A） | D/R/A | [R]/[!] | D/R 为进程审计；A 可格式化磁盘 | 恶意行为排查/介质准备 | 格式化前确认目标磁盘 |
+| 10 | 进程取证或磁盘格式化（A） | D/R/A | [R]/[!] | D/R 为进程审计；A 格式化介质：检测磁盘是否为可移动介质（USB/SD），可选择 exFAT/FAT32/NTFS | 恶意行为排查/介质准备 | 屏蔽系统盘；若磁盘非可移动介质需输入 `FORMATEAR-FIJO`；格式化前确认目标磁盘 |
 | 11 | RAID 状态或 MBR->GPT（A） | D/R/A | [R]/[!] | D/R 查询存储状态；A 转换分区方案 | 存储诊断/迁移 | 错误转换可能导致无法启动 |
 | 12 | RAID 状态 / Winget / 维护 | D/R/A | [R]/[W] | 存储查询或应用更新 | 软件维护 | 可能需要重启 |
 | 13 | 取证 / 驱动备份 / MAS（普通版） | R/A | [W] | R 为驱动备份；A 普通版为 MAS；企业版屏蔽 | 维护前备份/授权激活 | 备份占空间；MAS 仅限授权场景 |
@@ -41,10 +41,13 @@
 | 20 | RAID/Storage（A） | A | [R] | 读取虚拟/物理磁盘健康（含 WMI 回退） | 服务器或复杂存储 | 只读 |
 | 21 | 高安全配置（Blindaje V1 集成）（A） | A | [W] | 提供两种 Blindaje V1 模式：**严格模式** ^(保护最强，但保存兼容性较低^) 与 **柔性模式** ^(保护目录结构，但允许删除单个文件^)，并集成持久 `T:` 映射、离线 Explorer 策略、指向物理路径的日常目录重定向，以及仅针对 `SECUNDARIA/PRIMARIA` 中 `~$*`、`.tmp`、`.temp` 的安全临时文件流程 | 适用于学校机房/实验室标准用户，需要在最高保护与 Office/Adobe 保存兼容性之间做选择，且不允许整体删除文件夹 | “撤销”后需重启并手动确认 `C:\Trabajos Alumnos` 是否完全移除；临时文件策略请保持在安全模式，不要扩大扩展名范围 |
 
+| 22 | PostgreSQL 密码管理器（A） | A | [W] | 通过 Windows 服务自动检测本机 PostgreSQL 实例，列出可登录角色并批量修改其密码。**直接**模式（已知超级用户密码）或**恢复**模式（在 pg_hba 中临时启用 trust 并重新加载配置，无需重启服务即可在不知道密码的情况下重置） | 运行 PostgreSQL 的服务器或电脑：重置凭据或找回丢失的访问权限 | 始终恢复 pg_hba.conf（即使出错）；不要在存在不可信本地用户的服务器上使用恢复模式；请记录新密码 |
+
 Windows 说明：
 
 - 同一编号在不同档位（D/R/A）下可能对应不同动作。
 - `toolbox_corporate.bat` 中 13 号 MAS 按合规策略移除。
+- 22 号（PostgreSQL 管理器）在两个版本中均可用（并非激活工具）。
 
 ### CLI 迷你指南（Windows）
 
@@ -63,12 +66,14 @@ toolbox.bat /perfil:X /mod:Y
 - `toolbox.bat /perfil:2 /mod:5`  （修复 Windows Update）
 - `toolbox.bat /perfil:3 /mod:10` （安全格式化）
 - `toolbox.bat /perfil:3 /mod:21` （高安全配置）
+- `toolbox.bat /perfil:3 /mod:22` （PostgreSQL 密码管理器）
 
 示例（`toolbox_corporate.bat`）：
 
 - `toolbox_corporate.bat /perfil:1 /mod:1`  （SMART）
 - `toolbox_corporate.bat /perfil:2 /mod:6`  （修复 Windows Update）
 - `toolbox_corporate.bat /perfil:3 /mod:10` （安全格式化）
+- `toolbox_corporate.bat /perfil:3 /mod:22` （PostgreSQL 密码管理器）
 
 说明：
 
