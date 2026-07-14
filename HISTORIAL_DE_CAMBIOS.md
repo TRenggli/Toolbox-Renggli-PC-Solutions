@@ -1,5 +1,36 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-14 (Actualizacion 31)
+
+### Fase 1 (roadmap v15): pasaporte del sistema, health score y rotacion de logs
+
+Nueva categoria "Reportes e inventario" en el core PowerShell (`Windows/toolbox.ps1`):
+
+- Nuevo modulo `passport`: junta en un solo reporte hardware, discos+salud, volumenes,
+  sistema operativo, ultimos hotfixes, reinicio pendiente (5 indicadores: CBS, Windows
+  Update, PendingFileRenameOperations, rename de computadora, cliente SCCM), red y
+  software instalado (via registro Uninstall, nunca `Win32_Product`).
+- Health score (0-100) con reglas fijas y deterministicas: disco degradado (-25 c/u),
+  volumen <10% libre (-15) o <5% (-25), reinicio pendiente (-10), +30 dias sin
+  reiniciar (-5). Rating Excelente/Bueno/Regular/Critico.
+- Exportacion a HTML (estetica oscura de la suite, secciones plegables nativas sin
+  JS, badges de severidad, todo el contenido escapado contra HTML/XSS), JSON, y CSV
+  generico Campo/Valor (aplanado recursivo, sirve para cualquier reporte futuro).
+- Nuevo `-SelfTest`: corre 9 verificaciones internas del health score y del aplanador
+  CSV con casos sinteticos (no toca el sistema, no requiere admin). Base del "un check
+  que corre" para logica no trivial.
+- Rotacion de logs: los `Audit_PS_*.log` mas viejos que `-LogRetentionDays` (default
+  30) se comprimen a `Logs\Archive\*.zip` y se borra el original. Best-effort, nunca
+  bloquea el arranque.
+- Refactor: los modulos `smart`, `hardware`, `os`, `disk`, `network` ahora llaman a
+  las mismas funciones colectoras que usa `passport` (Get-Passport*), sin duplicar
+  logica ni cambiar su comportamiento/salida.
+- Validado con datos reales de esta maquina (detecto un reinicio pendiente real via
+  PendingFileRenameOperations, 115 programas instalados, 2 discos, 2 volumenes) y con
+  un caso sintetico de inyeccion HTML para confirmar el escape.
+- Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado (modulo passport, health
+  score, exportacion).
+
 ## 2026-07-14 (Actualizacion 30)
 
 ### Fase 0 (roadmap v15): navegacion por categorias en el core PowerShell

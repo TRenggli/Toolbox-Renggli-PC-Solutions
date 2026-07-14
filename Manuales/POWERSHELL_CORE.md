@@ -33,6 +33,13 @@ Esto resuelve los 4 puntos para empujar la herramienta hacia arriba: **desatendi
 
 # Módulos que escriben requieren -Force en modo silent
 .\toolbox.ps1 -Perfil Reparacion -Module dism-sfc -Silent -Force
+
+# Pasaporte del sistema (inventario + health score), exportado a HTML/JSON/CSV
+.\toolbox.ps1 -Perfil Diagnostico -Module passport -Silent -ExportPath C:\Reportes\srv01.html
+.\toolbox.ps1 -Perfil Diagnostico -Module passport -Silent -ExportPath C:\Reportes\srv01.json -ExportFormat json
+
+# Verificaciones internas (health score, aplanado CSV) sin tocar el sistema
+.\toolbox.ps1 -SelfTest
 ```
 
 ## Navegación interactiva
@@ -97,11 +104,33 @@ del sistema antes de aplicar el cambio:
 | Red y conectividad | `network`, `ports` |
 | Windows / Sistema | `os`, `resources`, `events`, `wu-status` |
 | Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W] |
+| Reportes e inventario | `passport` |
 
 Todos `[R]` (solo lectura) salvo `dism-sfc` y `cleanup`, que requieren `-Force` en modo silent
 y disparan la confirmación con riesgo + punto de restauración en modo interactivo.
 
 > Estos son los módulos críticos portados a PowerShell. El resto del catálogo sigue disponible en `toolbox.bat`; se pueden ir migrando agregando entradas al registro `$Modules` (ver el patrón en el script — cada módulo define `Category`, `Risk`, `Reversible` y `Help` para que la navegación y la ayuda salgan solas).
+
+### Pasaporte del sistema (`passport`)
+
+Un solo módulo junta en un reporte: hardware, discos (con salud), volúmenes, sistema
+operativo, últimos hotfixes, **reinicio pendiente** (chequea 5 indicadores conocidos:
+Component Based Servicing, Windows Update, PendingFileRenameOperations, rename de
+computadora pendiente, y cliente SCCM si existe), red y software instalado (leído del
+registro, nunca `Win32_Product` — evita el side-effect de reconfiguración de MSI que
+esa clase WMI dispara en cada consulta).
+
+**Health score (0-100):** arranca en 100 y se descuenta por regla fija —
+disco con salud degradada (-25 c/u), volumen con <10% libre (-15) o <5% libre (-25),
+reinicio pendiente (-10), más de 30 días sin reiniciar (-5). Rating: Excelente (≥90),
+Bueno (≥75), Regular (≥50), Crítico (<50). Las reglas están cubiertas por `-SelfTest`.
+
+**Exportación:** `-ExportPath archivo.ext` (formato por `-ExportFormat html|json|csv`,
+default `html`). En modo interactivo, si no se pasó `-ExportPath`, se pregunta si
+exportar. El HTML reutiliza la estética oscura de la suite, con secciones plegables
+nativas (`<details>`, sin JavaScript) y badges de severidad; todo el contenido variable
+(nombres de software, etc.) pasa por un escape HTML explícito. El CSV es un volcado
+genérico `Campo,Valor` (aplanado recursivo), útil para abrir en Excel o grepear.
 
 ## Ejecución remota sobre una flota
 
