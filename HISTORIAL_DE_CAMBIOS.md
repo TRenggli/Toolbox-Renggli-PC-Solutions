@@ -1,5 +1,55 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-14 (Actualizacion 34)
+
+### Fase 4 (roadmap v15): servidores/empresa (certificados, servicios, AD/IIS, DB)
+
+Nuevas categorias "Servidores" y "Bases de datos", y 6 modulos en el core PowerShell:
+
+- `cert-scan` [R]: escanea almacenes de certificados de la maquina, marca vencidos
+  o por vencer en 30 dias.
+- `svc-health` [R]: servicios Automatic caidos, excluyendo los "Trigger Start"
+  nativos de Windows (filtro real, validado: bajo de 6 a 4 falsos positivos).
+- `ad-health` [R] / `iis-health` [R]: chequeos rapidos de Active Directory (canal
+  seguro, Netlogon, SYSVOL) e IIS (sitios/app-pools), con degradacion clara cuando
+  no aplican.
+- `db-status` [R]: deteccion cross-engine (PostgreSQL/MySQL/SQL Server) via
+  servicio de Windows, con version y puerto.
+- `postgres-password` [W]: gestor de passwords de PostgreSQL portado del modulo
+  probado en toolbox.bat/postgres_manager.bat al core PS (SecureString, modo
+  directo/recuperacion, seleccion de roles). Solo interactivo (rechaza -Silent).
+
+Decision de alcance explicita: la gestion de password para MySQL/MSSQL (mas alla
+de la deteccion) NO se incluye en esta version. Sus mecanismos de recuperacion son
+muy distintos entre si y a Postgres (single-user mode / --init-file), y esta
+maquina no tiene instancias reales de esos motores para validar esa logica con el
+mismo rigor aplicado al resto de la herramienta. Se prefirio no enviar codigo de
+escritura sin poder probarlo contra una instancia real.
+
+Bugs reales encontrados y corregidos durante la validacion (mismo patron que en
+fases anteriores: correr con datos reales, no solo revisar el codigo):
+
+- `svc-health` sin filtro reportaba 6 servicios "caidos" que en realidad eran
+  Trigger Start legitimos (sppsvc, actualizadores de Brave/Edge/Google). Se agrego
+  filtro por presencia de clave de registro TriggerInfo, que elimina los casos
+  nativos de Windows (sppsvc, edgeupdate) pero no puede detectar mecanismos
+  propietarios de terceros (Brave/Google); se documenta la limitacion.
+
+Validado con datos reales de esta maquina: cert-scan (0 certificados en los
+almacenes escaneados), svc-health (filtro verificado), ad-health/iis-health
+(degradacion correcta: no domain-joined, IIS no instalado), db-status (detecto
+PostgreSQL 18.3 real Y SQL Server Express 17.0.1115.1, hallazgo no anticipado),
+postgres-password (deteccion real compartida con db-status, test de conexion real
+con password incorrecta detecta el fallo correctamente, parseo de seleccion de
+roles probado con 5 casos). El flujo interactivo con Read-Host -AsSecureString no
+se pudo ejercitar end-to-end via automatizacion con stdin (comportamiento nativo
+y esperado: requiere consola interactiva real, no funciona con stdin redirigido -
+es correcto que sea asi, ya que es lo que evita que una password quede scripteada
+por accidente).
+
+Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado (2 categorias nuevas, 6
+modulos, nota de alcance sobre MySQL/MSSQL, notas de validacion real).
+
 ## 2026-07-14 (Actualizacion 33)
 
 ### Fase 3 (roadmap v15): reparacion (WU reset, WMI, drivers, BitLocker)

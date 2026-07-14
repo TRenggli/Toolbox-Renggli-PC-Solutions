@@ -241,6 +241,8 @@ $script:Categories = [ordered]@{
     'network'     = 'Red y conectividad'
     'system'      = 'Windows / Sistema'
     'security'    = 'Seguridad y forense'
+    'servers'     = 'Servidores'
+    'database'    = 'Bases de datos'
     'maintenance' = 'Mantenimiento y reparacion'
     'reports'     = 'Reportes e inventario'
 }
@@ -663,6 +665,90 @@ $script:Modules = [ordered]@{
             }
             return Get-BitLockerRecoveryKeys
         }
+    }
+
+    'cert-scan' = @{
+        Name       = 'Escaner de vencimiento de certificados'
+        Category   = 'security'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Recorre los almacenes de certificados de la maquina (Personal, WebHosting, Remote Desktop) y marca los vencidos o por vencer en los proximos 30 dias.'
+            Cuando   = 'El asesino silencioso: "se cayo el sitio/servicio porque vencio un certificado" que nadie monitoreaba. Revisar periodicamente en servidores.'
+            Recaudos = 'Solo lectura. No incluye almacenes de otros usuarios ni certificados de aplicaciones que gestionen los suyos por fuera del almacen de Windows.'
+        }
+        Run        = { return Get-CertificateExpiryScan }
+    }
+
+    'svc-health' = @{
+        Name       = 'Salud de servicios (automaticos caidos)'
+        Category   = 'system'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Lista los servicios configurados como Automatico que NO estan corriendo ahora mismo.'
+            Cuando   = 'Servidor "raro" sin causa obvia; muchas veces se explica por un servicio critico que broken silenciosamente.'
+            Recaudos = 'Solo lectura. Ya excluye los servicios "Automatico (Trigger Start)" nativos de Windows (se detienen solos hasta su evento disparador). Actualizadores de terceros (navegadores, etc.) pueden seguir apareciendo aunque tambien sean auto-stop por diseno; revisa el nombre antes de asumir que es un problema.'
+        }
+        Run        = { return Get-ServiceHealth }
+    }
+
+    'ad-health' = @{
+        Name       = 'Chequeo rapido de Active Directory'
+        Category   = 'servers'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'En un equipo unido a un dominio: verifica el canal seguro con el DC (Test-ComputerSecureChannel), estado del servicio Netlogon, y si el recurso compartido SYSVOL del dominio es alcanzable.'
+            Cuando   = 'Sospecha de problemas de autenticacion, replicacion o confianza con el dominio.'
+            Recaudos = 'Solo lectura. Si el equipo no esta unido a un dominio, lo reporta y no hace nada mas.'
+        }
+        Run        = { return Get-AdHealth }
+    }
+
+    'iis-health' = @{
+        Name       = 'Estado de IIS (sitios y application pools)'
+        Category   = 'servers'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Lista los sitios y application pools de IIS con su estado (Started/Stopped).'
+            Cuando   = 'Un sitio web en un servidor Windows no responde y hay que confirmar si el sitio o el pool estan detenidos.'
+            Recaudos = 'Solo lectura. Requiere el modulo WebAdministration (rol IIS instalado); si no esta, lo reporta con claridad.'
+        }
+        Run        = { return Get-IisHealth }
+    }
+
+    'db-status' = @{
+        Name       = 'Estado de motores de base de datos (Postgres/MySQL/MSSQL)'
+        Category   = 'database'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Detecta instancias de PostgreSQL, MySQL y SQL Server via servicio de Windows y reporta version, puerto (Postgres) y estado del servicio.'
+            Cuando   = 'Inventario de servidores, o para saber de un vistazo que motores de base de datos corren en un equipo y si estan activos.'
+            Recaudos = 'Solo lectura. Para cambiar passwords de PostgreSQL usa el modulo "postgres-password"; MySQL/MSSQL por ahora son solo deteccion (sin gestion de password en esta version).'
+        }
+        Run        = { return Get-DbEngineStatus }
+    }
+
+    'postgres-password' = @{
+        Name       = 'PostgreSQL: gestor de passwords'
+        Category   = 'database'
+        Perfiles   = @('Administracion')
+        Risk       = 'W'
+        Reversible = 'no'
+        Help       = @{
+            Que      = 'Detecta la instancia de PostgreSQL, permite cambiar la password de uno o varios roles. Si no conoces la password del superusuario, ofrece modo recuperacion (trust temporal en pg_hba.conf + reload, sin reiniciar el servicio) que siempre se revierte al terminar.'
+            Cuando   = 'Reset de credenciales o recuperar acceso perdido a un servidor PostgreSQL.'
+            Recaudos = 'Solo modo interactivo (no acepta -Silent, para no pasar passwords en texto plano por parametro/automatizacion). Restaura pg_hba.conf siempre, incluso ante error.'
+        }
+        Run        = { return Invoke-PostgresPasswordManager }
     }
 }
 
@@ -1668,6 +1754,272 @@ function Get-BitLockerRecoveryKeys {
         }
     }
     return @{ supported = $true; volumes = @($rows) }
+}
+
+# ============================================================================
+#  FASE 4: Servidores / empresa
+#  Certificados, salud de servicios, AD/IIS, y motores de base de datos
+#  (Postgres/MySQL/MSSQL: deteccion cross-engine; gestion de password solo
+#  para PostgreSQL en esta version).
+# ============================================================================
+
+function Get-CertificateExpiryScan {
+    param([int]$WarnDays = 30)
+    $stores = @('Cert:\LocalMachine\My', 'Cert:\LocalMachine\WebHosting', 'Cert:\LocalMachine\Remote Desktop')
+    $now = Get-Date
+    $rows = foreach ($s in $stores) {
+        if (-not (Test-Path -LiteralPath $s)) { continue }
+        Get-ChildItem -Path $s -ErrorAction SilentlyContinue | ForEach-Object {
+            $daysLeft = [math]::Round(($_.NotAfter - $now).TotalDays, 0)
+            $status = 'OK'
+            if ($daysLeft -lt 0) { $status = 'Expired' } elseif ($daysLeft -le $WarnDays) { $status = 'ExpiringSoon' }
+            [pscustomobject]@{
+                Store      = $s
+                Subject    = $_.Subject
+                Thumbprint = $_.Thumbprint
+                NotAfter   = $_.NotAfter
+                DaysLeft   = $daysLeft
+                Status     = $status
+            }
+        }
+    }
+    $rows = @($rows)
+    $expiring = @($rows | Where-Object { $_.Status -ne 'OK' } | Sort-Object DaysLeft)
+    return @{ warnDays = $WarnDays; total = $rows.Count; expiringCount = $expiring.Count; expiring = $expiring; all = $rows }
+}
+
+function Get-ServiceHealth {
+    # Excluye servicios "Automatico (Trigger Start)" nativos de Windows: se detienen
+    # solos hasta que ocurre su evento disparador, y eso es normal, no una falla.
+    # No cubre actualizadores de terceros (Brave/Google/etc.) que se autodetienen por
+    # logica propia sin usar el mecanismo de trigger de Windows; esos quedan listados
+    # igual, con la advertencia correspondiente en la ayuda del modulo.
+    $rows = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object {
+        $_.StartMode -eq 'Auto' -and $_.State -ne 'Running'
+    } | Where-Object {
+        -not (Test-Path -LiteralPath "HKLM:\SYSTEM\CurrentControlSet\Services\$($_.Name)\TriggerInfo")
+    } | ForEach-Object {
+        [pscustomobject]@{ Name = $_.DisplayName; ServiceName = $_.Name; State = $_.State; StartMode = $_.StartMode; ExitCode = $_.ExitCode }
+    }
+    $rows = @($rows)
+    return @{ downCount = $rows.Count; down = $rows }
+}
+
+function Get-AdHealth {
+    $cs = Get-CimInstance Win32_ComputerSystem
+    if (-not $cs.PartOfDomain) {
+        return @{ domainJoined = $false; domain = $null }
+    }
+    $result = [ordered]@{ domainJoined = $true; domain = $cs.Domain }
+    try { $result.secureChannelOk = Test-ComputerSecureChannel -ErrorAction Stop }
+    catch { $result.secureChannelOk = $null; $result.secureChannelError = $_.Exception.Message }
+    $netlogon = Get-Service -Name Netlogon -ErrorAction SilentlyContinue
+    $result.netlogonStatus = if ($netlogon) { "$($netlogon.Status)" } else { 'not-found' }
+    $sysvolPath = "\\$($cs.Domain)\SYSVOL"
+    $result.sysvolReachable = Test-Path -LiteralPath $sysvolPath -ErrorAction SilentlyContinue
+    return $result
+}
+
+function Get-IisHealth {
+    if (-not (Get-Module -ListAvailable -Name WebAdministration)) {
+        return @{ supported = $false; reason = 'Modulo WebAdministration no disponible (IIS no instalado o feature de administracion no presente).' }
+    }
+    try { Import-Module WebAdministration -ErrorAction Stop }
+    catch { return @{ supported = $false; reason = "No se pudo cargar WebAdministration: $($_.Exception.Message)" } }
+
+    $sites = @(Get-Website -ErrorAction SilentlyContinue | ForEach-Object {
+            [pscustomobject]@{ Name = $_.Name; State = "$($_.State)"; PhysicalPath = $_.PhysicalPath }
+        })
+    $pools = @(Get-ChildItem 'IIS:\AppPools' -ErrorAction SilentlyContinue | ForEach-Object {
+            [pscustomobject]@{ Name = $_.Name; State = "$($_.State)" }
+        })
+    $stoppedSites = @($sites | Where-Object { $_.State -ne 'Started' })
+    $stoppedPools = @($pools | Where-Object { $_.State -ne 'Started' })
+    return @{ supported = $true; sites = $sites; appPools = $pools; stoppedSitesCount = $stoppedSites.Count; stoppedPoolsCount = $stoppedPools.Count }
+}
+
+function Get-PostgresInstances {
+    # Detecta TODAS las instancias postgresql-x64-* via servicio de Windows.
+    # Compartida por 'db-status' y 'postgres-password' para no duplicar el
+    # parseo de PathName (mismo patron ya probado en modules\postgres_manager.bat).
+    $svcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'postgresql-x64-*' }
+    $rows = foreach ($s in $svcs) {
+        $binDir = $null; $dataDir = $null; $port = '5432'
+        if ($s.PathName -match '"([^"]+)"') { $binDir = Split-Path $Matches[1] } elseif ($s.PathName -match '^(\S+)') { $binDir = Split-Path $Matches[1] }
+        if ($s.PathName -match '-D\s+"([^"]+)"') { $dataDir = $Matches[1] } elseif ($s.PathName -match '-D\s+(\S+)') { $dataDir = $Matches[1] }
+        if ($dataDir) {
+            $conf = Join-Path $dataDir 'postgresql.conf'
+            if (Test-Path -LiteralPath $conf) {
+                $m = Select-String -LiteralPath $conf -Pattern '^\s*port\s*=\s*(\d+)' -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($m) { $port = $m.Matches[0].Groups[1].Value }
+            }
+        }
+        [pscustomobject]@{ ServiceName = $s.Name; State = "$($s.State)"; BinDir = $binDir; DataDir = $dataDir; Port = $port }
+    }
+    return @($rows)
+}
+
+function Get-DbEngineStatus {
+    $rows = @()
+
+    foreach ($pg in Get-PostgresInstances) {
+        $version = $null
+        if ($pg.BinDir) {
+            $exe = Join-Path $pg.BinDir 'postgres.exe'
+            if (Test-Path -LiteralPath $exe) { try { $version = (Get-Item -LiteralPath $exe -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
+        }
+        $rows += [pscustomobject]@{ Engine = 'PostgreSQL'; ServiceName = $pg.ServiceName; State = $pg.State; Port = $pg.Port; Version = $version }
+    }
+
+    $mysqlSvcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'MySQL*' }
+    foreach ($s in $mysqlSvcs) {
+        $exePath = $null
+        if ($s.PathName -match '"([^"]+)"') { $exePath = $Matches[1] } elseif ($s.PathName -match '^(\S+)') { $exePath = $Matches[1] }
+        $version = $null
+        if ($exePath -and (Test-Path -LiteralPath $exePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $exePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
+        $rows += [pscustomobject]@{ Engine = 'MySQL'; ServiceName = $s.Name; State = "$($s.State)"; Port = $null; Version = $version }
+    }
+
+    $mssqlSvcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'MSSQLSERVER' -or $_.Name -like 'MSSQL$*' }
+    foreach ($s in $mssqlSvcs) {
+        $exePath = $null
+        if ($s.PathName -match '"([^"]+)"') { $exePath = $Matches[1] } elseif ($s.PathName -match '^(\S+)') { $exePath = $Matches[1] }
+        $version = $null
+        if ($exePath -and (Test-Path -LiteralPath $exePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $exePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
+        $rows += [pscustomobject]@{ Engine = 'MSSQL'; ServiceName = $s.Name; State = "$($s.State)"; Port = $null; Version = $version }
+    }
+
+    $rows = @($rows)
+    return @{ instances = $rows; count = $rows.Count }
+}
+
+function Invoke-PostgresPasswordManager {
+    if ($Silent) {
+        return @{ skipped = $true; reason = 'Este modulo requiere modo interactivo; no acepta password por parametro/automatizacion, por seguridad.' }
+    }
+
+    $instances = Get-PostgresInstances
+    if (-not $instances) {
+        return @{ supported = $false; reason = 'No se detecto ninguna instancia de PostgreSQL en este equipo.' }
+    }
+    $inst = $instances[0]
+    if ($instances.Count -gt 1) {
+        Write-Host '  Instancias detectadas:'
+        for ($i = 0; $i -lt $instances.Count; $i++) { Write-Host "    $($i+1). $($instances[$i].ServiceName)  (puerto $($instances[$i].Port))" }
+        $sel = Read-Host '  Elegi instancia [1..N] (Enter=1)'
+        $n = 0
+        if ([int]::TryParse($sel, [ref]$n) -and $n -ge 1 -and $n -le $instances.Count) { $inst = $instances[$n - 1] }
+    }
+    if (-not $inst.BinDir -or -not (Test-Path -LiteralPath (Join-Path $inst.BinDir 'psql.exe'))) {
+        return @{ supported = $false; reason = "No se encontro psql.exe para la instancia $($inst.ServiceName)." }
+    }
+    $psql = Join-Path $inst.BinDir 'psql.exe'
+    $pgCtl = Join-Path $inst.BinDir 'pg_ctl.exe'
+    $hbaPath = Join-Path $inst.DataDir 'pg_hba.conf'
+
+    Write-Host "  Instancia: $($inst.ServiceName)  |  Data dir: $($inst.DataDir)  |  Puerto: $($inst.Port)"
+
+    $superuser = Read-Host '  Superusuario [postgres]'
+    if (-not $superuser) { $superuser = 'postgres' }
+    $securePwd = Read-Host '  Password del superusuario (Enter si no la conoces)' -AsSecureString
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
+    $env:PGPASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+
+    & $psql -h 127.0.0.1 -p $inst.Port -U $superuser -d postgres -tA -w -c 'SELECT 1;' *> $null
+    $testOk = ($LASTEXITCODE -eq 0)
+
+    $mode = 'DIRECTO'
+    $trustActive = $false
+    $hbaBackup = $null
+
+    if (-not $testOk) {
+        Write-Host '  [!] No se pudo conectar. Modo RECUPERACION disponible (trust temporal en pg_hba, sin reiniciar el servicio).' -ForegroundColor Yellow
+        if (-not (Confirm-Action 'Activar modo recuperacion (trust temporal en pg_hba.conf)?' $true)) {
+            return @{ skipped = $true; reason = 'no confirmado (recuperacion)' }
+        }
+        if (-not (Test-Path -LiteralPath $hbaPath)) { return @{ supported = $false; reason = "No se encontro pg_hba.conf en $hbaPath" } }
+
+        $hbaBackup = "$hbaPath.renggliBak_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        Copy-Item -LiteralPath $hbaPath -Destination $hbaBackup -Force
+        $trustLines = @('# === RENGGLI-TEMP-TRUST ===', 'local all all trust', 'host all all 127.0.0.1/32 trust', 'host all all ::1/128 trust', '# === RENGGLI-TEMP-TRUST-END ===')
+        $orig = Get-Content -LiteralPath $hbaPath
+        Set-Content -LiteralPath $hbaPath -Value ($trustLines + $orig) -Encoding ASCII
+        $trustActive = $true
+        & $pgCtl reload -D $inst.DataDir *> $null
+        Start-Sleep -Seconds 2
+
+        $env:PGPASSWORD = ''
+        & $psql -h 127.0.0.1 -p $inst.Port -U $superuser -d postgres -tA -w -c 'SELECT 1;' *> $null
+        $testOk = ($LASTEXITCODE -eq 0)
+        if (-not $testOk) {
+            Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force
+            & $pgCtl reload -D $inst.DataDir *> $null
+            return @{ supported = $false; reason = 'Ni siquiera con trust se pudo conectar. Revisa el servicio.' }
+        }
+        $mode = 'RECUPERACION'
+    }
+
+    $rolesRaw = & $psql -h 127.0.0.1 -p $inst.Port -U $superuser -d postgres -tA -w -c "SELECT rolname FROM pg_authid WHERE rolcanlogin = true ORDER BY 1;" 2>$null
+    $roles = @($rolesRaw | Where-Object { $_ -and $_.Trim() } | ForEach-Object { $_.Trim() })
+    if (-not $roles) {
+        if ($trustActive) { Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force; & $pgCtl reload -D $inst.DataDir *> $null }
+        return @{ supported = $false; reason = 'No se pudieron enumerar los roles.' }
+    }
+
+    Write-Host '  Roles con login:'
+    for ($i = 0; $i -lt $roles.Count; $i++) { Write-Host "    $($i+1). $($roles[$i])" }
+    $sel = Read-Host '  Numeros a cambiar separados por coma, o "todos" (Enter=cancelar)'
+    $selectedRoles = @()
+    if ($sel -match '^(?i:todos)$') { $selectedRoles = $roles }
+    elseif ($sel) {
+        foreach ($tok in ($sel -split ',')) {
+            $n = 0
+            if ([int]::TryParse($tok.Trim(), [ref]$n) -and $n -ge 1 -and $n -le $roles.Count) { $selectedRoles += $roles[$n - 1] }
+        }
+    }
+    if (-not $selectedRoles) {
+        if ($trustActive) { Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force; & $pgCtl reload -D $inst.DataDir *> $null }
+        return @{ skipped = $true; reason = 'ningun rol seleccionado' }
+    }
+
+    $newSecure1 = Read-Host '  Nueva password' -AsSecureString
+    $newSecure2 = Read-Host '  Confirma' -AsSecureString
+    $b1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure1)
+    $new1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b1)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b1)
+    $b2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure2)
+    $new2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b2)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b2)
+
+    if ($new1 -ne $new2 -or -not $new1) {
+        if ($trustActive) { Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force; & $pgCtl reload -D $inst.DataDir *> $null }
+        return @{ skipped = $true; reason = 'las passwords no coinciden o estan vacias' }
+    }
+
+    if (-not (Confirm-Action "Cambiar la password de $($selectedRoles.Count) rol(es): $($selectedRoles -join ', ')?" $true)) {
+        if ($trustActive) { Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force; & $pgCtl reload -D $inst.DataDir *> $null }
+        return @{ skipped = $true; reason = 'no confirmado (cambio de password)' }
+    }
+
+    $ok = @(); $fail = @()
+    foreach ($r in $selectedRoles) {
+        $escaped = $new1 -replace "'", "''"
+        $sqlFile = [System.IO.Path]::GetTempFileName()
+        "ALTER USER `"$r`" WITH PASSWORD '$escaped';" | Set-Content -LiteralPath $sqlFile -Encoding ASCII
+        & $psql -h 127.0.0.1 -p $inst.Port -U $superuser -d postgres -tA -w -f $sqlFile *> $null
+        if ($LASTEXITCODE -eq 0) { $ok += $r } else { $fail += $r }
+        Remove-Item -LiteralPath $sqlFile -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($trustActive) {
+        Copy-Item -LiteralPath $hbaBackup -Destination $hbaPath -Force
+        Remove-Item -LiteralPath $hbaBackup -Force -ErrorAction SilentlyContinue
+        & $pgCtl reload -D $inst.DataDir *> $null
+    }
+    $env:PGPASSWORD = ''
+
+    return @{ mode = $mode; succeeded = @($ok); failed = @($fail) }
 }
 
 # ============================================================================

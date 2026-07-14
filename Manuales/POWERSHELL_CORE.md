@@ -71,9 +71,9 @@ Controles disponibles en cualquier pantalla:
 | `0` | Salir |
 
 **Categorías:** Hardware y sensores · Almacenamiento y discos · Red y conectividad ·
-Windows / Sistema · Seguridad y forense · Mantenimiento y reparación · Reportes e
-inventario. Una categoría solo aparece en el menú si tiene al menos un módulo
-permitido para el perfil activo.
+Windows / Sistema · Seguridad y forense · Servidores · Bases de datos · Mantenimiento
+y reparación · Reportes e inventario. Una categoría solo aparece en el menú si tiene
+al menos un módulo permitido para el perfil activo.
 
 **Antes de ejecutar un módulo `[W]`/`[!]`** se muestra una confirmación con el riesgo
 y la reversibilidad. Si el módulo realmente cambia el estado del sistema, además
@@ -106,8 +106,10 @@ innecesario, ya que no modifican nada:
 | Hardware y sensores | `hardware`, `battery`, `driver-audit` |
 | Almacenamiento y discos | `smart`, `smart-deep`, `disk` |
 | Red y conectividad | `network`, `ports` |
-| Windows / Sistema | `os`, `resources`, `events`, `event-intel`, `wu-status` |
-| Seguridad y forense | `autostart`, `bitlocker-status`, `bitlocker-keys` [!] |
+| Windows / Sistema | `os`, `resources`, `events`, `event-intel`, `wu-status`, `svc-health` |
+| Seguridad y forense | `autostart`, `bitlocker-status`, `bitlocker-keys` [!], `cert-scan` |
+| Servidores | `ad-health`, `iis-health` |
+| Bases de datos | `db-status`, `postgres-password` [W] |
 | Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W], `driver-backup` [W], `wu-reset` [W], `wmi-repair` [W] |
 | Reportes e inventario | `passport` |
 
@@ -194,6 +196,42 @@ Tres módulos que buscan lo que revisa un técnico senior en vez de lo genérico
   **`bitlocker-keys`** [!] muestra las claves de recuperación — **solo perfil
   Administración**, nunca se escribe la clave en el log de auditoría (solo aparece
   en la salida que pediste explícitamente: pantalla, JSON o archivo).
+
+### Servidores / empresa (`cert-scan`, `svc-health`, `ad-health`, `iis-health`, `db-status`, `postgres-password`)
+
+- **`cert-scan`** — recorre los almacenes de certificados de la máquina y marca los
+  vencidos o por vencer en 30 días. El "asesino silencioso": un sitio/servicio que se
+  cae porque nadie vigilaba el vencimiento de un certificado.
+
+- **`svc-health`** — servicios `Automatic` que no están corriendo. Excluye los
+  servicios "Automatic (Trigger Start)" **nativos de Windows** (se detienen solos
+  hasta su evento disparador — validado en la práctica: el filtro real bajó de 6 a 4
+  falsos positivos en esta máquina, eliminando `sppsvc`/`edgeupdate`). Actualizadores
+  de terceros (navegadores, etc.) que se autodetienen por lógica propia — no por el
+  mecanismo de trigger de Windows — no tienen una señal mecánica universal para
+  filtrarlos, así que pueden seguir apareciendo; la ayuda del módulo lo advierte.
+
+- **`ad-health`** / **`iis-health`** — chequeos rápidos de Active Directory (canal
+  seguro con el DC, Netlogon, SYSVOL) e IIS (sitios/application pools). Ambos se
+  degradan con claridad cuando no aplican (equipo no unido a dominio, IIS no
+  instalado) en vez de fallar.
+
+- **`db-status`** — detección cross-engine (PostgreSQL, MySQL, SQL Server) vía
+  servicio de Windows: motor, estado, puerto (Postgres) y versión. Solo lectura.
+  **`postgres-password`** [W] — el gestor de passwords de PostgreSQL, portado del
+  módulo probado en `toolbox.bat`/`modules\postgres_manager.bat`: detecta la
+  instancia, modo directo o recuperación (trust temporal + reload), selección de
+  roles, `Read-Host -AsSecureString` para no mostrar las passwords en pantalla.
+  Solo modo interactivo (rechaza `-Silent`, para no pasar passwords en texto plano
+  por parámetro/automatización) y solo perfil Administración.
+
+  > **Nota de alcance:** `db-status` detecta MySQL/SQL Server, pero la gestión de
+  > password (reset/recuperación) por ahora es solo para PostgreSQL. Los otros dos
+  > motores tienen mecanismos de recuperación muy distintos entre sí (modo
+  > single-user de SQL Server, `--init-file`/`--skip-grant-tables` de MySQL) y esta
+  > versión no incluye esa lógica sin poder validarla contra una instancia real de
+  > cada motor — se prefirió no enviar código de escritura sin probar en vez de
+  > fingir paridad completa.
 
 ## Ejecución remota sobre una flota
 
