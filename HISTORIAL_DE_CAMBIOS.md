@@ -1,5 +1,18 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-13 (Actualizacion 29)
+
+### Core PowerShell: motor automatizable, limpio y firmable (servidores/flotas)
+
+- Nuevo `Windows/toolbox.ps1`: motor en PowerShell orientado a servidores y entornos gestionados, complementario al kit de campo `toolbox.bat`.
+  - Ejecucion DESATENDIDA (`-Silent`), salida ESTRUCTURADA (`-Json`) y CODIGOS DE SALIDA (0 ok, 1 error, 2 uso/permiso, 3 perfil no permitido) para orquestar por PSRemoting/SSH/Ansible/Intune.
+  - Perfiles Diagnostico/Reparacion/Administracion; los modulos que escriben exigen `-Force` en modo silent.
+  - 12 modulos criticos portados a PowerShell con salida estructurada: smart, hardware, os, resources, disk, network, ports, events, wu-status, battery, dism-sfc, cleanup.
+  - Nucleo LIMPIO: NO incluye MAS, apto para entornos regulados (activacion separada del core).
+- Nuevo `Windows/sign.ps1`: firma Authenticode del core (cert autofirmado para pruebas; cert de CA real en produccion). Authenticode firma `.ps1`, no `.bat`.
+- CI: nuevo paso que valida que el core PowerShell parsea correctamente.
+- Documentacion: `Manuales/POWERSHELL_CORE.md`.
+
 ## 2026-07-13 (Actualizacion 28)
 
 ### SMART de discos disponible en los tres perfiles (Windows)

@@ -24,7 +24,9 @@ Código
 Toolbox/
 │
 ├── Windows/
-│   ├── toolbox.bat               # Unified Windows toolbox
+│   ├── toolbox.bat               # Field kit (interactive, includes MAS)
+│   ├── toolbox.ps1               # PowerShell core (unattended/JSON, MAS-free, signable)
+│   ├── sign.ps1                  # Authenticode signing helper for the PS core
 │   ├── MAS_AIO.cmd               # Activation module (MAS)
 │   └── modules/
 │       └── postgres_manager.bat  # PostgreSQL password manager
@@ -180,6 +182,11 @@ For PDF requirements, execution steps, troubleshooting, and technical details, u
 A single unified edition per OS (Windows / Linux / macOS). All modules and all
 execution profiles are enabled, including the Windows activation utilities (MAS),
 intended for authorized/testing use.
+
+On Windows there is also a **PowerShell core** (`Windows/toolbox.ps1`) aimed at
+servers and managed fleets: unattended execution, JSON output and exit codes for
+orchestration (PSRemoting/SSH/Ansible/Intune), Authenticode-signable (`sign.ps1`),
+and MAS-free for regulated environments. See `Manuales/POWERSHELL_CORE.md`.
 
 📊 Logs & Reports
 Each execution generates:
