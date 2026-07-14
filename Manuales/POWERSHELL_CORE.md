@@ -71,8 +71,9 @@ Controles disponibles en cualquier pantalla:
 | `0` | Salir |
 
 **Categorías:** Hardware y sensores · Almacenamiento y discos · Red y conectividad ·
-Windows / Sistema · Mantenimiento y reparación. Una categoría solo aparece en el menú
-si tiene al menos un módulo permitido para el perfil activo.
+Windows / Sistema · Seguridad y forense · Mantenimiento y reparación · Reportes e
+inventario. Una categoría solo aparece en el menú si tiene al menos un módulo
+permitido para el perfil activo.
 
 **Antes de ejecutar un módulo `[W]`/`[!]`** se muestra una confirmación con el riesgo
 y la reversibilidad, y (salvo `-NoSafetyNet`) se intenta crear un punto de restauración
@@ -100,9 +101,10 @@ del sistema antes de aplicar el cambio:
 | Categoría | Módulos (`id`) |
 |---|---|
 | Hardware y sensores | `hardware`, `battery` |
-| Almacenamiento y discos | `smart`, `disk` |
+| Almacenamiento y discos | `smart`, `smart-deep`, `disk` |
 | Red y conectividad | `network`, `ports` |
-| Windows / Sistema | `os`, `resources`, `events`, `wu-status` |
+| Windows / Sistema | `os`, `resources`, `events`, `event-intel`, `wu-status` |
+| Seguridad y forense | `autostart` |
 | Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W] |
 | Reportes e inventario | `passport` |
 
@@ -131,6 +133,36 @@ exportar. El HTML reutiliza la estética oscura de la suite, con secciones plega
 nativas (`<details>`, sin JavaScript) y badges de severidad; todo el contenido variable
 (nombres de software, etc.) pasa por un escape HTML explícito. El CSV es un volcado
 genérico `Campo,Valor` (aplanado recursivo), útil para abrir en Excel o grepear.
+
+### Diagnóstico profundo (`autostart`, `smart-deep`, `event-intel`)
+
+Tres módulos que buscan lo que revisa un técnico senior en vez de lo genérico:
+
+- **`autostart`** — auditor de persistencia: registro Run/RunOnce (HKLM/HKCU/32-bit),
+  carpetas de Inicio, tareas programadas con disparador de logon/boot, servicios
+  automáticos (verifica firma Authenticode del ejecutable y marca los no firmados),
+  **suscripciones de eventos WMI** (`root\subscription` — mecanismo de persistencia
+  "fileless" que casi ninguna herramienta revisa) e **IFEO Debugger** (hijacking de
+  ejecutables vía Image File Execution Options, la técnica clásica del backdoor de
+  "sticky keys"). Devuelve una lista `suspicious` con lo que amerita revisión manual.
+  Validado en una máquina real: encontró 161 puntos de autostart, verificó la firma
+  de 100 servicios y señaló correctamente 3 sin firma válida y 2 suscripciones WMI.
+
+- **`smart-deep`** — atributos de fiabilidad reales (`Get-StorageReliabilityCounter`):
+  horas de encendido, temperatura, errores de lectura/escritura corregidos y NO
+  corregidos, desgaste (SSD). A diferencia del `[R]` genérico de `smart`, esto predice
+  una falla antes de que el disco reporte "no OK". Se degrada con gracia (`disks`
+  vacío con `supported=$false`) si el equipo no expone el módulo Storage, o con
+  campos en `null` si un disco puntual no reporta contadores (común en NVMe/USB de
+  consumo en Windows cliente).
+
+- **`event-intel`** — en vez de "eventos críticos" genéricos, busca patrones
+  específicos: apagados inesperados (Kernel-Power 41 + EventLog 6008), fallas reales
+  de disco (IDs 7/11/51/153 filtrados al proveedor clásico `disk`, para no confundir
+  con otros componentes que reusan esos mismos números — validado en la práctica:
+  sin el filtro de proveedor aparecían 36 falsos positivos de Kernel-General/TxR),
+  bugchecks (BugCheck 1001) y servicios que fallaron al iniciar (Service Control
+  Manager). Ventana de 14 días.
 
 ## Ejecución remota sobre una flota
 

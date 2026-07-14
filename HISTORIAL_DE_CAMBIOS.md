@@ -1,5 +1,34 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-14 (Actualizacion 32)
+
+### Fase 2 (roadmap v15): diagnostico profundo (autostart, SMART real, Event Log)
+
+Nueva categoria "Seguridad y forense" y 3 modulos nuevos en el core PowerShell:
+
+- `autostart`: audita registro Run/RunOnce (HKLM/HKCU/32-bit), carpetas de Inicio,
+  tareas programadas con trigger de logon/boot, servicios automaticos (verifica firma
+  Authenticode y marca los no firmados), suscripciones de eventos WMI en
+  `root\subscription` (persistencia "fileless" poco revisada) e IFEO Debugger
+  (hijacking via Image File Execution Options). Devuelve lista de items sospechosos.
+- `smart-deep`: atributos de fiabilidad reales via `Get-StorageReliabilityCounter`
+  (horas de encendido, temperatura, errores de lectura/escritura corregidos y NO
+  corregidos, desgaste). Se degrada con gracia si el equipo no expone el modulo
+  Storage o un disco puntual no reporta contadores.
+- `event-intel`: en vez de "eventos criticos" genericos, busca patrones especificos -
+  apagados inesperados (Kernel-Power 41 + EventLog 6008), fallas de disco (IDs
+  7/11/51/153 filtrados al proveedor clasico 'disk'), bugchecks (1001) y servicios
+  que fallaron al iniciar (Service Control Manager). Ventana de 14 dias.
+- Validado con datos reales de esta maquina: `autostart` encontro 161 puntos de
+  arranque, verifico la firma de 100 servicios y senalo 3 sin firma valida y 2
+  suscripciones WMI; `event-intel` encontro 4 apagados inesperados reales y 16
+  fallos de servicio. Durante la validacion se detecto que el filtro de eventos de
+  disco sin restriccion de proveedor generaba 36 falsos positivos (provider
+  Kernel-General/TxR reusando los mismos IDs numericos); se corrigio filtrando al
+  proveedor clasico 'disk', eliminando el falso positivo.
+- Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado (nueva categoria, 3
+  modulos, notas de validacion real).
+
 ## 2026-07-14 (Actualizacion 31)
 
 ### Fase 1 (roadmap v15): pasaporte del sistema, health score y rotacion de logs

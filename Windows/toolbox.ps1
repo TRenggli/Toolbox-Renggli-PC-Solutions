@@ -239,6 +239,7 @@ $script:Categories = [ordered]@{
     'storage'     = 'Almacenamiento y discos'
     'network'     = 'Red y conectividad'
     'system'      = 'Windows / Sistema'
+    'security'    = 'Seguridad y forense'
     'maintenance' = 'Mantenimiento y reparacion'
     'reports'     = 'Reportes e inventario'
 }
@@ -523,6 +524,48 @@ $script:Modules = [ordered]@{
             }
             return $passport
         }
+    }
+
+    'autostart' = @{
+        Name       = 'Auditor de autostart y persistencia'
+        Category   = 'security'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Enumera TODOS los puntos de arranque automatico: registro Run/RunOnce (HKLM/HKCU/32-bit), carpetas de Inicio, tareas programadas con disparador de logon/boot, servicios en Automatico (marcando los no firmados o no-Microsoft) y dos mecanismos que casi nadie revisa: suscripciones de eventos WMI (persistencia "fileless" usada por malware avanzado) e IFEO Debugger (hijacking de ejecutables via Image File Execution Options).'
+            Cuando   = 'Sospecha de malware, PC "rara" o lenta sin causa clara, o auditoria de hardening.'
+            Recaudos = 'Solo lectura. Revisa manualmente cualquier item marcado como sospechoso antes de decidir eliminarlo (esta herramienta no borra nada aca).'
+        }
+        Run        = { return New-AutostartAudit }
+    }
+
+    'smart-deep' = @{
+        Name       = 'Atributos SMART reales (fiabilidad de disco)'
+        Category   = 'storage'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Lee los contadores de fiabilidad reales de cada disco: horas de encendido, temperatura, errores de lectura/escritura corregidos y NO corregidos, y desgaste (SSD). A diferencia del "OK/No-OK" generico, estos numeros predicen una falla antes de que ocurra.'
+            Cuando   = 'Sospecha de disco degradandose, o auditoria periodica de almacenamiento en servidores.'
+            Recaudos = 'Solo lectura. Requiere el modulo Storage de Windows (incluido desde Windows 8.1 / Server 2012 R2). Algunos discos (USB, ciertas VMs) no exponen estos contadores y quedan en null.'
+        }
+        Run        = { return Get-SmartDeep }
+    }
+
+    'event-intel' = @{
+        Name       = 'Inteligencia de Event Log (apagados/disco/servicios)'
+        Category   = 'system'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Busca los patrones especificos que revisa un tecnico senior en vez de "eventos criticos" genericos: apagados inesperados (Kernel-Power 41, EventLog 6008), señales de disco fallando (IDs 7/11/51/153), bugchecks/pantallazos azules (BugCheck 1001) y servicios que fallaron al iniciar (Service Control Manager). Ventana de 14 dias.'
+            Cuando   = 'Investigar reinicios inexplicados, sospecha de disco degradado, o post-mortem de un incidente de estabilidad.'
+            Recaudos = 'Solo lectura. Los eventos de disco se filtran al proveedor clasico "disk" (evita falsos positivos de otros componentes que reusan los mismos IDs numericos, ej. Kernel-General); controladores RAID/NVMe propietarios pueden registrar bajo otro proveedor y no aparecer aca.'
+        }
+        Run        = { return Get-EventIntelligence }
     }
 }
 
@@ -1118,6 +1161,240 @@ function Test-Fase1SelfChecks {
     $allOk = (Assert-Equal $flat.Count 2 'ConvertTo-FlatRows: aplana anidados') -and $allOk
 
     return $allOk
+}
+
+# ============================================================================
+#  FASE 2: Diagnostico profundo
+#  Auditor de autostart/persistencia, atributos SMART reales e inteligencia
+#  de Event Log (patrones especificos, no "eventos criticos" genericos).
+# ============================================================================
+
+function Get-AutostartRegistry {
+    $keys = @(
+        @{ Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'; Scope = 'HKLM' },
+        @{ Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce'; Scope = 'HKLM' },
+        @{ Path = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run'; Scope = 'HKLM32' },
+        @{ Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'; Scope = 'HKCU' },
+        @{ Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce'; Scope = 'HKCU' }
+    )
+    $ignoreProps = @('PSPath', 'PSParentPath', 'PSChildName', 'PSDrive', 'PSProvider')
+    $rows = foreach ($k in $keys) {
+        $props = Get-ItemProperty -Path $k.Path -ErrorAction SilentlyContinue
+        if (-not $props) { continue }
+        foreach ($p in $props.PSObject.Properties) {
+            if ($p.Name -in $ignoreProps) { continue }
+            [pscustomobject]@{ Source = "Registry:$($k.Scope)"; Name = $p.Name; Command = "$($p.Value)"; Path = $k.Path }
+        }
+    }
+    return @($rows)
+}
+
+function Get-AutostartFolders {
+    $folders = @(
+        (Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\Startup'),
+        (Join-Path $env:AppData 'Microsoft\Windows\Start Menu\Programs\Startup')
+    )
+    $rows = foreach ($f in $folders) {
+        if (-not (Test-Path -LiteralPath $f)) { continue }
+        Get-ChildItem -LiteralPath $f -File -ErrorAction SilentlyContinue | ForEach-Object {
+            [pscustomobject]@{ Source = 'StartupFolder'; Name = $_.Name; Command = $_.FullName; Path = $f }
+        }
+    }
+    return @($rows)
+}
+
+function Get-AutostartTasks {
+    try {
+        $tasks = Get-ScheduledTask -ErrorAction Stop | Where-Object {
+            $_.State -ne 'Disabled' -and ($_.Triggers | Where-Object { $_.CimClass.CimClassName -match 'Logon|Boot|Registration' })
+        }
+    }
+    catch { return @() }
+    $rows = foreach ($t in $tasks) {
+        $cmd = ($t.Actions | ForEach-Object {
+                if ($_.Execute) { "$($_.Execute) $($_.Arguments)".Trim() } else { "$($_.CimClass.CimClassName)" }
+            }) -join '; '
+        [pscustomobject]@{
+            Source     = 'ScheduledTask'
+            Name       = $t.TaskName
+            Command    = $cmd
+            Path       = $t.TaskPath
+            NonDefault = ($t.TaskPath -notlike '\Microsoft\Windows\*')
+        }
+    }
+    return @($rows)
+}
+
+function Get-AutostartServices {
+    $rows = Get-CimInstance Win32_Service -Filter "StartMode='Auto'" -ErrorAction SilentlyContinue | ForEach-Object {
+        $exePath = $null
+        if ($_.PathName -match '^"([^"]+)"') { $exePath = $Matches[1] }
+        elseif ($_.PathName -match '^(\S+)') { $exePath = $Matches[1] }
+        $signed = $false; $signer = $null
+        if ($exePath -and (Test-Path -LiteralPath $exePath -ErrorAction SilentlyContinue)) {
+            try {
+                $sig = Get-AuthenticodeSignature -LiteralPath $exePath -ErrorAction Stop
+                $signed = ($sig.Status -eq 'Valid')
+                if ($sig.SignerCertificate) { $signer = $sig.SignerCertificate.Subject }
+            }
+            catch {}
+        }
+        [pscustomobject]@{
+            Source       = 'Service'
+            Name         = $_.DisplayName
+            Command      = $_.PathName
+            Signed       = $signed
+            Signer       = $signer
+            NonMicrosoft = -not ($signer -and $signer -match 'Microsoft')
+        }
+    }
+    return @($rows)
+}
+
+function Get-WmiPersistence {
+    # Suscripciones de eventos WMI: mecanismo de persistencia "fileless" poco revisado.
+    $rows = @()
+    try {
+        Get-CimInstance -Namespace 'root\subscription' -ClassName '__EventFilter' -ErrorAction Stop | ForEach-Object {
+            $rows += [pscustomobject]@{ Source = 'WMI-EventFilter'; Name = $_.Name; Command = $_.Query }
+        }
+    }
+    catch {}
+    try {
+        Get-CimInstance -Namespace 'root\subscription' -ClassName 'CommandLineEventConsumer' -ErrorAction Stop | ForEach-Object {
+            $rows += [pscustomobject]@{ Source = 'WMI-CommandLineConsumer'; Name = $_.Name; Command = $_.CommandLineTemplate }
+        }
+    }
+    catch {}
+    try {
+        Get-CimInstance -Namespace 'root\subscription' -ClassName '__FilterToConsumerBinding' -ErrorAction Stop | ForEach-Object {
+            $rows += [pscustomobject]@{ Source = 'WMI-Binding'; Name = "$($_.Filter) -> $($_.Consumer)"; Command = $null }
+        }
+    }
+    catch {}
+    return @($rows)
+}
+
+function Get-IfeoDebuggers {
+    # Image File Execution Options con 'Debugger': tecnica clasica de hijacking
+    # (ej. reemplazar sethc.exe/utilman.exe por una backdoor via "sticky keys").
+    $base = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
+    $rows = @()
+    if (Test-Path -LiteralPath $base) {
+        Get-ChildItem -Path $base -ErrorAction SilentlyContinue | ForEach-Object {
+            $dbg = (Get-ItemProperty -Path $_.PSPath -Name 'Debugger' -ErrorAction SilentlyContinue).Debugger
+            if ($dbg) { $rows += [pscustomobject]@{ Source = 'IFEO'; Name = $_.PSChildName; Command = $dbg } }
+        }
+    }
+    return @($rows)
+}
+
+function New-AutostartAudit {
+    $registry = Get-AutostartRegistry
+    $folders = Get-AutostartFolders
+    $tasks = Get-AutostartTasks
+    $services = Get-AutostartServices
+    $wmi = Get-WmiPersistence
+    $ifeo = Get-IfeoDebuggers
+
+    $suspicious = @()
+    foreach ($r in $registry) {
+        if ($r.Command -match '\\(AppData\\Local\\Temp|Temp\\|Users\\Public)\\') {
+            $suspicious += "Registro '$($r.Name)' arranca desde una carpeta temporal: $($r.Command)"
+        }
+    }
+    foreach ($s in $services) {
+        if ($s.NonMicrosoft -and -not $s.Signed) {
+            $suspicious += "Servicio automatico sin firma valida: $($s.Name) ($($s.Command))"
+        }
+    }
+    if (@($wmi).Count -gt 0) {
+        $suspicious += "Hay $(@($wmi).Count) elemento(s) de suscripcion WMI (root\subscription) - mecanismo de persistencia poco comun, revisar manualmente"
+    }
+    foreach ($i in $ifeo) {
+        $suspicious += "IFEO Debugger en '$($i.Name)': $($i.Command)"
+    }
+
+    return [ordered]@{
+        registry   = $registry
+        folders    = $folders
+        tasks      = $tasks
+        services   = $services
+        wmi        = $wmi
+        ifeo       = $ifeo
+        totalCount = (@($registry).Count + @($folders).Count + @($tasks).Count + @($services).Count + @($wmi).Count + @($ifeo).Count)
+        suspicious = @($suspicious)
+    }
+}
+
+function Get-SmartDeep {
+    try {
+        $disks = Get-PhysicalDisk -ErrorAction Stop
+    }
+    catch {
+        return @{ supported = $false; reason = 'Get-PhysicalDisk no disponible en este equipo (falta el modulo Storage).'; disks = @() }
+    }
+    $rows = foreach ($d in $disks) {
+        $counter = $null
+        try { $counter = $d | Get-StorageReliabilityCounter -ErrorAction Stop } catch {}
+        [pscustomobject]@{
+            FriendlyName           = $d.FriendlyName
+            Health                 = "$($d.HealthStatus)"
+            OperationalStatus      = "$($d.OperationalStatus)"
+            MediaType              = "$($d.MediaType)"
+            SizeGB                 = [math]::Round($d.Size / 1GB, 2)
+            PowerOnHours           = if ($counter) { $counter.PowerOnHours } else { $null }
+            Temperature            = if ($counter) { $counter.Temperature } else { $null }
+            TemperatureMax         = if ($counter) { $counter.TemperatureMax } else { $null }
+            ReadErrorsTotal        = if ($counter) { $counter.ReadErrorsTotal } else { $null }
+            ReadErrorsUncorrected  = if ($counter) { $counter.ReadErrorsUncorrected } else { $null }
+            WriteErrorsTotal       = if ($counter) { $counter.WriteErrorsTotal } else { $null }
+            WriteErrorsUncorrected = if ($counter) { $counter.WriteErrorsUncorrected } else { $null }
+            Wear                   = if ($counter) { $counter.Wear } else { $null }
+        }
+    }
+    $rows = @($rows)
+    $atRisk = @($rows | Where-Object {
+            ($_.ReadErrorsUncorrected -and $_.ReadErrorsUncorrected -gt 0) -or
+            ($_.WriteErrorsUncorrected -and $_.WriteErrorsUncorrected -gt 0) -or
+            ($_.Wear -and $_.Wear -gt 90) -or
+            ($_.Health -and $_.Health -ne 'Healthy')
+        })
+    return @{ supported = $true; disks = $rows; atRiskCount = $atRisk.Count }
+}
+
+function Get-EventIntelligence {
+    param([int]$Days = 14)
+    $since = (Get-Date).AddDays(-$Days)
+
+    function Get-EventsFor {
+        param([string]$LogName, [string]$ProviderMatch, [int[]]$Ids)
+        try {
+            $filter = @{ LogName = $LogName; StartTime = $since }
+            if ($Ids) { $filter.Id = $Ids }
+            $ev = Get-WinEvent -FilterHashtable $filter -ErrorAction Stop
+            if ($ProviderMatch) { $ev = $ev | Where-Object { $_.ProviderName -match $ProviderMatch } }
+            return @($ev | Select-Object TimeCreated, Id, ProviderName, @{N = 'Message'; E = { ($_.Message -split "`n")[0] } })
+        }
+        catch { return @() }
+    }
+
+    $unexpectedShutdowns = @()
+    $unexpectedShutdowns += Get-EventsFor -LogName 'System' -ProviderMatch 'Microsoft-Windows-Kernel-Power' -Ids @(41)
+    $unexpectedShutdowns += Get-EventsFor -LogName 'System' -ProviderMatch 'EventLog' -Ids @(6008)
+
+    $diskWarnings = Get-EventsFor -LogName 'System' -ProviderMatch '^[Dd]isk$' -Ids @(7, 11, 51, 153)
+    $bugchecks = Get-EventsFor -LogName 'System' -ProviderMatch 'BugCheck' -Ids @(1001)
+    $serviceFails = Get-EventsFor -LogName 'System' -ProviderMatch 'Service Control Manager' -Ids @(7000, 7001, 7009, 7011, 7026, 7031, 7034)
+
+    return [ordered]@{
+        periodDays          = $Days
+        unexpectedShutdowns = @($unexpectedShutdowns | Sort-Object TimeCreated -Descending)
+        diskWarnings        = @($diskWarnings | Sort-Object TimeCreated -Descending)
+        bugchecks           = @($bugchecks | Sort-Object TimeCreated -Descending)
+        serviceFailures     = @($serviceFails | Sort-Object TimeCreated -Descending)
+        summary             = "Ultimos $Days dias: $(@($unexpectedShutdowns).Count) apagado(s) inesperado(s), $(@($diskWarnings).Count) evento(s) de disco, $(@($bugchecks).Count) bugcheck(s), $(@($serviceFails).Count) fallo(s) de servicio."
+    }
 }
 
 # ============================================================================
