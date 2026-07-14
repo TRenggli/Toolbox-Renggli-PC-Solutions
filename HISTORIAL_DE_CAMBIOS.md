@@ -1,5 +1,45 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-14 (Actualizacion 33)
+
+### Fase 3 (roadmap v15): reparacion (WU reset, WMI, drivers, BitLocker)
+
+6 modulos nuevos en el core PowerShell (`Windows/toolbox.ps1`):
+
+- `wu-reset` [W]: detiene wuauserv/bits/cryptsvc/msiserver, renombra (no borra)
+  SoftwareDistribution y catroot2 con sufijo .bak_<fecha> (reversible), reinicia
+  servicios.
+- `wmi-repair` [W]: verifica el repositorio WMI y solo repara (salvagerepository)
+  si esta confirmado inconsistente. Distingue consistente/inconsistente/indeterminado.
+- `driver-audit` [R]: dispositivos con codigo de error (con significado de cada
+  codigo) y drivers sin firma. `driver-backup` [W]: exporta drivers de terceros
+  via dism /export-driver a -ExportPath.
+- `bitlocker-status` [R]: estado de cifrado por volumen. `bitlocker-keys` [!]:
+  claves de recuperacion, solo perfil Administracion, nunca en el log de auditoria.
+
+Extension de infraestructura:
+
+- `Confirm-Action` ahora acepta `-SafetyNet` independiente de `-Writes`: permite
+  exigir confirmacion/-Force sin crear un punto de restauracion innecesario para
+  acciones que no cambian el sistema (driver-backup, bitlocker-keys).
+
+Bug real encontrado y corregido durante la validacion:
+
+- `wmi-repair`: al correr `winmgmt /verifyrepository` sin privilegios de administrador
+  (fuera del flujo normal, que siempre esta elevado), devuelve "Acceso denegado" en
+  vez de un resultado real. La version original interpretaba cualquier salida sin la
+  palabra "consistent" como inconsistente, lo que habria ofrecido reparar a ciegas
+  ante un error no relacionado. Se corrigio para distinguir explicitamente el estado
+  indeterminado y nunca ofrecer reparacion en ese caso.
+
+Validado con datos reales: driver-audit y bitlocker-status corridos en esta maquina
+(0 dispositivos con error, BitLocker no disponible -> degradacion correcta). Los 3
+modulos que escriben o exponen secretos (wu-reset, driver-backup, bitlocker-keys) se
+validaron por el camino de decline (confirman que no tocan el sistema si se cancela).
+
+Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado (3 modulos nuevos por
+categoria, nota sobre SafetyNet condicional, seccion de reparacion detallada).
+
 ## 2026-07-14 (Actualizacion 32)
 
 ### Fase 2 (roadmap v15): diagnostico profundo (autostart, SMART real, Event Log)

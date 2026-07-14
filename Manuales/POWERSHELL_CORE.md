@@ -76,8 +76,11 @@ inventario. Una categoría solo aparece en el menú si tiene al menos un módulo
 permitido para el perfil activo.
 
 **Antes de ejecutar un módulo `[W]`/`[!]`** se muestra una confirmación con el riesgo
-y la reversibilidad, y (salvo `-NoSafetyNet`) se intenta crear un punto de restauración
-del sistema antes de aplicar el cambio:
+y la reversibilidad. Si el módulo realmente cambia el estado del sistema, además
+(salvo `-NoSafetyNet`) se intenta crear un punto de restauración antes de aplicar el
+cambio; los módulos que solo exportan/leen algo ya existente (`driver-backup`,
+`bitlocker-keys`) piden confirmación pero no generan un punto de restauración
+innecesario, ya que no modifican nada:
 
 ```
   +-- CONFIRMACION ------------------------------------------------------
@@ -100,16 +103,17 @@ del sistema antes de aplicar el cambio:
 
 | Categoría | Módulos (`id`) |
 |---|---|
-| Hardware y sensores | `hardware`, `battery` |
+| Hardware y sensores | `hardware`, `battery`, `driver-audit` |
 | Almacenamiento y discos | `smart`, `smart-deep`, `disk` |
 | Red y conectividad | `network`, `ports` |
 | Windows / Sistema | `os`, `resources`, `events`, `event-intel`, `wu-status` |
-| Seguridad y forense | `autostart` |
-| Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W] |
+| Seguridad y forense | `autostart`, `bitlocker-status`, `bitlocker-keys` [!] |
+| Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W], `driver-backup` [W], `wu-reset` [W], `wmi-repair` [W] |
 | Reportes e inventario | `passport` |
 
-Todos `[R]` (solo lectura) salvo `dism-sfc` y `cleanup`, que requieren `-Force` en modo silent
-y disparan la confirmación con riesgo + punto de restauración en modo interactivo.
+Todos `[R]` (solo lectura) salvo los marcados `[W]`/`[!]`, que requieren `-Force` en modo
+silent y disparan la confirmación con riesgo (y punto de restauración, salvo excepción
+señalada arriba) en modo interactivo.
 
 > Estos son los módulos críticos portados a PowerShell. El resto del catálogo sigue disponible en `toolbox.bat`; se pueden ir migrando agregando entradas al registro `$Modules` (ver el patrón en el script — cada módulo define `Category`, `Risk`, `Reversible` y `Help` para que la navegación y la ayuda salgan solas).
 
@@ -163,6 +167,33 @@ Tres módulos que buscan lo que revisa un técnico senior en vez de lo genérico
   sin el filtro de proveedor aparecían 36 falsos positivos de Kernel-General/TxR),
   bugchecks (BugCheck 1001) y servicios que fallaron al iniciar (Service Control
   Manager). Ventana de 14 días.
+
+### Reparación (`wu-reset`, `wmi-repair`, `driver-audit`/`driver-backup`, BitLocker)
+
+- **`wu-reset`** — el reset real de Windows Update: detiene `wuauserv`/`bits`/`cryptsvc`/
+  `msiserver`, **renombra** (no borra) `SoftwareDistribution` y `catroot2` con sufijo
+  `.bak_<fecha>`, y reinicia los servicios. Windows recrea las carpetas vacías solo;
+  como las viejas quedan renombradas en el mismo lugar, es reversible restaurando el
+  nombre con los servicios detenidos.
+
+- **`wmi-repair`** — verifica el repositorio WMI (`winmgmt /verifyrepository`) y, solo
+  si está **confirmado inconsistente**, ofrece repararlo (`/salvagerepository`, no
+  destructivo). Distingue tres estados — consistente / inconsistente / indeterminado
+  (ej. acceso denegado por falta de privilegios) — y **nunca ofrece reparar ante un
+  estado indeterminado**; esto se corrigió durante la validación real, donde correr
+  la verificación sin privilegios de administrador devolvía "Acceso denegado" y una
+  versión anterior del código lo interpretaba erróneamente como inconsistencia.
+
+- **`driver-audit`** [R] lista dispositivos con código de error (con el significado
+  de cada código) y drivers sin firma digital. **`driver-backup`** [W] exporta los
+  drivers de terceros a una carpeta vía `dism /export-driver` — no modifica el
+  sistema, solo copia archivos, por lo que no dispara punto de restauración. Usa
+  `-ExportPath` para la carpeta destino (si no se indica, se crea una dentro de `Logs`).
+
+- **`bitlocker-status`** [R] muestra el estado de cifrado por volumen.
+  **`bitlocker-keys`** [!] muestra las claves de recuperación — **solo perfil
+  Administración**, nunca se escribe la clave en el log de auditoría (solo aparece
+  en la salida que pediste explícitamente: pantalla, JSON o archivo).
 
 ## Ejecución remota sobre una flota
 

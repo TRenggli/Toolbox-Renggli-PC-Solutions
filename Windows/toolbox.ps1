@@ -205,14 +205,15 @@ function New-SafetyNet {
 function Confirm-Action {
     # Devuelve $true si se debe continuar. En silent, exige -Force para acciones que escriben.
     # Antes de autorizar una escritura (interactiva confirmada o silent+Force), intenta crear
-    # un punto de restauracion (salvo -NoSafetyNet).
-    param([string]$Prompt, [bool]$Writes)
+    # un punto de restauracion (salvo -NoSafetyNet o que el modulo pase -SafetyNet:$false para
+    # acciones que no cambian el estado del sistema, ej. exportar/leer algo ya existente).
+    param([string]$Prompt, [bool]$Writes, [bool]$SafetyNet = $true)
     if ($Silent) {
         if ($Writes -and -not $Force) {
             Write-Log "Bloqueado en modo silent sin -Force: $Prompt" 'WARN'
             return $false
         }
-        if ($Writes -and -not $NoSafetyNet) { New-SafetyNet -Reason $Prompt | Out-Null }
+        if ($Writes -and $SafetyNet -and -not $NoSafetyNet) { New-SafetyNet -Reason $Prompt | Out-Null }
         return $true
     }
 
@@ -227,7 +228,7 @@ function Confirm-Action {
     Write-Host '  +------------------------------------------------------------------------' -ForegroundColor Yellow
     $ans = Read-Host '  Escriba S para continuar (cualquier otra tecla cancela)'
     if ($ans -notmatch '^(s|si|y|yes)$') { return $false }
-    if ($Writes -and -not $NoSafetyNet) { New-SafetyNet -Reason $Prompt | Out-Null }
+    if ($Writes -and $SafetyNet -and -not $NoSafetyNet) { New-SafetyNet -Reason $Prompt | Out-Null }
     return $true
 }
 
@@ -566,6 +567,102 @@ $script:Modules = [ordered]@{
             Recaudos = 'Solo lectura. Los eventos de disco se filtran al proveedor clasico "disk" (evita falsos positivos de otros componentes que reusan los mismos IDs numericos, ej. Kernel-General); controladores RAID/NVMe propietarios pueden registrar bajo otro proveedor y no aparecer aca.'
         }
         Run        = { return Get-EventIntelligence }
+    }
+
+    'driver-audit' = @{
+        Name       = 'Auditoria de drivers (errores y sin firmar)'
+        Category   = 'hardware'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Lista dispositivos con codigo de error (con el significado de cada codigo) y drivers instalados sin firma digital valida.'
+            Cuando   = 'Hardware que "no anda", dispositivos con el simbolo de advertencia en Administrador de dispositivos, o auditoria antes de una migracion.'
+            Recaudos = 'Solo lectura.'
+        }
+        Run        = { return Get-DriverAudit }
+    }
+
+    'driver-backup' = @{
+        Name       = 'Backup de drivers de terceros'
+        Category   = 'maintenance'
+        Perfiles   = @('Reparacion', 'Administracion')
+        Risk       = 'W'
+        Reversible = 'si'
+        Help       = @{
+            Que      = 'Exporta (copia) todos los drivers de terceros instalados a una carpeta, via DISM /Export-Driver.'
+            Cuando   = 'Antes de reinstalar Windows, migrar de equipo, o como respaldo preventivo en un servidor con hardware poco comun.'
+            Recaudos = 'Escribe archivos en disco (no modifica el sistema ni requiere punto de restauracion). Usa -ExportPath para elegir la carpeta destino; si no se indica, se crea una dentro de Logs.'
+        }
+        Run        = {
+            $dest = $ExportPath
+            if (-not $dest) {
+                $ts = Get-Date -Format 'yyyyMMdd_HHmmss'
+                $dest = Join-Path $LogDir ("DriverBackup_{0}_{1}" -f $env:COMPUTERNAME, $ts)
+            }
+            return Invoke-DriverBackup -Destination $dest
+        }
+    }
+
+    'wu-reset' = @{
+        Name       = 'Reset del stack de Windows Update'
+        Category   = 'maintenance'
+        Perfiles   = @('Reparacion', 'Administracion')
+        Risk       = 'W'
+        Reversible = 'si'
+        Help       = @{
+            Que      = 'Detiene wuauserv/bits/cryptsvc/msiserver, renombra SoftwareDistribution y catroot2 (Windows los recrea vacios), y reinicia los servicios.'
+            Cuando   = 'Windows Update atascado, errores repetidos al buscar/instalar actualizaciones, o el reparador generico (DISM/SFC) no resolvio el problema.'
+            Recaudos = 'Las carpetas viejas se renombran (no se borran) con sufijo .bak_<fecha>, asi que es reversible restaurando el nombre original con los servicios detenidos. Se pierden descargas de actualizaciones a medio bajar (se vuelven a descargar solas).'
+        }
+        Run        = { return Invoke-WindowsUpdateReset }
+    }
+
+    'wmi-repair' = @{
+        Name       = 'Verificar/reparar repositorio WMI'
+        Category   = 'maintenance'
+        Perfiles   = @('Reparacion', 'Administracion')
+        Risk       = 'W'
+        Reversible = 'no'
+        Help       = @{
+            Que      = 'Verifica la consistencia del repositorio WMI (winmgmt /verifyrepository); si esta inconsistente y se confirma, lo repara con /salvagerepository (no destructivo, no equivale a un reset).'
+            Cuando   = 'Errores "WMI no disponible", scripts/monitoreo que fallan con errores de proveedor WMI, o Get-CimInstance devolviendo vacio en clases que deberian existir.'
+            Recaudos = 'La verificacion es de solo lectura; la reparacion (salvagerepository) es la via oficial y no borra namespaces personalizados. Si sigue inconsistente despues, el paso siguiente (resetrepository) es destructivo y NO lo hace este modulo automaticamente.'
+        }
+        Run        = { return Invoke-WmiRepositoryCheck }
+    }
+
+    'bitlocker-status' = @{
+        Name       = 'BitLocker: estado de cifrado'
+        Category   = 'security'
+        Perfiles   = @('Diagnostico', 'Reparacion', 'Administracion')
+        Risk       = 'R'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Muestra el estado de cifrado BitLocker de cada volumen (cifrado/descifrado, % de progreso, tipo de protector de clave).'
+            Cuando   = 'Auditoria de cumplimiento (equipos deben estar cifrados) o diagnostico de un volumen que pide la clave de recuperacion.'
+            Recaudos = 'Solo lectura. No expone claves (ver "bitlocker-keys" para eso).'
+        }
+        Run        = { return Get-BitLockerStatus }
+    }
+
+    'bitlocker-keys' = @{
+        Name       = 'BitLocker: claves de recuperacion'
+        Category   = 'security'
+        Perfiles   = @('Administracion')
+        Risk       = '!'
+        Reversible = 'na'
+        Help       = @{
+            Que      = 'Muestra las claves de recuperacion (recovery password) de BitLocker de cada volumen cifrado.'
+            Cuando   = 'Equipo bloqueado pidiendo la clave de recuperacion, o para respaldarla antes de un cambio de hardware/firmware que puede disparar el pedido.'
+            Recaudos = 'CRITICO: expone secretos que permiten descifrar el disco. Solo perfil Administracion. Esta herramienta NUNCA escribe la clave en el log de auditoria, solo en la salida que pediste explicitamente (pantalla/JSON/archivo) - guardala en un lugar seguro.'
+        }
+        Run        = {
+            if (-not (Confirm-Action 'Mostrar las claves de recuperacion de BitLocker de este equipo (dato sensible)?' $true $false)) {
+                return @{ skipped = $true; reason = 'no confirmado' }
+            }
+            return Get-BitLockerRecoveryKeys
+        }
     }
 }
 
@@ -1395,6 +1492,182 @@ function Get-EventIntelligence {
         serviceFailures     = @($serviceFails | Sort-Object TimeCreated -Descending)
         summary             = "Ultimos $Days dias: $(@($unexpectedShutdowns).Count) apagado(s) inesperado(s), $(@($diskWarnings).Count) evento(s) de disco, $(@($bugchecks).Count) bugcheck(s), $(@($serviceFails).Count) fallo(s) de servicio."
     }
+}
+
+# ============================================================================
+#  FASE 3: Reparacion (poco conocidas)
+#  Reset real de Windows Update, verificar/reparar repositorio WMI, auditoria
+#  y backup de drivers, y BitLocker (estado + clave de recuperacion).
+# ============================================================================
+
+function Get-PnpErrorMeaning {
+    param([int]$Code)
+    $map = @{
+        1  = 'Dispositivo mal configurado (falta driver o configuracion incorrecta)'
+        3  = 'Driver corrupto o falta memoria para cargarlo'
+        10 = 'El dispositivo no pudo iniciar'
+        12 = 'No hay suficientes recursos libres (IRQ/memoria)'
+        14 = 'El dispositivo requiere reinicio para funcionar'
+        18 = 'Reinstalar los drivers de este dispositivo'
+        19 = 'Registro corrupto (configuracion del dispositivo)'
+        21 = 'Windows esta quitando el dispositivo (esperar o reiniciar)'
+        22 = 'Dispositivo deshabilitado'
+        24 = 'Dispositivo no presente, no funciona o le faltan drivers'
+        28 = 'Los drivers no estan instalados'
+        31 = 'Windows no pudo cargar los drivers para este dispositivo'
+        32 = 'Driver deshabilitado (inicio de servicio deshabilitado)'
+        37 = 'Windows no pudo inicializar los drivers'
+        39 = 'Windows no pudo cargar el driver (posible corrupcion o falta de archivo)'
+        41 = 'Windows cargo los drivers pero no puede encontrar el dispositivo'
+        43 = 'Windows detuvo el dispositivo por reportar problemas'
+        45 = 'Dispositivo no conectado actualmente (hardware removido)'
+    }
+    if ($map.ContainsKey($Code)) { return $map[$Code] }
+    return "Codigo $Code (ver 'Device Manager Error Codes' de Microsoft)"
+}
+
+function Get-DriverAudit {
+    $errorDevices = Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue | Where-Object { $_.ConfigManagerErrorCode -ne 0 } | ForEach-Object {
+        [pscustomobject]@{
+            Name         = $_.Name
+            DeviceId     = $_.DeviceID
+            ErrorCode    = $_.ConfigManagerErrorCode
+            ErrorMeaning = Get-PnpErrorMeaning $_.ConfigManagerErrorCode
+        }
+    }
+    $unsigned = Get-CimInstance Win32_PnPSignedDriver -ErrorAction SilentlyContinue | Where-Object { $_.IsSigned -eq $false } | ForEach-Object {
+        [pscustomobject]@{ Device = $_.DeviceName; Manufacturer = $_.Manufacturer; DriverVersion = $_.DriverVersion; InfName = $_.InfName }
+    }
+    $errorDevices = @($errorDevices)
+    $unsigned = @($unsigned)
+    return @{
+        devicesWithErrors = $errorDevices
+        unsignedDrivers   = $unsigned
+        errorCount        = $errorDevices.Count
+        unsignedCount     = $unsigned.Count
+    }
+}
+
+function Invoke-DriverBackup {
+    param([string]$Destination)
+    if (-not (Confirm-Action "Exportar todos los drivers de terceros a: $Destination ?" $true $false)) {
+        return @{ skipped = $true; reason = 'no confirmado' }
+    }
+    if (-not (Test-Path -LiteralPath $Destination)) { New-Item -ItemType Directory -Path $Destination -Force | Out-Null }
+    $proc = Start-Process -FilePath 'dism.exe' -ArgumentList '/Online', '/Export-Driver', "/Destination:$Destination" -Wait -PassThru -NoNewWindow
+    $count = @(Get-ChildItem -LiteralPath $Destination -Filter '*.inf' -Recurse -ErrorAction SilentlyContinue).Count
+    return @{ destination = $Destination; exitCode = $proc.ExitCode; infCount = $count }
+}
+
+function Invoke-WindowsUpdateReset {
+    if (-not (Confirm-Action 'Reiniciar el stack de Windows Update (detiene servicios, renombra caches, reinicia servicios)?' $true)) {
+        return @{ skipped = $true; reason = 'no confirmado' }
+    }
+    $services = @('wuauserv', 'bits', 'cryptsvc', 'msiserver')
+    $stopped = @()
+    foreach ($s in $services) {
+        try { Stop-Service -Name $s -Force -ErrorAction Stop; $stopped += $s }
+        catch { Write-Log "No se pudo detener $s`: $($_.Exception.Message)" 'WARN' }
+    }
+
+    $ts = Get-Date -Format 'yyyyMMdd_HHmmss'
+    $targets = @(
+        @{ Path = "$env:SystemRoot\SoftwareDistribution"; Name = 'SoftwareDistribution' },
+        @{ Path = "$env:SystemRoot\System32\catroot2"; Name = 'catroot2' }
+    )
+    $renamed = @()
+    foreach ($t in $targets) {
+        if (Test-Path -LiteralPath $t.Path) {
+            $bakName = "$($t.Name).bak_$ts"
+            try {
+                Rename-Item -LiteralPath $t.Path -NewName $bakName -ErrorAction Stop
+                $renamed += @{ original = $t.Path; backup = (Join-Path (Split-Path $t.Path -Parent) $bakName) }
+            }
+            catch { Write-Log "No se pudo renombrar $($t.Path): $($_.Exception.Message)" 'WARN' }
+        }
+    }
+
+    $started = @()
+    foreach ($s in $services) {
+        try { Start-Service -Name $s -ErrorAction Stop; $started += $s }
+        catch { Write-Log "No se pudo iniciar $s`: $($_.Exception.Message)" 'WARN' }
+    }
+
+    return @{
+        stoppedServices = @($stopped)
+        startedServices = @($started)
+        renamedFolders  = @($renamed)
+        note            = 'Las carpetas viejas se conservaron con sufijo .bak_<fecha> por si hace falta revertir; Windows recreara SoftwareDistribution/catroot2 automaticamente.'
+    }
+}
+
+function Invoke-WmiRepositoryCheck {
+    # winmgmt puede devolver 3 estados: consistente, inconsistente, o "no se pudo
+    # determinar" (ej. acceso denegado, servicio WMI ocupado). Solo se ofrece
+    # reparar cuando esta CONFIRMADO inconsistente; el estado indeterminado nunca
+    # dispara una reparacion a ciegas.
+    $verify = (& winmgmt.exe /verifyrepository 2>&1 | Out-String).Trim()
+    $isConsistent = ($verify -match 'consistent' -and $verify -notmatch 'inconsistent')
+    $isInconsistent = ($verify -match 'inconsistent')
+    $result = [ordered]@{ verifyOutput = $verify; consistent = $isConsistent; repaired = $false; salvageOutput = $null }
+
+    if ($isConsistent) { return $result }
+
+    if (-not $isInconsistent) {
+        # No se pudo determinar el estado real (ej. acceso denegado). No se ofrece reparar.
+        $result.consistent = $null
+        $result.undetermined = $true
+        return $result
+    }
+
+    if (-not (Confirm-Action 'El repositorio WMI aparece INCONSISTENTE. Ejecutar reparacion (winmgmt /salvagerepository)?' $true)) {
+        $result.skipped = $true
+        return $result
+    }
+
+    $salvage = (& winmgmt.exe /salvagerepository 2>&1 | Out-String).Trim()
+    $result.salvageOutput = $salvage
+    $result.repaired = $true
+
+    $reverify = (& winmgmt.exe /verifyrepository 2>&1 | Out-String).Trim()
+    $result.consistentAfterRepair = ($reverify -match 'consistent' -and $reverify -notmatch 'inconsistent')
+    return $result
+}
+
+function Get-BitLockerStatus {
+    try {
+        $vols = Get-BitLockerVolume -ErrorAction Stop
+    }
+    catch {
+        return @{ supported = $false; reason = 'BitLocker no disponible en este equipo (modulo no encontrado o feature no instalada).'; volumes = @() }
+    }
+    $rows = foreach ($v in $vols) {
+        [pscustomobject]@{
+            MountPoint           = $v.MountPoint
+            VolumeStatus         = "$($v.VolumeStatus)"
+            ProtectionStatus     = "$($v.ProtectionStatus)"
+            EncryptionPercentage = $v.EncryptionPercentage
+            KeyProtectorTypes    = @($v.KeyProtector | ForEach-Object { "$($_.KeyProtectorType)" })
+        }
+    }
+    return @{ supported = $true; volumes = @($rows) }
+}
+
+function Get-BitLockerRecoveryKeys {
+    try {
+        $vols = Get-BitLockerVolume -ErrorAction Stop
+    }
+    catch {
+        return @{ supported = $false; reason = 'BitLocker no disponible en este equipo.'; volumes = @() }
+    }
+    $rows = foreach ($v in $vols) {
+        $recoveryProtectors = @($v.KeyProtector | Where-Object { $_.KeyProtectorType -eq 'RecoveryPassword' })
+        [pscustomobject]@{
+            MountPoint   = $v.MountPoint
+            RecoveryKeys = @($recoveryProtectors | ForEach-Object { [pscustomobject]@{ Id = $_.KeyProtectorId; RecoveryPassword = $_.RecoveryPassword } })
+        }
+    }
+    return @{ supported = $true; volumes = @($rows) }
 }
 
 # ============================================================================
