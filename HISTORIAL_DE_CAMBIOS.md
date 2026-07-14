@@ -1,5 +1,37 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-14 (Actualizacion 30)
+
+### Fase 0 (roadmap v15): navegacion por categorias en el core PowerShell
+
+Base de navegacion del core (`Windows/toolbox.ps1`) antes de sumar features nuevas, para
+poder ir y volver por los menus, saber que hace cada opcion y su nivel de riesgo:
+
+- Metadata unica por modulo: cada entrada de `$Modules` ahora define `Category`,
+  `Reversible` (`si`/`no`/`na`) y `Help` (`Que`/`Cuando`/`Recaudos`). De ahi se generan
+  el menu, la ayuda y el listado `-List` (agrega columna `Categoria`).
+- Menu principal por categorias (Hardware y sensores, Almacenamiento y discos, Red y
+  conectividad, Windows / Sistema, Mantenimiento y reparacion). Una categoria solo se
+  muestra si tiene modulos permitidos para el perfil activo.
+- Navegacion universal en cualquier pantalla: `[numero]` entra/ejecuta, `V` volver,
+  `M` menu principal, `?N` ayuda de esa opcion, `99` cambiar perfil, `0` salir.
+- Breadcrumb ("Ruta: Inicio > Categoria") siempre visible.
+- Pantalla de ayuda (`?N`) generada de la metadata: que hace, cuando usarla, riesgo
+  (coloreado por `[R]`/`[W]`/`[!]`) y si es reversible.
+- Confirmacion de modulos `[W]`/`[!]` ahora muestra Accion/Riesgo/Reversible antes de
+  pedir confirmar.
+- Nuevo `-NoSafetyNet` y helper `New-SafetyNet`: antes de ejecutar un modulo que
+  escribe (confirmado en interactivo, o `-Silent -Force`), se intenta crear un punto
+  de restauracion del sistema (best-effort, no bloquea si falla).
+- Recategorizados los 12 modulos existentes; sin cambios de comportamiento en los
+  modos no interactivos (`-List`, `-Module`, `-Json`, `-Silent`, `-Force`, codigos de
+  salida) para no romper scripts/automatizacion ya escritos contra el core.
+- Validado con navegacion end-to-end simulada (entrar a categoria, pedir ayuda,
+  ejecutar modulo con datos reales, volver, cambiar de perfil en caliente, declinar
+  una confirmacion) ademas de la barrera de administrador.
+- Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado con la navegacion y la
+  tabla de modulos por categoria.
+
 ## 2026-07-13 (Actualizacion 29)
 
 ### Core PowerShell: motor automatizable, limpio y firmable (servidores/flotas)

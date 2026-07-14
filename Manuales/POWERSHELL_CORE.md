@@ -35,6 +35,50 @@ Esto resuelve los 4 puntos para empujar la herramienta hacia arriba: **desatendi
 .\toolbox.ps1 -Perfil Reparacion -Module dism-sfc -Silent -Force
 ```
 
+## Navegación interactiva
+
+El menú interactivo (sin `-Module`/`-Silent`) está organizado por **categorías**, con
+breadcrumb, ayuda por opción y control total de ida y vuelta — pensado para saber
+siempre dónde estás y qué hace cada cosa antes de tocarla:
+
+```
+  Renggli PC Solution - Core PowerShell
+  Equipo: SRV01   Usuario: admin   Perfil: ADMINISTRACION
+  Ruta: Inicio > Almacenamiento y discos
+  ------------------------------------------------------------------------
+    1. [R] Estado SMART de discos
+    2. [R] Espacio y volumenes
+
+   [V] volver   [M] menu principal   [?N] ayuda   [99] cambiar perfil   [0] salir
+```
+
+Controles disponibles en cualquier pantalla:
+
+| Tecla | Acción |
+|---|---|
+| `[número]` | Entra a la categoría / ejecuta el módulo |
+| `V` | Volver un nivel (de categoría a menú principal) |
+| `M` | Ir directo al menú principal desde cualquier categoría |
+| `?N` | Ver la ayuda del módulo N: qué hace, cuándo usarlo, riesgo, si es reversible |
+| `99` | Cambiar de perfil sin reiniciar (recalcula qué categorías/módulos se ven) |
+| `0` | Salir |
+
+**Categorías:** Hardware y sensores · Almacenamiento y discos · Red y conectividad ·
+Windows / Sistema · Mantenimiento y reparación. Una categoría solo aparece en el menú
+si tiene al menos un módulo permitido para el perfil activo.
+
+**Antes de ejecutar un módulo `[W]`/`[!]`** se muestra una confirmación con el riesgo
+y la reversibilidad, y (salvo `-NoSafetyNet`) se intenta crear un punto de restauración
+del sistema antes de aplicar el cambio:
+
+```
+  +-- CONFIRMACION ------------------------------------------------------
+  | Accion     : Borrar temporales de %TEMP% y C:\Windows\Temp?
+  | Riesgo     : [W] Escribe/cambia el sistema
+  | Reversible : No
+  +------------------------------------------------------------------------
+```
+
 ### Códigos de salida
 
 | Código | Significado |
@@ -46,10 +90,18 @@ Esto resuelve los 4 puntos para empujar la herramienta hacia arriba: **desatendi
 
 ### Módulos incluidos
 
-Solo lectura (`R`): `smart`, `hardware`, `os`, `resources`, `disk`, `network`, `ports`, `events`, `wu-status`, `battery`.
-Escriben (`W`, requieren `-Force` en silent): `dism-sfc`, `cleanup`.
+| Categoría | Módulos (`id`) |
+|---|---|
+| Hardware y sensores | `hardware`, `battery` |
+| Almacenamiento y discos | `smart`, `disk` |
+| Red y conectividad | `network`, `ports` |
+| Windows / Sistema | `os`, `resources`, `events`, `wu-status` |
+| Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W] |
 
-> Estos son los módulos críticos portados a PowerShell. El resto del catálogo sigue disponible en `toolbox.bat`; se pueden ir migrando agregando entradas al registro `$Modules` (ver el patrón en el script).
+Todos `[R]` (solo lectura) salvo `dism-sfc` y `cleanup`, que requieren `-Force` en modo silent
+y disparan la confirmación con riesgo + punto de restauración en modo interactivo.
+
+> Estos son los módulos críticos portados a PowerShell. El resto del catálogo sigue disponible en `toolbox.bat`; se pueden ir migrando agregando entradas al registro `$Modules` (ver el patrón en el script — cada módulo define `Category`, `Risk`, `Reversible` y `Help` para que la navegación y la ayuda salgan solas).
 
 ## Ejecución remota sobre una flota
 
