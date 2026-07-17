@@ -690,7 +690,7 @@ $script:Modules = [ordered]@{
         Help       = @{
             Que      = 'Lista los servicios configurados como Automatico que NO estan corriendo ahora mismo.'
             Cuando   = 'Servidor "raro" sin causa obvia; muchas veces se explica por un servicio critico que broken silenciosamente.'
-            Recaudos = 'Solo lectura. Ya excluye los servicios "Automatico (Trigger Start)" nativos de Windows (se detienen solos hasta su evento disparador). Actualizadores de terceros (navegadores, etc.) pueden seguir apareciendo aunque tambien sean auto-stop por diseno; revisa el nombre antes de asumir que es un problema.'
+            Recaudos = 'Solo lectura. Excluye los "Automatico (Trigger Start)" nativos de Windows. Para el resto clasifica en vez de ocultar: si el servicio no tiene configurada ninguna accion de recuperacion ante fallo (FailureActions), se marca LikelyNormal=true (tipico de actualizadores de terceros que se autodetienen por diseno) y no cuenta en downCountLikelyReal, pero sigue apareciendo en la lista completa para no esconder nada.'
         }
         Run        = { return Get-ServiceHealth }
     }
@@ -732,7 +732,7 @@ $script:Modules = [ordered]@{
         Help       = @{
             Que      = 'Detecta instancias de PostgreSQL, MySQL y SQL Server via servicio de Windows y reporta version, puerto (Postgres) y estado del servicio.'
             Cuando   = 'Inventario de servidores, o para saber de un vistazo que motores de base de datos corren en un equipo y si estan activos.'
-            Recaudos = 'Solo lectura. Para cambiar passwords de PostgreSQL usa el modulo "postgres-password"; MySQL/MSSQL por ahora son solo deteccion (sin gestion de password en esta version).'
+            Recaudos = 'Solo lectura. Para cambiar passwords usa "postgres-password" (PostgreSQL), "mssql-password" (SQL Server) o "mysql-password" (MySQL).'
         }
         Run        = { return Get-DbEngineStatus }
     }
@@ -749,6 +749,34 @@ $script:Modules = [ordered]@{
             Recaudos = 'Solo modo interactivo (no acepta -Silent, para no pasar passwords en texto plano por parametro/automatizacion). Restaura pg_hba.conf siempre, incluso ante error.'
         }
         Run        = { return Invoke-PostgresPasswordManager }
+    }
+
+    'mssql-password' = @{
+        Name       = 'SQL Server: gestor de passwords'
+        Category   = 'database'
+        Perfiles   = @('Administracion')
+        Risk       = 'W'
+        Reversible = 'no'
+        Help       = @{
+            Que      = 'Detecta la instancia de SQL Server, permite cambiar la password de uno o varios logins SQL. Si no hay ninguna cuenta sysadmin utilizable (no conecta, O conecta pero esa cuenta no es sysadmin), ofrece modo recuperacion (procedimiento oficial de Microsoft: detiene el servicio y arranca sqlservr.exe en modo de un solo usuario -m, donde cualquier cuenta de Windows Administrador obtiene sysadmin implicito) que siempre restaura el servicio normal al terminar. Tambien detecta servidores en modo "solo autenticacion de Windows" y en ese caso ofrece otorgar sysadmin a una cuenta de Windows en vez de resetear un login SQL que jamas podria conectar.'
+            Cuando   = 'Reset de credenciales o recuperar acceso perdido (sin ninguna cuenta sysadmin funcional) a un servidor SQL Server.'
+            Recaudos = 'Solo modo interactivo (no acepta -Silent). Detiene el servicio real durante el modo recuperacion; se restaura en todos los caminos de salida, incluso ante error. No toca datos ni bases, solo el login.'
+        }
+        Run        = { return Invoke-MssqlPasswordManager }
+    }
+
+    'mysql-password' = @{
+        Name       = 'MySQL: gestor de passwords'
+        Category   = 'database'
+        Perfiles   = @('Administracion')
+        Risk       = 'W'
+        Reversible = 'no'
+        Help       = @{
+            Que      = 'Detecta la instancia de MySQL, permite cambiar la password de uno o varios usuarios. Si no hay ninguna cuenta utilizable con privilegios de administracion (no conecta, O conecta pero no puede administrar otras cuentas), ofrece modo recuperacion via --init-file (mecanismo oficial de MySQL): detiene el servicio, arranca mysqld una vez con un archivo que fija la password de la cuenta indicada, y reinicia el servicio normal.'
+            Cuando   = 'Reset de credenciales o recuperar acceso perdido a un servidor MySQL.'
+            Recaudos = 'Solo modo interactivo (no acepta -Silent). A diferencia de Postgres/SQL Server, el modo recuperacion pide la password nueva ANTES de aplicarla (el mecanismo --init-file no da una sesion interactiva). Detiene el servicio real durante la recuperacion; se restaura siempre, incluso ante error. No toca datos ni bases, solo la cuenta indicada.'
+        }
+        Run        = { return Invoke-MysqlPasswordManager }
     }
 }
 
@@ -1789,20 +1817,41 @@ function Get-CertificateExpiryScan {
 }
 
 function Get-ServiceHealth {
-    # Excluye servicios "Automatico (Trigger Start)" nativos de Windows: se detienen
-    # solos hasta que ocurre su evento disparador, y eso es normal, no una falla.
-    # No cubre actualizadores de terceros (Brave/Google/etc.) que se autodetienen por
-    # logica propia sin usar el mecanismo de trigger de Windows; esos quedan listados
-    # igual, con la advertencia correspondiente en la ayuda del modulo.
+    # Dos señales reales (validadas contra servicios de este equipo), combinadas sin
+    # ocultar informacion:
+    #   1) TriggerInfo (registro) -> HARD EXCLUDE. Es un hecho tecnico inequivoco:
+    #      el propio servicio declara que Windows lo arranca/detiene por evento
+    #      disparador, asi que verlo "detenido" es el estado normal esperado.
+    #      Ej. sppsvc, edgeupdate.
+    #   2) FailureActions (registro, binario, independiente de idioma) ausente ->
+    #      NO es un hard exclude, es una senal mas debil ("ni Windows ni el
+    #      instalador configuraron reinicio automatico ante fallo", tipico de
+    #      actualizadores de terceros como Google/Brave Update que se autodetienen
+    #      por logica propia sin usar el mecanismo de trigger de Windows). Ocultar
+    #      esto a ciegas arriesga esconder un servicio realmente roto que por mala
+    #      instalacion tampoco tenga FailureActions configurado. En cambio, se
+    #      clasifica: RecoveryConfigured=$false / LikelyNormal=$true, y se reporta
+    #      igual mas un contador aparte (downCountLikelyReal) para poder priorizar
+    #      sin perder datos.
     $rows = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object {
         $_.StartMode -eq 'Auto' -and $_.State -ne 'Running'
     } | Where-Object {
         -not (Test-Path -LiteralPath "HKLM:\SYSTEM\CurrentControlSet\Services\$($_.Name)\TriggerInfo")
     } | ForEach-Object {
-        [pscustomobject]@{ Name = $_.DisplayName; ServiceName = $_.Name; State = $_.State; StartMode = $_.StartMode; ExitCode = $_.ExitCode }
+        $hasRecovery = $null -ne (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$($_.Name)" -Name FailureActions -ErrorAction SilentlyContinue).FailureActions
+        [pscustomobject]@{
+            Name               = $_.DisplayName
+            ServiceName        = $_.Name
+            State              = $_.State
+            StartMode          = $_.StartMode
+            ExitCode           = $_.ExitCode
+            RecoveryConfigured = $hasRecovery
+            LikelyNormal       = -not $hasRecovery
+        }
     }
     $rows = @($rows)
-    return @{ downCount = $rows.Count; down = $rows }
+    $likelyReal = @($rows | Where-Object { -not $_.LikelyNormal })
+    return @{ downCount = $rows.Count; downCountLikelyReal = $likelyReal.Count; down = $rows; likelyReal = $likelyReal }
 }
 
 function Get-AdHealth {
@@ -1859,6 +1908,64 @@ function Get-PostgresInstances {
     return @($rows)
 }
 
+function Get-MysqlInstances {
+    # Detecta instancias MySQL via servicio de Windows (patron de nombre MySQL*).
+    $svcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'MySQL*' }
+    $rows = foreach ($s in $svcs) {
+        $exePath = $null; $extraArgs = ''
+        if ($s.PathName -match '^"([^"]+)"\s*(.*)$') { $exePath = $Matches[1]; $extraArgs = $Matches[2].Trim() }
+        elseif ($s.PathName -match '^(\S+)\s*(.*)$') { $exePath = $Matches[1]; $extraArgs = $Matches[2].Trim() }
+        $binDir = if ($exePath) { Split-Path $exePath } else { $null }
+        [pscustomobject]@{ ServiceName = $s.Name; State = "$($s.State)"; ExePath = $exePath; ExtraArgs = $extraArgs; BinDir = $binDir }
+    }
+    return @($rows)
+}
+
+function Get-MssqlInstances {
+    # Detecta instancias SQL Server via servicio de Windows. Reutiliza los
+    # argumentos EXACTOS ya configurados en el servicio (ej. -sSQLEXPRESS) para
+    # poder replicarlos al arrancar sqlservr.exe manualmente en modo recuperacion,
+    # en vez de adivinar el formato del nombre de instancia.
+    $svcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'MSSQLSERVER' -or $_.Name -like 'MSSQL$*' }
+    $rows = foreach ($s in $svcs) {
+        $exePath = $null; $extraArgs = ''
+        if ($s.PathName -match '^"([^"]+)"\s*(.*)$') { $exePath = $Matches[1]; $extraArgs = $Matches[2].Trim() }
+        elseif ($s.PathName -match '^(\S+)\s*(.*)$') { $exePath = $Matches[1]; $extraArgs = $Matches[2].Trim() }
+        $instanceName = if ($s.Name -eq 'MSSQLSERVER') { 'MSSQLSERVER' } else { $s.Name -replace '^MSSQL\$', '' }
+        $serverInstance = if ($instanceName -eq 'MSSQLSERVER') { '.' } else { ".\$instanceName" }
+        [pscustomobject]@{ ServiceName = $s.Name; State = "$($s.State)"; ExePath = $exePath; ExtraArgs = $extraArgs; InstanceName = $instanceName; ServerInstance = $serverInstance }
+    }
+    return @($rows)
+}
+
+function Find-SqlCmdPath {
+    $cmd = Get-Command sqlcmd.exe -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    $found = Get-ChildItem -Path 'C:\Program Files\Microsoft SQL Server\', 'C:\Program Files (x86)\Microsoft SQL Server\' -Recurse -Filter 'sqlcmd.exe' -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1
+    if ($found) { return $found.FullName }
+    return $null
+}
+
+function Stop-RecoveryProcess {
+    # Detiene el proceso standalone (sqlservr.exe/mysqld.exe) de un modo recuperacion
+    # y ESPERA ACTIVAMENTE a que termine de verdad antes de devolver el control.
+    # Descubierto validando contra una instancia real: Stop-Process -Force devuelve
+    # el control antes de que el proceso libere sus archivos (InnoDB/ibdata1 quedo
+    # bloqueado porque el proceso "matado" seguia vivo unos segundos mas), lo que
+    # hacia fallar el arranque del servicio real inmediatamente despues. Un sleep
+    # fijo no es confiable; hay que esperar la salida real del proceso.
+    param($Proc, [int]$TimeoutSeconds = 15)
+    if (-not $Proc -or $Proc.HasExited) { return $true }
+    try { Stop-Process -Id $Proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+    try {
+        $Proc.WaitForExit($TimeoutSeconds * 1000) | Out-Null
+    }
+    catch {}
+    Start-Sleep -Seconds 1
+    return $Proc.HasExited
+}
+
 function Get-DbEngineStatus {
     $rows = @()
 
@@ -1871,22 +1978,16 @@ function Get-DbEngineStatus {
         $rows += [pscustomobject]@{ Engine = 'PostgreSQL'; ServiceName = $pg.ServiceName; State = $pg.State; Port = $pg.Port; Version = $version }
     }
 
-    $mysqlSvcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'MySQL*' }
-    foreach ($s in $mysqlSvcs) {
-        $exePath = $null
-        if ($s.PathName -match '"([^"]+)"') { $exePath = $Matches[1] } elseif ($s.PathName -match '^(\S+)') { $exePath = $Matches[1] }
+    foreach ($my in Get-MysqlInstances) {
         $version = $null
-        if ($exePath -and (Test-Path -LiteralPath $exePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $exePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
-        $rows += [pscustomobject]@{ Engine = 'MySQL'; ServiceName = $s.Name; State = "$($s.State)"; Port = $null; Version = $version }
+        if ($my.ExePath -and (Test-Path -LiteralPath $my.ExePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $my.ExePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
+        $rows += [pscustomobject]@{ Engine = 'MySQL'; ServiceName = $my.ServiceName; State = $my.State; Port = $null; Version = $version }
     }
 
-    $mssqlSvcs = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'MSSQLSERVER' -or $_.Name -like 'MSSQL$*' }
-    foreach ($s in $mssqlSvcs) {
-        $exePath = $null
-        if ($s.PathName -match '"([^"]+)"') { $exePath = $Matches[1] } elseif ($s.PathName -match '^(\S+)') { $exePath = $Matches[1] }
+    foreach ($ms in Get-MssqlInstances) {
         $version = $null
-        if ($exePath -and (Test-Path -LiteralPath $exePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $exePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
-        $rows += [pscustomobject]@{ Engine = 'MSSQL'; ServiceName = $s.Name; State = "$($s.State)"; Port = $null; Version = $version }
+        if ($ms.ExePath -and (Test-Path -LiteralPath $ms.ExePath -ErrorAction SilentlyContinue)) { try { $version = (Get-Item -LiteralPath $ms.ExePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {} }
+        $rows += [pscustomobject]@{ Engine = 'MSSQL'; ServiceName = $ms.ServiceName; State = $ms.State; Port = $null; Version = $version }
     }
 
     $rows = @($rows)
@@ -2020,6 +2121,373 @@ function Invoke-PostgresPasswordManager {
     $env:PGPASSWORD = ''
 
     return @{ mode = $mode; succeeded = @($ok); failed = @($fail) }
+}
+
+function Invoke-MssqlPasswordManager {
+    # Modo recuperacion = procedimiento oficial de Microsoft para cuando no hay
+    # ninguna cuenta sysadmin utilizable: detener el servicio, arrancar sqlservr.exe
+    # manualmente en modo de un solo usuario (-m). En ese modo, cualquier cuenta de
+    # Windows del grupo local Administrators obtiene sysadmin implicito para ESA
+    # unica conexion. No borra ni resetea datos; es reversible restaurando el
+    # servicio normal al terminar (se hace en todos los caminos de salida).
+    if ($Silent) {
+        return @{ skipped = $true; reason = 'Este modulo requiere modo interactivo; no acepta password por parametro/automatizacion, por seguridad.' }
+    }
+
+    $instances = Get-MssqlInstances
+    if (-not $instances) {
+        return @{ supported = $false; reason = 'No se detecto ninguna instancia de SQL Server en este equipo.' }
+    }
+    $inst = $instances[0]
+    if ($instances.Count -gt 1) {
+        Write-Host '  Instancias detectadas:'
+        for ($i = 0; $i -lt $instances.Count; $i++) { Write-Host "    $($i+1). $($instances[$i].ServiceName)" }
+        $sel = Read-Host '  Elegi instancia [1..N] (Enter=1)'
+        $n = 0
+        if ([int]::TryParse($sel, [ref]$n) -and $n -ge 1 -and $n -le $instances.Count) { $inst = $instances[$n - 1] }
+    }
+
+    $sqlcmd = Find-SqlCmdPath
+    if (-not $sqlcmd) { return @{ supported = $false; reason = 'No se encontro sqlcmd.exe en este equipo.' } }
+
+    Write-Host "  Instancia: $($inst.ServiceName)  |  ServerInstance: $($inst.ServerInstance)"
+
+    Write-Host '  1. Autenticacion de Windows (usuario actual)'
+    Write-Host '  2. Autenticacion de SQL Server (usuario + password)'
+    $authChoice = Read-Host '  Elegi [1-2] (Enter=1)'
+
+    $sqlUser = $null; $plainSqlPwd = $null
+    $authArgs = @('-E')
+    if ($authChoice -eq '2') {
+        $sqlUser = Read-Host '  Usuario SQL'
+        $secureSqlPwd = Read-Host '  Password' -AsSecureString
+        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureSqlPwd)
+        $plainSqlPwd = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        $authArgs = @('-U', $sqlUser, '-P', $plainSqlPwd)
+    }
+
+    & $sqlcmd -S $inst.ServerInstance @authArgs -C -b -Q 'SELECT 1;' *> $null
+    $testOk = ($LASTEXITCODE -eq 0)
+
+    # No alcanza con "conecta": una cuenta puede conectar bien y NO ser sysadmin
+    # (ej. un login explicito para esa cuenta que le tapa la pertenencia al grupo
+    # BUILTIN\Administrators - encontrado en la practica validando este modulo).
+    # Sin sysadmin no se puede ni consultar logins ni cambiar nada, asi que ese
+    # caso debe disparar el mismo modo recuperacion que "no conecta".
+    $isSysadmin = $false
+    if ($testOk) {
+        $sysadminRaw = & $sqlcmd -S $inst.ServerInstance @authArgs -C -h -1 -W -Q "SET NOCOUNT ON; SELECT IS_SRVROLEMEMBER('sysadmin');" 2>$null
+        $isSysadmin = ("$sysadminRaw".Trim() -eq '1')
+    }
+
+    $mode = 'DIRECTO'
+    $recoveryActive = $false
+    $recoveryProc = $null
+
+    # Definida temprano: se usa en TODOS los caminos de salida desde aca en
+    # adelante para garantizar que, si se activo modo recuperacion, el servicio
+    # normal se restaure siempre (exito, error o cancelacion).
+    $restoreAndReturn = {
+        param($result)
+        if ($recoveryActive) {
+            Stop-RecoveryProcess -Proc $recoveryProc | Out-Null
+            Start-Service -Name $inst.ServiceName -ErrorAction SilentlyContinue
+        }
+        return $result
+    }
+
+    if (-not $testOk -or -not $isSysadmin) {
+        if ($testOk) {
+            Write-Host '  [!] Se pudo conectar, pero esa cuenta no es sysadmin. Modo RECUPERACION disponible (modo de un solo usuario -m; no borra datos).' -ForegroundColor Yellow
+        }
+        else {
+            Write-Host '  [!] No se pudo conectar. Modo RECUPERACION disponible (modo de un solo usuario -m; no borra datos).' -ForegroundColor Yellow
+        }
+        if (-not (Confirm-Action 'Activar modo recuperacion (detiene el servicio, arranca sqlservr.exe en modo single-user temporalmente)?' $true)) {
+            return @{ skipped = $true; reason = 'no confirmado (recuperacion)' }
+        }
+        if (-not $inst.ExePath -or -not (Test-Path -LiteralPath $inst.ExePath)) {
+            return @{ supported = $false; reason = "No se encontro sqlservr.exe para la instancia $($inst.ServiceName)." }
+        }
+
+        try { Stop-Service -Name $inst.ServiceName -Force -ErrorAction Stop }
+        catch { return @{ supported = $false; reason = "No se pudo detener el servicio: $($_.Exception.Message)" } }
+        Start-Sleep -Seconds 2
+
+        $recoveryArgs = "$($inst.ExtraArgs) -m".Trim()
+        try { $recoveryProc = Start-Process -FilePath $inst.ExePath -ArgumentList $recoveryArgs -PassThru -WindowStyle Hidden }
+        catch {
+            Start-Service -Name $inst.ServiceName -ErrorAction SilentlyContinue
+            return @{ supported = $false; reason = "No se pudo arrancar sqlservr.exe en modo recuperacion: $($_.Exception.Message)" }
+        }
+        Start-Sleep -Seconds 4
+        $recoveryActive = $true
+
+        # En modo single-user, BUILTIN\Administrators tiene sysadmin implicito.
+        & $sqlcmd -S $inst.ServerInstance -E -C -b -Q 'SELECT 1;' *> $null
+        $testOk = ($LASTEXITCODE -eq 0)
+        $authArgs = @('-E')
+        if (-not $testOk) {
+            return & $restoreAndReturn @{ supported = $false; reason = 'Ni siquiera en modo single-user (como Administrador de Windows) se pudo conectar.' }
+        }
+        $mode = 'RECUPERACION'
+    }
+
+    # Descubierto validando contra una instancia real: muchas instalaciones de SQL
+    # Server Express quedan en modo "solo autenticacion de Windows"
+    # (IsIntegratedSecurityOnly=1), donde NINGUN login SQL puede conectar sin
+    # importar la password (ALTER LOGIN "funciona" a nivel de catalogo pero la
+    # conexion sigue siendo rechazada). Para ese caso la accion de recuperacion
+    # util no es resetear un login SQL sino otorgar sysadmin a una cuenta de
+    # Windows, que es lo que el servidor realmente acepta.
+    $integratedOnlyRaw = & $sqlcmd -S $inst.ServerInstance @authArgs -C -h -1 -W -Q "SET NOCOUNT ON; SELECT SERVERPROPERTY('IsIntegratedSecurityOnly');" 2>$null
+    $integratedOnly = ("$integratedOnlyRaw".Trim() -eq '1')
+
+    if ($integratedOnly) {
+        Write-Host '  [i] Este servidor esta en modo "Solo autenticacion de Windows".' -ForegroundColor Yellow
+        Write-Host '      Los logins SQL no pueden usarse para conectar (sin importar la password).'
+        Write-Host '      En su lugar se puede otorgar sysadmin a una cuenta de Windows.'
+        $winAccount = Read-Host '  Cuenta de Windows a otorgar sysadmin (EQUIPO\Usuario o DOMINIO\Usuario, Enter=cancelar)'
+        if (-not $winAccount) {
+            return & $restoreAndReturn @{ skipped = $true; reason = 'ninguna cuenta indicada'; authMode = 'WindowsOnly' }
+        }
+        if (-not (Confirm-Action "Otorgar sysadmin a '$winAccount'?" $true)) {
+            return & $restoreAndReturn @{ skipped = $true; reason = 'no confirmado (otorgar sysadmin)'; authMode = 'WindowsOnly' }
+        }
+        $escapedAccount = $winAccount -replace "'", "''"
+        $grantSql = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'$escapedAccount') CREATE LOGIN [$winAccount] FROM WINDOWS; ALTER SERVER ROLE sysadmin ADD MEMBER [$winAccount];"
+        & $sqlcmd -S $inst.ServerInstance @authArgs -C -b -Q $grantSql *> $null
+        $grantOk = ($LASTEXITCODE -eq 0)
+        return & $restoreAndReturn @{ mode = $mode; authMode = 'WindowsOnly'; grantedSysadminTo = $winAccount; succeeded = $grantOk }
+    }
+
+    $loginQuery = "SET NOCOUNT ON; SELECT name FROM sys.server_principals WHERE type IN ('S','U') AND is_disabled = 0 AND name NOT LIKE '##%' ORDER BY name;"
+    $loginsRaw = & $sqlcmd -S $inst.ServerInstance @authArgs -C -h -1 -W -Q $loginQuery 2>$null
+    $logins = @($loginsRaw | Where-Object { $_ -and $_.Trim() } | ForEach-Object { $_.Trim() })
+
+    if (-not $logins) {
+        return & $restoreAndReturn @{ supported = $false; reason = 'No se pudieron enumerar los logins.'; authMode = 'Mixed' }
+    }
+
+    Write-Host '  Logins SQL con inicio de sesion habilitado:'
+    for ($i = 0; $i -lt $logins.Count; $i++) { Write-Host "    $($i+1). $($logins[$i])" }
+    $sel = Read-Host '  Numeros a cambiar separados por coma, o "todos" (Enter=cancelar)'
+    $selectedLogins = @()
+    if ($sel -match '^(?i:todos)$') { $selectedLogins = $logins }
+    elseif ($sel) {
+        foreach ($tok in ($sel -split ',')) {
+            $n = 0
+            if ([int]::TryParse($tok.Trim(), [ref]$n) -and $n -ge 1 -and $n -le $logins.Count) { $selectedLogins += $logins[$n - 1] }
+        }
+    }
+
+    if (-not $selectedLogins) {
+        return & $restoreAndReturn @{ skipped = $true; reason = 'ningun login seleccionado' }
+    }
+
+    $newSecure1 = Read-Host '  Nueva password' -AsSecureString
+    $newSecure2 = Read-Host '  Confirma' -AsSecureString
+    $b1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure1)
+    $new1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b1)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b1)
+    $b2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure2)
+    $new2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b2)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b2)
+
+    if ($new1 -ne $new2 -or -not $new1) {
+        return & $restoreAndReturn @{ skipped = $true; reason = 'las passwords no coinciden o estan vacias' }
+    }
+
+    if (-not (Confirm-Action "Cambiar la password de $($selectedLogins.Count) login(s): $($selectedLogins -join ', ')?" $true)) {
+        return & $restoreAndReturn @{ skipped = $true; reason = 'no confirmado (cambio de password)' }
+    }
+
+    $ok = @(); $fail = @()
+    foreach ($l in $selectedLogins) {
+        $escaped = $new1 -replace "'", "''"
+        $alterSql = "ALTER LOGIN [$l] WITH PASSWORD = N'$escaped';"
+        & $sqlcmd -S $inst.ServerInstance @authArgs -C -b -Q $alterSql *> $null
+        if ($LASTEXITCODE -eq 0) { $ok += $l } else { $fail += $l }
+    }
+
+    return & $restoreAndReturn @{ mode = $mode; authMode = 'Mixed'; succeeded = @($ok); failed = @($fail) }
+}
+
+function Find-MysqlClientPath {
+    param([string]$BinDir)
+    if ($BinDir) {
+        $p = Join-Path $BinDir 'mysql.exe'
+        if (Test-Path -LiteralPath $p) { return $p }
+    }
+    $cmd = Get-Command mysql.exe -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    $found = Get-ChildItem -Path 'C:\Program Files\MySQL\' -Recurse -Filter 'mysql.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($found) { return $found.FullName }
+    return $null
+}
+
+function Invoke-MysqlPasswordManager {
+    # A diferencia de Postgres (trust+reload) y SQL Server (single-user mode), el
+    # mecanismo oficial de recuperacion de MySQL (--init-file) ejecuta UNA sola vez
+    # el SQL indicado al arrancar, antes de aceptar conexiones - no abre una sesion
+    # interactiva. Por eso la password nueva se pide ANTES de entrar en modo
+    # recuperacion (queda en el archivo init), a diferencia del flujo de los otros
+    # dos motores. Validado contra una instancia real: el mecanismo funciona, pero
+    # el reinicio del servicio real inmediatamente despues de matar el proceso
+    # standalone puede fallar si no se espera a que el proceso termine de verdad
+    # (ver Stop-RecoveryProcess).
+    if ($Silent) {
+        return @{ skipped = $true; reason = 'Este modulo requiere modo interactivo; no acepta password por parametro/automatizacion, por seguridad.' }
+    }
+
+    $instances = Get-MysqlInstances
+    if (-not $instances) {
+        return @{ supported = $false; reason = 'No se detecto ninguna instancia de MySQL en este equipo.' }
+    }
+    $inst = $instances[0]
+    if ($instances.Count -gt 1) {
+        Write-Host '  Instancias detectadas:'
+        for ($i = 0; $i -lt $instances.Count; $i++) { Write-Host "    $($i+1). $($instances[$i].ServiceName)" }
+        $sel = Read-Host '  Elegi instancia [1..N] (Enter=1)'
+        $n = 0
+        if ([int]::TryParse($sel, [ref]$n) -and $n -ge 1 -and $n -le $instances.Count) { $inst = $instances[$n - 1] }
+    }
+
+    $mysql = Find-MysqlClientPath -BinDir $inst.BinDir
+    if (-not $mysql) { return @{ supported = $false; reason = 'No se encontro mysql.exe (cliente) en este equipo.' } }
+
+    Write-Host "  Instancia: $($inst.ServiceName)"
+
+    $sqlUser = Read-Host '  Usuario [root]'
+    if (-not $sqlUser) { $sqlUser = 'root' }
+    $secureSqlPwd = Read-Host '  Password (Enter si no la conoces)' -AsSecureString
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureSqlPwd)
+    $plainSqlPwd = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+
+    & $mysql -u $sqlUser "-p$plainSqlPwd" -e 'SELECT 1;' *> $null
+    $testOk = ($LASTEXITCODE -eq 0)
+
+    # "Conecta pero no alcanza": solo una cuenta con SELECT sobre mysql.user puede
+    # administrar otras cuentas. Si esto falla habiendo conectado, tratarlo igual
+    # que una conexion fallida (ofrecer recuperacion), mismo criterio que mssql-password.
+    $isPrivileged = $false
+    if ($testOk) {
+        & $mysql -u $sqlUser "-p$plainSqlPwd" -e 'SELECT COUNT(*) FROM mysql.user;' *> $null
+        $isPrivileged = ($LASTEXITCODE -eq 0)
+    }
+
+    if ($testOk -and $isPrivileged) {
+        $userQuery = "SELECT CONCAT(User,'@',Host) FROM mysql.user WHERE User NOT IN ('mysql.sys','mysql.session','mysql.infoschema') ORDER BY User, Host;"
+        $usersRaw = & $mysql -u $sqlUser "-p$plainSqlPwd" -N -B -e $userQuery 2>$null
+        $users = @($usersRaw | Where-Object { $_ -and $_.Trim() } | ForEach-Object { $_.Trim() })
+        if (-not $users) {
+            return @{ supported = $false; reason = 'No se pudieron enumerar los usuarios.' }
+        }
+
+        Write-Host '  Usuarios MySQL (usuario@host):'
+        for ($i = 0; $i -lt $users.Count; $i++) { Write-Host "    $($i+1). $($users[$i])" }
+        $sel = Read-Host '  Numeros a cambiar separados por coma, o "todos" (Enter=cancelar)'
+        $selectedUsers = @()
+        if ($sel -match '^(?i:todos)$') { $selectedUsers = $users }
+        elseif ($sel) {
+            foreach ($tok in ($sel -split ',')) {
+                $n = 0
+                if ([int]::TryParse($tok.Trim(), [ref]$n) -and $n -ge 1 -and $n -le $users.Count) { $selectedUsers += $users[$n - 1] }
+            }
+        }
+        if (-not $selectedUsers) { return @{ skipped = $true; reason = 'ningun usuario seleccionado' } }
+
+        $newSecure1 = Read-Host '  Nueva password' -AsSecureString
+        $newSecure2 = Read-Host '  Confirma' -AsSecureString
+        $b1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure1)
+        $new1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b1)
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b1)
+        $b2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure2)
+        $new2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b2)
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b2)
+
+        if ($new1 -ne $new2 -or -not $new1) {
+            return @{ skipped = $true; reason = 'las passwords no coinciden o estan vacias' }
+        }
+        if (-not (Confirm-Action "Cambiar la password de $($selectedUsers.Count) usuario(s): $($selectedUsers -join ', ')?" $true)) {
+            return @{ skipped = $true; reason = 'no confirmado (cambio de password)' }
+        }
+
+        $ok = @(); $fail = @()
+        foreach ($u in $selectedUsers) {
+            $parts = $u -split '@', 2
+            $escaped = $new1 -replace "'", "''"
+            $alterSql = "ALTER USER '$($parts[0])'@'$($parts[1])' IDENTIFIED BY '$escaped';"
+            & $mysql -u $sqlUser "-p$plainSqlPwd" -e $alterSql *> $null
+            if ($LASTEXITCODE -eq 0) { $ok += $u } else { $fail += $u }
+        }
+        return @{ mode = 'DIRECTO'; succeeded = @($ok); failed = @($fail) }
+    }
+
+    # ---- Modo recuperacion ----
+    if ($testOk) {
+        Write-Host '  [!] Se pudo conectar, pero esa cuenta no puede administrar otras. Modo RECUPERACION disponible (--init-file; no borra datos).' -ForegroundColor Yellow
+    }
+    else {
+        Write-Host '  [!] No se pudo conectar. Modo RECUPERACION disponible (--init-file; no borra datos).' -ForegroundColor Yellow
+    }
+    $recoverUser = Read-Host "  Cuenta a resetear (usuario@host, Enter='root@localhost')"
+    if (-not $recoverUser) { $recoverUser = 'root@localhost' }
+    if ($recoverUser -notmatch '@') { $recoverUser = "$recoverUser@localhost" }
+    $rParts = $recoverUser -split '@', 2
+
+    $newSecure1 = Read-Host '  Nueva password para esa cuenta' -AsSecureString
+    $newSecure2 = Read-Host '  Confirma' -AsSecureString
+    $b1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure1)
+    $new1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b1)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b1)
+    $b2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($newSecure2)
+    $new2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b2)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b2)
+    if ($new1 -ne $new2 -or -not $new1) {
+        return @{ skipped = $true; reason = 'las passwords no coinciden o estan vacias' }
+    }
+
+    if (-not (Confirm-Action "Activar modo recuperacion y fijar una nueva password para '$recoverUser' (detiene el servicio temporalmente)?" $true)) {
+        return @{ skipped = $true; reason = 'no confirmado (recuperacion)' }
+    }
+    if (-not $inst.ExePath -or -not (Test-Path -LiteralPath $inst.ExePath)) {
+        return @{ supported = $false; reason = "No se encontro mysqld.exe para la instancia $($inst.ServiceName)." }
+    }
+
+    try { Stop-Service -Name $inst.ServiceName -Force -ErrorAction Stop }
+    catch { return @{ supported = $false; reason = "No se pudo detener el servicio: $($_.Exception.Message)" } }
+    Start-Sleep -Seconds 2
+
+    $escapedNew = $new1 -replace "'", "''"
+    $initFile = Join-Path $env:TEMP "renggli_mysql_recovery_$([guid]::NewGuid().ToString('N')).sql"
+    "ALTER USER '$($rParts[0])'@'$($rParts[1])' IDENTIFIED BY '$escapedNew';" | Set-Content -LiteralPath $initFile -Encoding ASCII
+
+    $recoveryArgs = @()
+    if ($inst.ExtraArgs) { $recoveryArgs += $inst.ExtraArgs }
+    $recoveryArgs += "--init-file=`"$initFile`""
+    $recoveryProc = $null
+    try { $recoveryProc = Start-Process -FilePath $inst.ExePath -ArgumentList ($recoveryArgs -join ' ') -PassThru -WindowStyle Hidden }
+    catch {
+        Remove-Item -LiteralPath $initFile -Force -ErrorAction SilentlyContinue
+        Start-Service -Name $inst.ServiceName -ErrorAction SilentlyContinue
+        return @{ supported = $false; reason = "No se pudo arrancar mysqld en modo recuperacion: $($_.Exception.Message)" }
+    }
+    Start-Sleep -Seconds 6
+
+    $testMysql = & $mysql -u $rParts[0] "-p$new1" -e 'SELECT 1;' 2>&1
+    $recoverOk = ($LASTEXITCODE -eq 0)
+
+    Stop-RecoveryProcess -Proc $recoveryProc | Out-Null
+    Remove-Item -LiteralPath $initFile -Force -ErrorAction SilentlyContinue
+    Start-Service -Name $inst.ServiceName -ErrorAction SilentlyContinue
+
+    if (-not $recoverOk) {
+        return @{ supported = $false; reason = 'El modo recuperacion no aplico la nueva password (revisa el log de errores de MySQL en el data dir).' }
+    }
+    return @{ mode = 'RECUPERACION'; succeeded = @($recoverUser); failed = @() }
 }
 
 # ============================================================================

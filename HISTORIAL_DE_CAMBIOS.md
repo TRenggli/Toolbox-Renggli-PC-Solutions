@@ -1,5 +1,64 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-07-17 (Actualizacion 35)
+
+### Arreglo de raiz de los 2 bugs de Fase 4 + gestores de password MSSQL/MySQL completos
+
+Trabajo pedido explicitamente por el usuario: resolver de raiz (no parchar) los dos
+bugs encontrados durante la validacion de Fase 4, y completar lo que se habia dejado
+parcial (gestion de password solo para MySQL/MSSQL en modo deteccion).
+
+**svc-health, arreglo completo (no solo TriggerInfo):**
+Se investigo por que los actualizadores de terceros (Brave/Google Update) seguian
+apareciendo pese al filtro de TriggerInfo: no usan el mecanismo de trigger-start
+nativo de Windows, se autodetienen por logica propia. Se encontro una segunda señal
+real y verificable, independiente de idioma: el valor de registro `FailureActions`
+(ausente en Brave/Google Update, presente en Spooler y sppsvc). En vez de usarla
+como filtro ciego (riesgo de esconder un servicio realmente roto sin FailureActions
+por mala instalacion), se usa para CLASIFICAR sin ocultar: `RecoveryConfigured` /
+`LikelyNormal` en cada item, mas un contador `downCountLikelyReal` aparte del total.
+Validado: 6 servicios -> 4 tras excluir TriggerInfo -> los 4 restantes quedan
+correctamente marcados LikelyNormal=true, downCountLikelyReal=0.
+
+**mssql-password: implementado completo + incidente real de bloqueo + recuperacion real.**
+Se detecto que el modulo solo entraba en modo recuperacion si la conexion fallaba
+del todo, no si conectaba pero la cuenta no era sysadmin (un login explicito de
+Windows puede tapar el acceso heredado de BUILTIN\Administrators). Se corrigio para
+detectar ambos casos. Tambien se descubrio validando contra la instancia real que
+muchas instalaciones de SQL Server Express usan modo "solo autenticacion de
+Windows" (IsIntegratedSecurityOnly=1), donde ningun login SQL puede conectar sin
+importar la password; se agrego una rama separada que en ese caso ofrece otorgar
+sysadmin a una cuenta de Windows en vez de resetear un login SQL inutil. Durante la
+validacion, un grant explicito de sysadmin a la propia cuenta del validador tapo
+(no revoco, tapo) su acceso por grupo, dejandola sin sysadmin via conexion normal -
+la recuperacion se hizo usando el propio modo recuperacion del modulo (single-user
+mode, sqlservr.exe -m), confirmando en un caso real, no ficticio, que el mecanismo
+de recuperacion funciona cuando de verdad hace falta.
+
+**mysql-password: nuevo modulo, MySQL instalado y configurado desde cero para
+validar contra una instancia real (autorizado por el usuario).**
+A diferencia de Postgres (trust+reload) y SQL Server (single-user mode), el
+mecanismo oficial de MySQL (--init-file) ejecuta el SQL una sola vez al arrancar,
+sin sesion interactiva; el flujo pide la password nueva ANTES de entrar en modo
+recuperacion. Validado con datos reales: deteccion, conexion, chequeo de privilegio
+(SELECT sobre mysql.user), enumeracion de usuarios con exclusion correcta de
+cuentas de sistema (mysql.sys/session/infoschema), ALTER USER real sobre un usuario
+de prueba descartable (nunca root), y el mecanismo --init-file completo (detener
+servicio, aplicar password via archivo init, reiniciar servicio).
+
+**Bug real encontrado y corregido (aplicado retroactivamente a mssql-password):**
+Durante la prueba de mysql-password, matar el proceso standalone de recuperacion
+con `Stop-Process -Force` y reiniciar el servicio real ~2 segundos despues causo un
+fallo real: "The innodb_system data file 'ibdata1' must be writable" (el proceso
+"matado" seguia vivo, reteniendo el archivo). `Stop-Process -Force` devuelve el
+control antes de que el proceso termine de verdad. Se agrego `Stop-RecoveryProcess`,
+que espera activamente (`Process.WaitForExit`) la salida real del proceso en vez de
+un sleep fijo, y se aplico tanto a mysql-password como retroactivamente a
+mssql-password (mismo patron de riesgo).
+
+Documentacion: `Manuales/POWERSHELL_CORE.md` actualizado con los 2 modulos nuevos,
+la clasificacion de svc-health, y los incidentes reales encontrados/corregidos.
+
 ## 2026-07-14 (Actualizacion 34)
 
 ### Fase 4 (roadmap v15): servidores/empresa (certificados, servicios, AD/IIS, DB)

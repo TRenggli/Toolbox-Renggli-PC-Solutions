@@ -109,7 +109,7 @@ innecesario, ya que no modifican nada:
 | Windows / Sistema | `os`, `resources`, `events`, `event-intel`, `wu-status`, `svc-health` |
 | Seguridad y forense | `autostart`, `bitlocker-status`, `bitlocker-keys` [!], `cert-scan` |
 | Servidores | `ad-health`, `iis-health` |
-| Bases de datos | `db-status`, `postgres-password` [W] |
+| Bases de datos | `db-status`, `postgres-password` [W], `mssql-password` [W], `mysql-password` [W] |
 | Mantenimiento y reparación | `dism-sfc` [W], `cleanup` [W], `driver-backup` [W], `wu-reset` [W], `wmi-repair` [W] |
 | Reportes e inventario | `passport` |
 
@@ -197,19 +197,26 @@ Tres módulos que buscan lo que revisa un técnico senior en vez de lo genérico
   Administración**, nunca se escribe la clave en el log de auditoría (solo aparece
   en la salida que pediste explícitamente: pantalla, JSON o archivo).
 
-### Servidores / empresa (`cert-scan`, `svc-health`, `ad-health`, `iis-health`, `db-status`, `postgres-password`)
+### Servidores / empresa (`cert-scan`, `svc-health`, `ad-health`, `iis-health`, `db-status`, gestores de password)
 
 - **`cert-scan`** — recorre los almacenes de certificados de la máquina y marca los
   vencidos o por vencer en 30 días. El "asesino silencioso": un sitio/servicio que se
   cae porque nadie vigilaba el vencimiento de un certificado.
 
-- **`svc-health`** — servicios `Automatic` que no están corriendo. Excluye los
-  servicios "Automatic (Trigger Start)" **nativos de Windows** (se detienen solos
-  hasta su evento disparador — validado en la práctica: el filtro real bajó de 6 a 4
-  falsos positivos en esta máquina, eliminando `sppsvc`/`edgeupdate`). Actualizadores
-  de terceros (navegadores, etc.) que se autodetienen por lógica propia — no por el
-  mecanismo de trigger de Windows — no tienen una señal mecánica universal para
-  filtrarlos, así que pueden seguir apareciendo; la ayuda del módulo lo advierte.
+- **`svc-health`** — servicios `Automatic` que no están corriendo, con dos señales
+  combinadas sin ocultar datos: los "Automatic (Trigger Start)" **nativos de
+  Windows** (`sppsvc`, `edgeupdate`) se excluyen del todo (hecho técnico inequívoco:
+  el propio servicio declara que se arranca/detiene por evento disparador). Para el
+  resto, se clasifica según si el servicio tiene configurada alguna acción de
+  recuperación ante fallo (`FailureActions` en el registro, independiente de
+  idioma): sin eso configurado (`RecoveryConfigured=false`), se marca
+  `LikelyNormal=true` — típico de actualizadores de terceros (Brave/Google) que se
+  autodetienen por diseño sin usar el mecanismo de trigger de Windows — y no cuenta
+  en `downCountLikelyReal`, pero **sigue apareciendo en la lista completa** para no
+  esconder un servicio realmente roto que por mala instalación tampoco tenga
+  recuperación configurada. Validado en la práctica: en esta máquina, de 6 servicios
+  "caídos" iniciales, el filtro deja 4 (elimina los 2 nativos) y clasifica los 4
+  restantes como `LikelyNormal` (`downCountLikelyReal=0`).
 
 - **`ad-health`** / **`iis-health`** — chequeos rápidos de Active Directory (canal
   seguro con el DC, Netlogon, SYSVOL) e IIS (sitios/application pools). Ambos se
@@ -218,20 +225,45 @@ Tres módulos que buscan lo que revisa un técnico senior en vez de lo genérico
 
 - **`db-status`** — detección cross-engine (PostgreSQL, MySQL, SQL Server) vía
   servicio de Windows: motor, estado, puerto (Postgres) y versión. Solo lectura.
-  **`postgres-password`** [W] — el gestor de passwords de PostgreSQL, portado del
-  módulo probado en `toolbox.bat`/`modules\postgres_manager.bat`: detecta la
-  instancia, modo directo o recuperación (trust temporal + reload), selección de
-  roles, `Read-Host -AsSecureString` para no mostrar las passwords en pantalla.
-  Solo modo interactivo (rechaza `-Silent`, para no pasar passwords en texto plano
-  por parámetro/automatización) y solo perfil Administración.
 
-  > **Nota de alcance:** `db-status` detecta MySQL/SQL Server, pero la gestión de
-  > password (reset/recuperación) por ahora es solo para PostgreSQL. Los otros dos
-  > motores tienen mecanismos de recuperación muy distintos entre sí (modo
-  > single-user de SQL Server, `--init-file`/`--skip-grant-tables` de MySQL) y esta
-  > versión no incluye esa lógica sin poder validarla contra una instancia real de
-  > cada motor — se prefirió no enviar código de escritura sin probar en vez de
-  > fingir paridad completa.
+- **Gestores de password** — un módulo por motor, cada uno con su propio mecanismo
+  de recuperación oficial (no son intercambiables, cada base de datos resuelve
+  "olvidé la contraseña" de forma distinta):
+
+  - **`postgres-password`** [W] — trust temporal en `pg_hba.conf` + reload (sin
+    reiniciar el servicio). Portado del módulo ya probado en
+    `toolbox.bat`/`modules\postgres_manager.bat`.
+  - **`mssql-password`** [W] — modo de un solo usuario (`sqlservr.exe -m`), donde
+    `BUILTIN\Administrators` obtiene sysadmin implícito. Detecta tanto "no conecta"
+    como "conecta pero esa cuenta no es sysadmin" (un login explícito de Windows
+    puede tapar el acceso heredado del grupo — encontrado validando este módulo
+    contra una instancia real). También detecta servidores en modo "solo
+    autenticación de Windows" (`SERVERPROPERTY('IsIntegratedSecurityOnly')`) y en
+    ese caso ofrece otorgar sysadmin a una cuenta de Windows en vez de resetear un
+    login SQL que jamás podría conectar.
+  - **`mysql-password`** [W] — `--init-file` (mecanismo oficial de MySQL): detiene
+    el servicio, arranca `mysqld` una vez con un archivo que fija la password de la
+    cuenta indicada, reinicia el servicio. A diferencia de Postgres/SQL Server, este
+    mecanismo no da una sesión interactiva — la password nueva se pide *antes* de
+    entrar en modo recuperación, no después.
+
+  Todos: solo modo interactivo (rechazan `-Silent`, para no pasar passwords en texto
+  plano por parámetro/automatización), solo perfil Administración, `Read-Host
+  -AsSecureString` para no mostrar las passwords en pantalla.
+
+  > **Validado contra instancias reales, no solo revisión de código.** Al probar
+  > `mssql-password` contra una instancia real, un intento de otorgar sysadmin
+  > explícito a una cuenta ya-administradora terminó **tapando** su acceso heredado
+  > del grupo `BUILTIN\Administrators` (un login explícito de Windows tiene
+  > precedencia sobre la pertenencia a grupo) — se solucionó usando el propio modo
+  > recuperación del módulo (single-user mode), confirmando que el mecanismo
+  > funciona de verdad ante un bloqueo real. Al probar `mysql-password`, matar el
+  > proceso standalone de recuperación con `Stop-Process -Force` y reiniciar el
+  > servicio real casi inmediatamente después causó un fallo real (`ibdata1 must be
+  > writable`, InnoDB con el archivo aún bloqueado) — se corrigió con
+  > `Stop-RecoveryProcess`, que **espera activamente** (`Process.WaitForExit`) a que
+  > el proceso termine de verdad en vez de un `sleep` fijo; el fix se aplicó también
+  > retroactivamente a `mssql-password`, que tenía el mismo patrón de riesgo.
 
 ## Ejecución remota sobre una flota
 
