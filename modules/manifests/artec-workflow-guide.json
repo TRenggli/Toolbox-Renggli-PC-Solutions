@@ -1,0 +1,21 @@
+{
+  "id": "a7b8c9d0-e1f2-41a7-c4d5-e6f7a8b9c0d1",
+  "name": "artec-workflow-guide",
+  "description": "Guía interactiva del flujo de trabajo dental: pasos del proceso, verificación de estación y consejos de producción",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "workflow", "flujo-trabajo", "dental", "guia", "produccion"]
+}

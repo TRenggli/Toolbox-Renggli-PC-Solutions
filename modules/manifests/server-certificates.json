@@ -1,0 +1,21 @@
+{
+  "id": "a5b6c7d8-e9f0-45a1-b2c3-d4e5f6a7b8c9",
+  "name": "server-certificates",
+  "description": "Escaneo de expiración de certificados: certificados locales, de dominio y alertas de vencimiento próximo",
+  "area": "server",
+  "os": ["windows", "linux"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["certificados", "ssl", "tls", "expiracion", "seguridad", "servidor"]
+}

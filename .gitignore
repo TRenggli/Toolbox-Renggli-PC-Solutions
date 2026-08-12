@@ -9,3 +9,41 @@ Windows/Logs/Report_*.html
 Linux/Logs/Report_*.html
 Mac/Logs/Report_*.html
 Windows/Logs/battery-report.html
+
+# .NET build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Node.js / React
+node_modules/
+dist/
+
+# Docker runtime
+.docker/
+
+# Clinical data (NEVER commit clinical data)
+clinical-data/
+*.clinical.db
+*.clinical-backup
+
+# Agent configuration (contains secrets)
+agent.conf
+*.pfx
+*.p12
+*.key
+
+# Certificates
+certs/
+*.crt
+*.csr
+
+# Environment files
+.env
+.env.local
+
+# Test results
+TestResults/
+[Bb]uild[Ll]ogs/

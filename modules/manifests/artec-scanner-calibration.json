@@ -1,0 +1,21 @@
+{
+  "id": "c3d4e5f6-a7b8-4d3c-e0f1-a2b3c4d5e6f7",
+  "name": "artec-scanner-calibration",
+  "description": "Verificación de calibración del escáner dental: estado de calibración, fecha de última calibración y precisión",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "!",
+  "reversible": false,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "none",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "calibracion", "escanner", "dental", "precision", "produccion"]
+}

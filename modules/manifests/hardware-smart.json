@@ -1,0 +1,21 @@
+{
+  "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+  "name": "hardware-smart",
+  "description": "Análisis de salud de discos mediante SMART: temperatura, sectores reasignados, horas de uso y predicción de fallo",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["smart", "disco", "salud", "diagnostico", "almacenamiento", "ssd", "hdd"]
+}

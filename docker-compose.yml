@@ -1,0 +1,122 @@
+name: toolbox-v15
+
+networks:
+  operational-net:
+    driver: bridge
+  clinical-net:
+    driver: bridge
+
+volumes:
+  caddy-data:
+  caddy-config:
+  db-operational:
+  db-clinical:
+  storage-clinical:
+
+services:
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - operational-net
+      - clinical-net
+    depends_on:
+      - api
+      - panel
+      - service-clinical
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    depends_on:
+      db-operational:
+        condition: service_healthy
+    expose:
+      - "8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Operational: Host=db-operational;Port=5432;Database=toolbox;Username=tbx;Password=tbx_operational_pw
+    networks:
+      - operational-net
+
+  db-operational:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tbx
+      POSTGRES_PASSWORD: tbx_operational_pw
+      POSTGRES_DB: toolbox
+    volumes:
+      - db-operational:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tbx -d toolbox"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - operational-net
+
+  service-clinical:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.clinical
+    depends_on:
+      db-clinical:
+        condition: service_healthy
+    expose:
+      - "8081"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Clinical: Host=db-clinical;Port=5432;Database=clinical;Username=tbx;Password=tbx_clinical_pw
+    networks:
+      - clinical-net
+
+  db-clinical:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tbx
+      POSTGRES_PASSWORD: tbx_clinical_pw
+      POSTGRES_DB: clinical
+    volumes:
+      - db-clinical:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tbx -d clinical"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clinical-net
+
+  storage-clinical:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: tbx_clinical
+      MINIO_ROOT_PASSWORD: tbx_clinical_storage_pw
+    volumes:
+      - storage-clinical:/data
+    expose:
+      - "9000"
+    ports:
+      - "9001:9001"
+    networks:
+      - clinical-net
+
+  panel:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.panel
+    expose:
+      - "80"
+    networks:
+      - operational-net

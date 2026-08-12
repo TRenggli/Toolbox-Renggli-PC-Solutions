@@ -1,0 +1,21 @@
+{
+  "id": "b6c7d8e9-f0a1-46b2-c3d4-e5f6a7b8c9d0",
+  "name": "server-ad-health",
+  "description": "Verificación de salud de Active Directory: replicación, FSMO roles, estado de DCs y eventos críticos",
+  "area": "server",
+  "os": ["windows"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["activedirectory", "ad", "replicacion", "fsmo", "dc", "servidor", "salud"]
+}

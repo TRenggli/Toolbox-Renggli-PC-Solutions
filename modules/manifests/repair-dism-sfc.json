@@ -1,0 +1,21 @@
+{
+  "id": "e7f8a9b0-c1d2-4d3e-f4a5-b6c7d8e9f0a1",
+  "name": "repair-dism-sfc",
+  "description": "Reparación del sistema mediante DISM y SFC: restauración de archivos de sistema y limpieza de la imagen de Windows",
+  "area": "system",
+  "os": ["windows"],
+  "category": "repair",
+  "risk": "W-L",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "before", "after"],
+  "output_schema": {},
+  "associated_repair": "restore-wu-backup",
+  "remote_support": "none",
+  "rollback_module": "restore-wu-backup",
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["dism", "sfc", "reparacion", "sistema", "corrupcion", "windows", "scannow"]
+}

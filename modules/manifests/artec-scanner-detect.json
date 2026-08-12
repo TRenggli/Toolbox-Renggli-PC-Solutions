@@ -1,0 +1,21 @@
+{
+  "id": "b2c3d4e5-f6a7-4c2b-d9e0-f1a2b3c4d5e6",
+  "name": "artec-scanner-detect",
+  "description": "Detección de escáner UP3D: presencia del dispositivo, estado de conexión y drivers",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "up3d", "escanner", "dental", "cad-cam", "produccion"]
+}

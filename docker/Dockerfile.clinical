@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY src/ToolboxV15/ToolboxServer/ToolboxClinical/ToolboxClinical.csproj ./src/ToolboxV15/ToolboxServer/ToolboxClinical/
+RUN dotnet restore ./src/ToolboxV15/ToolboxServer/ToolboxClinical/ToolboxClinical.csproj
+
+COPY src/ToolboxV15/ToolboxServer/ToolboxClinical/ ./src/ToolboxV15/ToolboxServer/ToolboxClinical/
+
+WORKDIR /src/src/ToolboxV15/ToolboxServer/ToolboxClinical
+RUN dotnet publish ToolboxClinical.csproj -c Release -o /app /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app .
+EXPOSE 8081
+ENV ASPNETCORE_URLS=http://+:8081
+ENTRYPOINT ["dotnet", "ToolboxClinical.dll"]

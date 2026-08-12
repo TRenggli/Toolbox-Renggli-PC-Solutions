@@ -1,0 +1,21 @@
+{
+  "id": "b4c5d6e7-f8a9-4a0b-c1d2-e3f4a5b6c7d8",
+  "name": "network-speed",
+  "description": "Test de velocidad de red: latencia, ancho de banda, jitter y calidad de conexión",
+  "area": "network",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["velocidad", "red", "ancho-banda", "latencia", "test", "iperf"]
+}

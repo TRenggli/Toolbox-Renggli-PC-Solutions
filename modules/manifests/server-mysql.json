@@ -1,0 +1,21 @@
+{
+  "id": "e9f0a1b2-c3d4-49e5-f6a7-b8c9d0e1f2a3",
+  "name": "server-mysql",
+  "description": "Gestión y estado de MySQL/MariaDB: conexiones, bases de datos, rendimiento, replicación y configuración",
+  "area": "server",
+  "os": ["windows", "linux", "macos"],
+  "category": "server",
+  "risk": "W-R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "full",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["mysql", "mariadb", "base-datos", "sql", "rendimiento", "servidor"]
+}

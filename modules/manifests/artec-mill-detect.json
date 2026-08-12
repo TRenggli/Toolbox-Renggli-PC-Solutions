@@ -1,0 +1,21 @@
+{
+  "id": "d4e5f6a7-b8c9-4e4d-f1a2-b3c4d5e6f7a8",
+  "name": "artec-mill-detect",
+  "description": "Detección de fresadora dental P52/P53: presencia del dispositivo, estado de conexión y firmware",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "fresadora", "p52", "p53", "dental", "cad-cam", "produccion"]
+}

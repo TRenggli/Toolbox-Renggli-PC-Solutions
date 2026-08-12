@@ -1,0 +1,21 @@
+{
+  "id": "c9d0e1f2-a3b4-45c6-d7e8-f9a0b1c2d3e4",
+  "name": "system-autostart",
+  "description": "Auditoría de programas de inicio automático: entradas de registro, tareas programadas y carpetas de inicio",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["inicio", "autostart", "autorun", "startup", "auditoria", "rendimiento"]
+}

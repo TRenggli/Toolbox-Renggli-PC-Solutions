@@ -1,0 +1,21 @@
+{
+  "id": "c5d6e7f8-a9b0-4b1c-d2e3-f4a5b6c7d8e9",
+  "name": "network-battery",
+  "description": "Salud de batería en portátiles: capacidad actual vs diseño, ciclos de carga, voltaje y estado general",
+  "area": "system",
+  "os": ["windows", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["bateria", "portatil", "salud", "ciclos", "energia", "diagnostico"]
+}

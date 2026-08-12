@@ -1,0 +1,24 @@
+{
+  "id": "d2e3f4a5-b6c7-42d8-e9f0-a1b2c3d4e5f6",
+  "name": "admin-format",
+  "description": "Formateo seguro de medios de almacenamiento: borrado seguro, sobrescritura con patrones y creación de particiones",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "admin",
+  "risk": "!",
+  "reversible": false,
+  "parameters": {
+    "method": { "type": "string", "enum": ["quick", "zero", "random", "dod"], "default": "quick" },
+    "filesystem": { "type": "string", "enum": ["ntfs", "fat32", "exfat", "ext4", "apfs"], "default": "ntfs" }
+  },
+  "permissions": ["admin", "root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "confirmation"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "none",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["formateo", "seguro", "borrado", "almacenamiento", "particion", "admin"]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "a7b8c9d0-e1f2-43a4-b5c6-d7e8f9a0b1c2",
+  "name": "system-events",
+  "description": "Análisis de logs de eventos del sistema: errores críticos, advertencias y patrones de fallos",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["eventos", "logs", "errores", "visor-eventos", "journalctl", "diagnostico"]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "a1b2c3d4-e5f6-4b1a-c8d9-e0f1a2b3c4d5",
+  "name": "server-docker",
+  "description": "Salud y limpieza de Docker: contenedores, imágenes, volúmenes, redes y uso de recursos",
+  "area": "server",
+  "os": ["linux"],
+  "category": "server",
+  "risk": "W-R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "full",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["docker", "contenedores", "imagenes", "volumenes", "limpieza", "servidor"]
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toolbox.renggli-solutions.com/schemas/triage-result.json",
+  "title": "Triage Result",
+  "type": "object",
+  "required": ["area", "timestamp", "overall_status", "baseline", "findings", "health_score"],
+  "properties": {
+    "area": { "enum": ["system", "network", "server", "artec"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "duration_ms": { "type": "integer" },
+    "overall_status": { "enum": ["healthy", "degraded", "critical", "unknown"] },
+    "health_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "baseline": {
+      "type": "object",
+      "properties": {
+        "hardware": { "type": "object" },
+        "disks": { "type": "array", "items": { "type": "object" } },
+        "memory": { "type": "object" },
+        "os": { "type": "object" },
+        "patches": { "type": "object" },
+        "services": { "type": "array", "items": { "type": "object" } },
+        "network": { "type": "object" },
+        "security": { "type": "object" },
+        "software": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "execution-result.schema.json#/$defs/finding" }
+    },
+    "recommendations": { "type": "array", "items": { "type": "string" } },
+    "modules_executed": { "type": "array", "items": { "type": "string" } },
+    "modules_skipped": { "type": "array", "items": { "type": "object" } },
+    "hostname": { "type": "string" },
+    "os": { "type": "string" },
+    "run_id": { "type": "string", "format": "uuid" }
+  }
+}

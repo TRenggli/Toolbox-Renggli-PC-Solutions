@@ -1,5 +1,42 @@
 # HISTORIAL DE CAMBIOS
 
+## 2026-08-12 (Actualizacion 36)
+
+### Enterprise Toolbox V15 - Rediseño integral y plataforma Artec Invent
+
+Reconstruccion completa de la Toolbox como plataforma modular V15:
+
+- CLI .NET unico con comandos: triage, symptom, catalog, run, report, agent, artec
+- Modo guiado por defecto y modo tecnico desplegable
+- Cuatro areas: Equipos y sistema, Redes, Servidores, Artec Invent/Dental CAD-CAM
+- Soporte Windows, Linux y macOS (UP3D Windows-only)
+- Motor causal con reglas deterministas (Confirmada/Probable/Posible/Sin evidencia)
+- Health score 0-100 transparente, nunca sustituye hallazgos
+- Protocolo de reparacion: Precondicion → Respaldo → Ejecucion → Comprobacion → Rollback
+- Nunca registra falsos exitos
+- 39 manifiestos de modulos con esquema JSON normalizado
+- Riesgos: R, W-R, W-L, ! (critica local)
+- Estados: success, cancelled, skipped, partial, failed, blocked, unsupported
+- Agente con enrollment por token, certificados, conexiones salientes
+- Docker Compose: proxy Caddy, API .NET, panel React, PostgreSQL operacional
+- Servicio clinico aislado con PostgreSQL y almacenamiento separados
+- Auditoria append-only con hashes encadenados SHA256
+- Backups cifrados diarios + copias semanales inmutables
+- Artec Invent: perfiles UP400/UP560/UP560HD/P52/P53/P42/P42Plus
+- Workflow guiado: Escaneo → CAD → CAM → Control de maquina → Posprocesado/QC
+- Adaptadores: Dental Station, exocad, UPCAD, UPCAM 4.0, hyperDENT
+- hyperDENT bloqueado si no hay perfil validado
+- Gestion de produccion con 11 estados y 7 roles
+- Expedientes clinicos aislados con MFA, motivo obligatorio, auditoria
+- Cumplimiento leyes argentinas 25.326 y 26.529
+- Adjuntos de soporte eliminados 90 dias tras cierre de incidente
+- MAS fuera del repositorio y de la distribucion
+- Bridge heredado: toolbox.bat traduce /perfil y /mod al nuevo CLI
+- Especificacion de diseño en docs/superpowers/specs/
+- Documentacion ES/EN/CN en docs/
+- 26 pruebas unitarias (reglas causales, health score, estados, manifiestos)
+- Solution .NET compila con 0 errores
+
 ## 2026-07-17 (Actualizacion 35)
 
 ### Arreglo de raiz de los 2 bugs de Fase 4 + gestores de password MSSQL/MySQL completos

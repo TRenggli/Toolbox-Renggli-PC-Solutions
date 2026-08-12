@@ -1,0 +1,21 @@
+{
+  "id": "a3b4c5d6-e7f8-490a-b1c2-d3e4f5a6b7c8",
+  "name": "network-ports",
+  "description": "Escaneo de puertos abiertos: puertos TCP/UDP en escucha, servicios asociados y detección de puertos sospechosos",
+  "area": "network",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["puertos", "red", "tcp", "udp", "escaneo", "seguridad", "netstat"]
+}

@@ -1,0 +1,27 @@
+{
+    email admin@toolbox.local
+}
+
+:443 {
+    tls internal
+
+    handle /api/* {
+        reverse_proxy api:8080
+    }
+
+    handle /panel/* {
+        reverse_proxy panel:80
+    }
+
+    handle /clinical/* {
+        reverse_proxy service-clinical:8081
+    }
+
+    handle {
+        respond "Not Found" 404
+    }
+}
+
+:80 {
+    redir https://{host}{uri} 308
+}

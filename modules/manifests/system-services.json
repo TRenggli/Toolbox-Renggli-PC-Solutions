@@ -1,0 +1,21 @@
+{
+  "id": "f6a7b8c9-d0e1-42f3-a4b5-c6d7e8f9a0b1",
+  "name": "system-services",
+  "description": "Verificación de salud de servicios del sistema: estado, tipo de inicio, dependencias y errores",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["servicios", "systemd", "services.msc", "salud", "diagnostico"]
+}

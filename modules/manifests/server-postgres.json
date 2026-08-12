@@ -1,0 +1,21 @@
+{
+  "id": "d8e9f0a1-b2c3-48d4-e5f6-a7b8c9d0e1f2",
+  "name": "server-postgres",
+  "description": "Gestión y estado de PostgreSQL: conexiones, bases de datos, rendimiento, bloqueos y configuración",
+  "area": "server",
+  "os": ["windows", "linux", "macos"],
+  "category": "server",
+  "risk": "W-R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "full",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["postgresql", "base-datos", "sql", "rendimiento", "conexiones", "servidor"]
+}

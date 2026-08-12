@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/ToolboxServer/">
+    <Project Path="ToolboxServer/ToolboxApi/ToolboxApi.csproj" />
+    <Project Path="ToolboxServer/ToolboxClinical/ToolboxClinical.csproj" />
+  </Folder>
+  <Project Path="../../tests/ToolboxTests/ToolboxTests.csproj" />
+  <Project Path="ToolboxAgent/ToolboxAgent.csproj" />
+  <Project Path="ToolboxCLI/ToolboxCLI.csproj" />
+  <Project Path="ToolboxCore/ToolboxCore.csproj" />
+</Solution>

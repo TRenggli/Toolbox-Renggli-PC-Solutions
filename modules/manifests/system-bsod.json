@@ -1,0 +1,21 @@
+{
+  "id": "b8c9d0e1-f2a3-44b5-c6d7-e8f9a0b1c2d3",
+  "name": "system-bsod",
+  "description": "Análisis de pantallazos azules y volcados de memoria: códigos de error, drivers causantes y patrones de fallo",
+  "area": "system",
+  "os": ["windows"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["bsod", "pantallazo-azul", "crash", "volcado", "minidump", "windbg"]
+}

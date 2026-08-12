@@ -1,0 +1,23 @@
+{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "system-passport",
+  "description": "Genera un pasaporte completo del sistema: hardware, OS, discos, red, software y health score",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "baseline",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {
+    "export_format": { "type": "string", "enum": ["html", "json", "csv"], "default": "html" },
+    "export_path": { "type": "string" }
+  },
+  "permissions": [],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": { "ref": "triage-result.schema.json" },
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "version": "1.0.0",
+  "tags": ["baseline", "inventory", "health"]
+}

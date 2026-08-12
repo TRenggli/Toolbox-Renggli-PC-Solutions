@@ -1,0 +1,21 @@
+{
+  "id": "c1d2e3f4-a5b6-41c7-d8e9-f0a1b2c3d4e5",
+  "name": "repair-wmi",
+  "description": "Reparación del repositorio WMI: verificación de consistencia, reconstrucción y restauración de clases",
+  "area": "system",
+  "os": ["windows"],
+  "category": "repair",
+  "risk": "W-L",
+  "reversible": false,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "before", "after"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "none",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["wmi", "reparacion", "repositorio", "windows", "diagnostico"]
+}

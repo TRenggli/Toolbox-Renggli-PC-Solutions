@@ -1,0 +1,21 @@
+{
+  "id": "e1f2a3b4-c5d6-47e8-f9a0-b1c2d3e4f5a6",
+  "name": "system-processes",
+  "description": "Análisis forense de procesos: procesos activos, consumo de recursos, firmas digitales y comportamiento sospechoso",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["procesos", "forense", "seguridad", "cpu", "memoria", "analisis"]
+}

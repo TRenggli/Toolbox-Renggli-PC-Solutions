@@ -1,0 +1,21 @@
+{
+  "id": "b0c1d2e3-f4a5-40b6-c7d8-e9f0a1b2c3d4",
+  "name": "repair-network-reset",
+  "description": "Reseteo completo de la pila de red: reinicio de adaptadores, limpieza de configuración IP, DNS y Winsock",
+  "area": "network",
+  "os": ["windows", "linux", "macos"],
+  "category": "repair",
+  "risk": "W-L",
+  "reversible": false,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "before", "after"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "none",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["red", "reset", "winsock", "ipconfig", "networkmanager", "reparacion"]
+}

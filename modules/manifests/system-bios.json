@@ -1,0 +1,21 @@
+{
+  "id": "d4e5f6a7-b8c9-40d1-e2f3-a4b5c6d7e8f9",
+  "name": "system-bios",
+  "description": "Información de BIOS/UEFI: versión, fabricante, fecha, modo de arranque y configuración Secure Boot",
+  "area": "system",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["bios", "uefi", "firmware", "secureboot", "arranque", "placa-base"]
+}

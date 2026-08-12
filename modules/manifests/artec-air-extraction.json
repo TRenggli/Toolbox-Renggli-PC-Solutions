@@ -1,0 +1,21 @@
+{
+  "id": "b8c9d0e1-f2a3-42b8-d5e6-f7a8b9c0d1e2",
+  "name": "artec-air-extraction",
+  "description": "Verificación del sistema de aire y extracción: presión, filtros, estado de la bomba y alertas de mantenimiento",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "aire", "extraccion", "presion", "filtros", "dental", "produccion"]
+}

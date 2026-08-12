@@ -1,0 +1,21 @@
+{
+  "id": "c7d8e9f0-a1b2-47c3-d4e5-f6a7b8c9d0e1",
+  "name": "server-iis-health",
+  "description": "Verificación de salud de IIS: estado de pools de aplicaciones, sitios, bindings y logs de errores",
+  "area": "server",
+  "os": ["windows"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 60000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["iis", "web", "servidor", "apppool", "sitios", "salud"]
+}

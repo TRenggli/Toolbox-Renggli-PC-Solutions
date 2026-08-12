@@ -1,0 +1,12 @@
+FROM node:20-alpine AS build
+WORKDIR /src
+COPY src/ToolboxV15/ToolboxServer/ToolboxPanel/package.json ./
+RUN npm install
+COPY src/ToolboxV15/ToolboxServer/ToolboxPanel/ ./
+RUN npm run build
+
+FROM nginx:alpine
+COPY docker/nginx.panel.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

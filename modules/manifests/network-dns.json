@@ -1,0 +1,21 @@
+{
+  "id": "f2a3b4c5-d6e7-48f9-a0b1-c2d3e4f5a6b7",
+  "name": "network-dns",
+  "description": "Verificación de resolución DNS: servidores configurados, tiempos de respuesta, caché y detección de anomalías",
+  "area": "network",
+  "os": ["windows", "linux", "macos"],
+  "category": "diagnostic",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["dns", "resolucion", "red", "conectividad", "diagnostico"]
+}

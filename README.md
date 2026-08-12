@@ -1,250 +1,191 @@
 <!-- markdownlint-disable MD034 MD041 -->
 
-🛠️ Renggli PC Solution
-Enterprise Toolbox V14
-Unified Cross‑Platform IT Diagnostics & Repair Suite
-https://img.shields.io/badge/License-Enterprise-blue  
-https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-green  
-https://img.shields.io/badge/Version-V14-orange  
-https://img.shields.io/badge/Build-Stable-success  
-https://img.shields.io/badge/Documentation-Available-brightgreen
+# Renggli PC Solution - Enterprise Toolbox V15
+
+A hybrid cross-platform platform for **IT diagnostics, repair, server fleet
+management and dental CAD/CAM production**, built on a **.NET 10** core engine
+with a declarative JSON module catalog and a service-oriented Docker deployment.
+
+![License](https://img.shields.io/badge/License-Enterprise-blue)
+![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-green)
+![Version](https://img.shields.io/badge/Version-V15-orange)
+![Build](https://img.shields.io/badge/Build-Stable-success)
 [![CI Smoke Checks](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-smoke.yml/badge.svg)](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-smoke.yml)
 [![CI Matrix Regression](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-matrix-regression.yml/badge.svg)](https://github.com/TRenggli/Toolbox-Renggli-PC-Solutions/actions/workflows/ci-matrix-regression.yml)
 
-A professional multi‑platform toolbox designed for system administrators, IT technicians, and enterprise environments.
-Supports Windows, Linux, and macOS, offering diagnostics, maintenance, repair, and advanced administration tools.
-
-Note:  
-This is the single unified edition per OS (Windows / Linux / macOS). It includes all
-modules, all execution profiles, and the Windows activation utilities (MAS), intended
-for authorized/testing use.
-
-📁 Project Structure
-Código
-Toolbox/
-│
-├── Windows/
-│   ├── toolbox.bat               # Field kit (interactive, includes MAS)
-│   ├── toolbox.ps1               # PowerShell core (unattended/JSON, MAS-free, signable)
-│   ├── sign.ps1                  # Authenticode signing helper for the PS core
-│   ├── MAS_AIO.cmd               # Activation module (MAS)
-│   └── modules/
-│       └── postgres_manager.bat  # PostgreSQL password manager
-│
-├── Linux/
-│   └── toolbox.sh                # Unified Linux toolbox (30 modules)
-│
-├── Mac/
-│   └── toolbox.sh                # Unified macOS toolbox
-│
-├── Manuales/
-│   ├── README_ES.md              # Spanish manual
-│   ├── README_EN.md              # English manual
-│   ├── README_CN.md              # Chinese manual
-│   ├── COMO_GENERAR_PDFS.md      # PDF generation guide
-│   ├── estilo_pdf_corporativo.css
-│   └── PDFs/
-│       ├── Manual_Toolbox_V14_ES.pdf
-│       ├── Manual_Toolbox_V14_EN.pdf
-│       └── Manual_Toolbox_V14_CN.pdf
-│
-└── Scripts/
-    ├── generar_pdfs.bat          # PDF generator (Windows)
-    └── generar_pdfs.sh           # PDF generator (Linux/Mac)
-🚀 Quick Start
-🪟 Windows
-Open the Windows/ folder
+Toolbox V15 replaces the V14 script-only model with a multi-tier architecture:
+- a cross-platform **CLI** (`ToolboxCLI`),
+- a shared **core engine** (`ToolboxCore`) with platform abstractions and a causal
+  triage engine,
+- a deployable **remote agent** (`ToolboxAgent`),
+- a Docker-based **server** stack (`ToolboxApi` + `ToolboxClinical` + `ToolboxPanel`),
+- and a new **dental domain** (`artec`) for CAD/CAM and clinical production.
 
-Right‑click toolbox.bat
+The legacy V14 scripts remain available during migration through a legacy bridge.
 
-Select Run as administrator
+---
 
-Documentation: Manuales/README_EN.md#seccion-windows
+## V15 Documentation (Multilingual)
 
-🐧 Linux
-bash
-cd Linux/
-chmod +x toolbox.sh
-sudo ./toolbox.sh
-Documentation: Manuales/README_EN.md#seccion-linux
+| Language | Document |
+|----------|----------|
+| 🇪🇸 Español | [docs/V15_README_ES.md](docs/V15_README_ES.md) |
+| 🇬🇧 English | [docs/V15_README_EN.md](docs/V15_README_EN.md) |
+| 🇨🇳 简体中文 | [docs/V15_README_CN.md](docs/V15_README_CN.md) |
 
-🍎 macOS
-bash
-cd Mac/
-chmod +x toolbox.sh
-sudo ./toolbox.sh
-Documentation: Manuales/README_EN.md#seccion-macos
+Historical V14 manuals (ES/EN/CN) remain in the [`Manuales/`](Manuales/) directory,
+including the option catalogs and PowerShell core guide.
 
-📚 Documentation
-Quick Documentation Index (Onboarding)
+---
 
-- Start here (operational usage by OS).
-- Spanish: [Manuales/README_ES.md](Manuales/README_ES.md)
-- English: [Manuales/README_EN.md](Manuales/README_EN.md)
-- Chinese: [Manuales/README_CN.md](Manuales/README_CN.md)
+## Architecture Overview
 
-- Understand each option (what it does, when to use it, risks, precautions).
-- ES: [Manuales/CATALOGO_OPCIONES_ES.md](Manuales/CATALOGO_OPCIONES_ES.md)
-- EN: [Manuales/CATALOGO_OPCIONES_EN.md](Manuales/CATALOGO_OPCIONES_EN.md)
-- CN: [Manuales/CATALOGO_OPCIONES_CN.md](Manuales/CATALOGO_OPCIONES_CN.md)
+| Component              | Role                                                                                | Stack                          |
+|------------------------|-------------------------------------------------------------------------------------|--------------------------------|
+| `ToolboxCLI`           | Command-line interface: `triage`, `symptom`, `catalog`, `run`, `report`, `agent`, `artec`. | .NET 10, `System.CommandLine` |
+| `ToolboxCore`          | Causal engine, module registry, runner, health score, OS abstraction, report export. | .NET 10 (shared library)       |
+| `ToolboxAgent`         | Deployable agent: enroll, heartbeat, job polling, remote execution.                 | .NET 10, `HttpClient`          |
+| `ToolboxServer.Api`    | Operational API: agents, modules, jobs, triage, audit, backup. Hybrid JWT + ApiKey. | ASP.NET Core 10, PostgreSQL    |
+| `ToolboxServer.Clinical` | Isolated clinical service: records, production, attachments, retention, MFA audit. | ASP.NET Core 10, PostgreSQL, MinIO |
+| `ToolboxPanel`         | Administrative web panel.                                                           | Vite + React                   |
+| `docker-compose.yml`   | Orchestration: Caddy proxy, api, db, clinical service, clinical db, storage, panel. | Docker Compose                 |
 
-- Modify or add modules safely (developer path).
-- Programmer guide in manuals (ES/EN/CN): [Manuales/README_ES.md](Manuales/README_ES.md), [Manuales/README_EN.md](Manuales/README_EN.md), [Manuales/README_CN.md](Manuales/README_CN.md)
-- Contribution workflow + new module checklist: [CONTRIBUTING.md](CONTRIBUTING.md)
+Network isolation:
 
-- Keep change history updated: [HISTORIAL_DE_CAMBIOS.md](HISTORIAL_DE_CAMBIOS.md)
+- `operational-net` — api, db-operational, panel, proxy.
+- `clinical-net` — clinical service, clinical db, clinical storage (MinIO).
 
-Manuals by Language
-🇪🇸 Spanish — Manuales/README_ES.md
+The clinical service is only reachable through the Caddy reverse proxy (`/clinical/*`).
 
-🇬🇧 English — Manuales/README_EN.md
+---
 
-🇨🇳 Chinese — Manuales/README_CN.md
+## Quick Start
 
-Detailed Option Catalogs (Multi-language)
+### Requirements
 
-- `Manuales/CATALOGO_OPCIONES_ES.md` (ES: explica cada opcion, riesgos, casos de uso y recaudos)
-- `Manuales/CATALOGO_OPCIONES_EN.md` (EN: explains each option, risks, use cases, and precautions)
-- `Manuales/CATALOGO_OPCIONES_CN.md` (CN: 说明每个选项、风险、使用场景与注意事项)
+- **.NET 10 SDK** to build and run the CLI / agent / services.
+- Recommended: run from the repository root so the CLI finds `modules/manifests/`.
+- For server deployments: Docker with Compose v2.
+- Administrator/root for modules marked `admin`/`root`.
 
-Developer Documentation (How to Add New Modules)
+### Build and run
 
-- 🇪🇸 ES: `Manuales/README_ES.md` → section `GUIA PARA PROGRAMADORES: COMO AGREGAR NUEVOS MODULOS`
-- 🇬🇧 EN: `Manuales/README_EN.md` → section `PROGRAMMER GUIDE: HOW TO ADD NEW MODULES`
-- 🇨🇳 CN: `Manuales/README_CN.md` → section `开发者指南：如何新增模块`
-- Contribution checklist template: `CONTRIBUTING.md` → section `New Module Template (Recommended)`
+```bash
+git clone <repo>
+cd Toolbox-Renggli-PC-Solutions
 
-Pre‑Generated PDFs
-Located in Manuales/PDFs/:
+# Build everything
+dotnet build src/ToolboxV15/ToolboxV15.slnx -c Release
 
-Manual_Toolbox_V14_ES.pdf
+# Run the CLI from source
+dotnet run --project src/ToolboxV15/ToolboxCLI -- triage --area system --guided
 
-Manual_Toolbox_V14_EN.pdf
+# Run the tests
+dotnet test src/ToolboxV15/ToolboxV15.slnx
+```
 
-Manual_Toolbox_V14_CN.pdf
+### Publish self-contained binaries
 
-⚙️ Features
-✔️ Windows (23 Modules)
-Hardware diagnostics (SMART, RAM, resource monitoring)
+```bash
+dotnet publish src/ToolboxV15/ToolboxCLI -c Release -r win-x64 --self-contained -o publish/cli
+dotnet publish src/ToolboxV15/ToolboxAgent -c Release -r linux-x64 --self-contained -o publish/agent
+dotnet publish src/ToolboxV15/ToolboxServer/ToolboxApi -c Release -o publish/api
+dotnet publish src/ToolboxV15/ToolboxServer/ToolboxClinical -c Release -o publish/clinical
+```
 
-System repair (DISM, SFC, registry tools)
+### Module manifests
 
-Network & connectivity utilities
+Modules are described by JSON manifests validated against
+[`schemas/module-manifest.schema.json`](schemas/module-manifest.schema.json). The
+catalog lives in [`modules/manifests/`](modules/manifests/) and covers `system`,
+`network`, `server` and `artec` areas with risk levels `R`, `W-R`, `W-L` and `!`.
 
-Advanced administration tools
+---
 
-Secure media format (removable-media detection + exFAT/FAT32/NTFS choice)
+## CLI Commands
 
-PostgreSQL password manager (auto-detects instances; direct or recovery mode) — home PCs to servers
+| Command  | Usage                                                              | Description                                                |
+|----------|-------------------------------------------------------------------|------------------------------------------------------------|
+| `triage` | `triage --area <system\|network\|server\|artec> [--json] [--guided]` | Runs baseline + diagnostic modules; produces findings, `HealthScore`, recommendations. |
+| `symptom`| `symptom <id> [--json]`                                            | Queries the symptom registry; returns causes and recommended modules. |
+| `catalog`| `catalog [--area] [--os] [--risk] [--json]`                       | Lists and filters the loaded catalog.                     |
+| `run`    | `run <module-id> [--json] [--force] [--params k=v;...]`           | Executes a single module by name.                          |
+| `report` | `report export --format <html\|json\|csv> --path <file>`           | Exports the last cached triage result (or a placeholder).  |
+| `agent`  | `agent install \| enroll [--token] [--server] \| status`          | Manages the remote agent (enroll, install as service, status). |
+| `artec`  | `artec workflow \| production [--action] \| incident`             | Dental CAD/CAM workflow, production management and incidents. |
 
-Blindaje V1 (Option 21 in Administration profile) is fully integrated in Toolbox.
-Current integrated workflow includes:
+Add `--json` for machine-readable output (CI/CD, panel, agent). Add `--guided` for
+human-friendly next-step hints.
 
-- two Windows-only modes: strict hardening and soft folder-protection
-- safe temporary-file review/cleanup for `SECUNDARIA` and `PRIMARIA`
-- local scheduled auto-clean task creation/removal
-- mass deployment guidance (domain/GPO and non-domain remote rollout)
+---
 
-Linux and macOS keep their own native modules and do not expose an equivalent Blindaje V1 option.
+## Docker Deployment
 
-✔️ Linux (30 Modules)
-All Windows features + Linux‑specific modules
+The full stack is defined in [`docker-compose.yml`](docker-compose.yml):
 
-systemd service management
+```bash
+docker compose up -d --build
+```
 
-GRUB and bootloader repair
+| Service            | Image / Dockerfile            | Exposed port   | Network            |
+|--------------------|-------------------------------|----------------|--------------------|
+| `proxy` (Caddy)    | `caddy:2-alpine`              | 80, 443        | operational, clinical |
+| `api`              | `docker/Dockerfile.api`       | 8080 (internal)| operational        |
+| `db-operational`   | `postgres:16-alpine`          | —              | operational        |
+| `service-clinical` | `docker/Dockerfile.clinical`  | 8081 (internal)| clinical           |
+| `db-clinical`      | `postgres:16-alpine`          | —              | clinical           |
+| `storage-clinical` | `minio/minio`                | 9001 (console) | clinical           |
+| `panel`            | `docker/Dockerfile.panel`     | 80 (internal)  | operational        |
 
-Advanced system monitoring
+Caddy publishes:
 
-Docker/container cleanup
+- `/api/*` → `api:8080`
+- `/clinical/*` → `service-clinical:8081`
+- `/panel/*` → `panel:80`
 
-User & permission management
+> Replace the default development credentials (`tbx_operational_pw`,
+> `tbx_clinical_pw`, JWT keys, ApiKey, MfaToken) via environment variables or secrets
+> before any real deployment. See the language READMEs for the clinical compliance
+> notes (Argentina Ley 25.326 / 26.529, MFA, time-limited access, 90-day attachment
+> retention, isolated clinical DB).
 
-✔️ macOS (14 Modules)
-Apple hardware diagnostics
+---
 
-Permission & security management
+## V14 Migration / Legacy Bridge
 
-System cleanup & maintenance
+V15 coexists with V14 during migration:
 
-🔐 Execution Profiles
-🔍 Diagnostic — Read‑only
+- Legacy scripts (`Windows/toolbox.bat`, `Windows/toolbox.ps1`, `Linux/toolbox.sh`,
+  `Mac/toolbox.sh`) remain in their folders and are the recommended path while the
+  V15 executor catalog is being completed.
+- The V15 CLI can run in parallel; its modules are declarative and do not overwrite
+  V14 artifacts.
+- Recommended path: adopt `triage` + `catalog` first, then `run` for ported
+  modules, then the agent and the server once the fleet is ready.
 
-🔧 Repair — Reversible changes
+---
 
-⚠️ Administration — Advanced & critical operations
+## Note on MAS
 
-📖 PDF Generation
-For PDF requirements, execution steps, troubleshooting, and technical details, use:
-`Manuales/COMO_GENERAR_PDFS.md`
+**MAS (Microsoft Activation Scripts) is no longer part of the Toolbox V15
+distribution.** The `Windows/MAS_AIO.cmd` file and the contents under
+`herramienta mas/` are kept only as a **separate external product** for authorized
+testing scenarios. Toolbox V15 itself ships **MAS-free** for regulated and enterprise
+environments; if activation tooling is required, it must be sourced as a standalone
+artifact and is not supported through the V15 CLI, services or agents.
 
-🆚 Edition
-A single unified edition per OS (Windows / Linux / macOS). All modules and all
-execution profiles are enabled, including the Windows activation utilities (MAS),
-intended for authorized/testing use.
+---
 
-On Windows there is also a **PowerShell core** (`Windows/toolbox.ps1`) aimed at
-servers and managed fleets: unattended execution, JSON output and exit codes for
-orchestration (PSRemoting/SSH/Ansible/Intune), Authenticode-signable (`sign.ps1`),
-and MAS-free for regulated environments. See `Manuales/POWERSHELL_CORE.md`.
+## Support
 
-📊 Logs & Reports
-Each execution generates:
+Email: **tomasrenggli@gmail.com**
+Full documentation: see the `docs/` folder (V15) and `Manuales/` (V14).
 
-Timestamped text logs
+## License
 
-HTML reports with corporate styling
+© 2024-2026 Renggli PC Solution
+Enterprise-grade IT toolbox. All rights reserved.
 
-SHA256 checksums for integrity validation
+## Current Version
 
-Log locations:
-
-Windows: Windows/Logs/
-
-Linux: Linux/Logs/
-
-macOS: Mac/Logs/
-
-🛡️ Security
-Requires administrator/root privileges
-
-Command validation before execution
-
-Auditable logs with checksums
-
-Open‑source, fully reviewable scripts
-
-No malicious code
-
-🌐 Compatibility
-Windows
-Windows 10 (1809+)
-
-Windows 11
-
-Windows Server 2016 / 2019 / 2022
-
-Linux
-Debian / Ubuntu
-
-Fedora / RHEL / CentOS
-
-Arch / Manjaro
-
-OpenSUSE
-
-macOS
-macOS 10.14+
-
-Intel & Apple Silicon (M1/M2)
-
-📞 Support
-Email: tomasrenggli@gmail.com
-Full documentation available in the Manuales/ directory.
-
-📜 License
-© 2024 Renggli PC Solution
-Enterprise‑grade IT toolbox. All rights reserved.
-
-🔄 Current Version
-Enterprise Toolbox V14
+Enterprise Toolbox V15

@@ -1,0 +1,21 @@
+{
+  "id": "f0a1b2c3-d4e5-4a0f-a7b8-c9d0e1f2a3b4",
+  "name": "server-mssql",
+  "description": "Gestión y estado de Microsoft SQL Server: conexiones, bases de datos, rendimiento, jobs y configuración",
+  "area": "server",
+  "os": ["windows", "linux"],
+  "category": "server",
+  "risk": "W-R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin", "root"],
+  "timeout_ms": 120000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "full",
+  "rollback_module": null,
+  "min_os_version": null,
+  "version": "1.0.0",
+  "tags": ["mssql", "sql-server", "base-datos", "t-sql", "rendimiento", "servidor"]
+}

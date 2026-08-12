@@ -1,0 +1,21 @@
+{
+  "id": "f6a7b8c9-d0e1-40f6-b3c4-d5e6f7a8b9c0",
+  "name": "artec-software-versions",
+  "description": "Auditoría de versiones de software CAD/CAM dental: aplicaciones instaladas, versiones, actualizaciones disponibles y licencias",
+  "area": "artec",
+  "os": ["windows"],
+  "category": "production",
+  "risk": "R",
+  "reversible": true,
+  "parameters": {},
+  "permissions": ["admin"],
+  "timeout_ms": 30000,
+  "evidence": ["log", "report"],
+  "output_schema": {},
+  "associated_repair": null,
+  "remote_support": "readonly",
+  "rollback_module": null,
+  "min_os_version": "10.0.10240",
+  "version": "1.0.0",
+  "tags": ["artec", "cad-cam", "software", "versiones", "licencias", "dental", "produccion"]
+}

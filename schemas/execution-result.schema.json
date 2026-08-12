@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toolbox.renggli-solutions.com/schemas/execution-result.json",
+  "title": "Module Execution Result",
+  "type": "object",
+  "required": ["module_id", "status", "timestamp", "duration_ms"],
+  "properties": {
+    "module_id": { "type": "string" },
+    "status": { "enum": ["success", "cancelled", "skipped", "partial", "failed", "blocked", "unsupported"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "duration_ms": { "type": "integer" },
+    "findings": { "type": "array", "items": { "$ref": "#/$defs/finding" } },
+    "health_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "rollback_status": { "enum": ["not_needed", "success", "failed", "partial"] },
+    "error": { "$ref": "#/$defs/error_detail" },
+    "os": { "type": "string" },
+    "os_version": { "type": "string" },
+    "hostname": { "type": "string" },
+    "run_id": { "type": "string", "format": "uuid" }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["id", "category", "severity"],
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string" },
+        "severity": { "enum": ["critical", "high", "medium", "low", "info"] },
+        "title": { "type": "string" },
+        "detail": { "type": "string" },
+        "confidence": { "enum": ["confirmed", "probable", "possible", "insufficient"] },
+        "remediation": { "type": "string" },
+        "raw_data": { "type": "object" }
+      }
+    },
+    "error_detail": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "stack_trace": { "type": "string" },
+        "exit_code": { "type": "integer" }
+      }
+    }
+  }
+}
